@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -57,7 +56,6 @@ class SplashActivity : AppCompatActivity() {
             val isFirstLaunch = sharedPrefs.getBoolean(KEY_IS_FIRST_TIME_LAUNCH_SHOW_LANGUAGE_ACTIVITY, true)
             val isAppSetAsDefault = sharedPrefs.getBoolean(KEY_IS_APP_SET_AS_DEFAULT_SHOW_SET_AS_DEFAULT_ACTIVITY, SmsDefaultAppHelper.isDefaultSmsApp(this@SplashActivity)) // todo: false until set as default
 
-            Log.e(TAG, "navigateToNextScreen: ${SmsDefaultAppHelper.isDefaultSmsApp(this@SplashActivity)}", )
             val nextActivity = when {
                 isFirstLaunch -> LanguageActivity::class.java
                 !isFirstLaunch && !isAppSetAsDefault -> SetAsDefaultActivity::class.java

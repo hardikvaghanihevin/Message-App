@@ -2,7 +2,6 @@ package com.hardik.messageapp.presentation.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.hardik.messageapp.databinding.ActivitySetAsDefaultBinding
@@ -30,7 +29,6 @@ class SetAsDefaultActivity : AppCompatActivity() {
             PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(KEY_IS_APP_SET_AS_DEFAULT_SHOW_SET_AS_DEFAULT_ACTIVITY, isSetAsDefault).apply() // true todo: true/false is set as default
 
             if (isSetAsDefault){
-                Log.e(TAG, "onCreate: agfasg", )
                 val intent = Intent(this@SetAsDefaultActivity, MainActivity::class.java)
                 this@SetAsDefaultActivity.startActivity(intent)
                 this@SetAsDefaultActivity.finish()

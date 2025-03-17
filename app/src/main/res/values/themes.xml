@@ -1,9 +1,35 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.MessageApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/action_bar_color</item>
+
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+
+        <!-- Disable Android 12+ splash screen -->
+        <item name="android:windowSplashScreenBackground" tools:targetApi="s">@null</item>
+        <item name="android:windowSplashScreenAnimatedIcon" tools:targetApi="s">@null</item>
+        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="s">@null</item>
+
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/app_bar_color</item>
+        <item name="android:windowLightStatusBar">true</item><!--Use light(false) | dark(true) text/icons-->
+
+        <!-- Navigation bar color. -->
+        <item name="android:navigationBarColor">@color/app_navbar_color</item>
     </style>
 
     <style name="Theme.MessageApp" parent="Base.Theme.MessageApp" />
+    <style name="Theme.MessageApp.Fullscreen" parent="Base.Theme.MessageApp" >
+        <item name="android:windowBackground">@color/background_secondary</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/app_bar_color</item>
+        <item name="android:windowLightStatusBar">true</item><!--Use light(false) | dark(true) text/icons-->
+
+        <!-- Navigation bar color. -->
+        <item name="android:navigationBarColor">@color/app_navbar_color</item>
+    </style>
+
 </resources>

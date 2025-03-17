@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="action_bar_color" >@android:color/black</color>
+    <color name="app_bar_color" >@android:color/black</color>
+    <color name="app_navbar_color" >@android:color/black</color>
+    <color name="background_secondary" >@android:color/black</color>
+</resources>

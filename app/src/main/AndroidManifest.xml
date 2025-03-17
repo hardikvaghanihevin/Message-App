@@ -34,7 +34,11 @@
             android:exported="false" />
         <activity
             android:name=".presentation.ui.SplashActivity"
-            android:exported="true">
+            android:configChanges="orientation|keyboardHidden|screenSize|uiMode"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.MessageApp.Fullscreen"
+            tools:ignore="LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

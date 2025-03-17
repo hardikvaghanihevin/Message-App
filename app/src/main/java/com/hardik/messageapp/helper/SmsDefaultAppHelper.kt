@@ -9,7 +9,6 @@ import android.os.Build
 import android.provider.Settings
 import android.provider.Telephony
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,31 +27,32 @@ object SmsDefaultAppHelper {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 val roleManager = activity.getSystemService(Context.ROLE_SERVICE) as RoleManager
                 val isDefault = roleManager.isRoleHeld(RoleManager.ROLE_SMS)
+                //Log.e(TAG, if(isDefault)"Default SMS app set successfully" else "User canceled setting default SMS app")
                 resultCallback?.invoke(isDefault)
             } else {
                 val isDefault = isDefaultSmsApp(activity)
+                //Log.e(TAG, if(isDefault)"Default SMS app set successfully" else "User canceled setting default SMS app")
                 resultCallback?.invoke(isDefault)
             }
 
-            if (result.resultCode == Activity.RESULT_OK) {
+            /*if (result.resultCode == Activity.RESULT_OK) {
                 Log.e(TAG, "Default SMS app set successfully")
                 Toast.makeText(activity, "PrismApp set as default.", Toast.LENGTH_SHORT).show()
             } else {
                 Log.e(TAG, "User canceled setting default SMS app")
                 Toast.makeText(activity, "Please set PrismApp as default.", Toast.LENGTH_SHORT).show()
-            }
+            }*/
         }
     }
 
     fun Activity.requestDefaultSmsApp() {
         Log.e(TAG, "requestDefaultSmsApp: ", )
-        //if (isDefaultSmsApp(this)) return
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) { // Android 10+ (API 29+)
             val roleManager = getSystemService(Context.ROLE_SERVICE) as RoleManager
             if (roleManager.isRoleAvailable(RoleManager.ROLE_SMS)) {
                 if (roleManager.isRoleHeld(RoleManager.ROLE_SMS)) {
-                    Toast.makeText(applicationContext, "PrismApp is already the default SMS app.", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(applicationContext, "PrismApp is already the default SMS app.", Toast.LENGTH_SHORT).show()
                 } else {
                     val roleRequestIntent = roleManager.createRequestRoleIntent(RoleManager.ROLE_SMS)
                     roleRequestLauncher.launch(roleRequestIntent)
@@ -67,7 +67,7 @@ object SmsDefaultAppHelper {
                 intent.putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
                 startActivity(intent)
             } else {
-                Toast.makeText(this, "PrismApp is already the default SMS app.", Toast.LENGTH_SHORT).show()
+                //Toast.makeText(this, "PrismApp is already the default SMS app.", Toast.LENGTH_SHORT).show()
             }
         }
     }
