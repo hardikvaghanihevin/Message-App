@@ -7,4 +7,7 @@
     <color name="app_bar_color" >@android:color/white</color>
     <color name="app_navbar_color" >@android:color/white</color>
     <color name="background_secondary" >@android:color/white</color>
+
+    <color name="swipe_action_left">#5C753E</color>
+    <color name="swipe_action_right">#3B756F</color>
 </resources>
