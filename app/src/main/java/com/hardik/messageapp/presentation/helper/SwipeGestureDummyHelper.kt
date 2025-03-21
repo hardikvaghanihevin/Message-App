@@ -1,4 +1,4 @@
-package com.hardik.messageapp
+package com.hardik.messageapp.presentation.helper
 
 import android.content.Context
 import android.graphics.Canvas
@@ -11,22 +11,28 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.hardik.messageapp.R
 import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.presentation.adapter.DummyAdapter
 
-class SwipeGestureHelper(
+class SwipeGestureDummyHelper(
     context: Context,
     private val adapter: DummyAdapter,
     private val editAction: ((Int) -> Unit)? = null,
     private val deleteAction: ((Int) -> Unit)? = null
-) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT){
+)
+    : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT){
 
-    private val TAG = BASE_TAG + SwipeGestureHelper::class.java.simpleName
+    private val TAG = BASE_TAG + SwipeGestureDummyHelper::class.java.simpleName
 
     private var currentlySwipingPosition: Int? = null  // Track the currently swiping item
 
-    private val swipeActionRightPaint = Paint().apply { color = ContextCompat.getColor(context, R.color.swipe_action_right) }
-    private val swipeActionLeftPaint = Paint().apply { color = ContextCompat.getColor(context, R.color.swipe_action_left) }
+    private val swipeActionRightPaint = Paint().apply { color = ContextCompat.getColor(context,
+        R.color.swipe_action_right
+    ) }
+    private val swipeActionLeftPaint = Paint().apply { color = ContextCompat.getColor(context,
+        R.color.swipe_action_left
+    ) }
     private val textPaint = Paint().apply {
         color = Color.WHITE
         textSize = 40f

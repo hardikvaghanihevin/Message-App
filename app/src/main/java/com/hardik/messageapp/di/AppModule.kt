@@ -98,8 +98,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideConversationThreadRepository(@ApplicationContext context: Context): ConversationThreadRepository {
-        return ConversationThreadRepositoryImpl(context)
+    fun provideConversationThreadRepository(@ApplicationContext context: Context, contactRepository: ContactRepository): ConversationThreadRepository {
+        return ConversationThreadRepositoryImpl(context, contactRepository)
     }
 
     @Provides

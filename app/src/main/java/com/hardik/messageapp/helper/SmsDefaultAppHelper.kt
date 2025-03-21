@@ -13,7 +13,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.presentation.ui.SetAsDefaultActivity
+import com.hardik.messageapp.presentation.ui.activity.SetAsDefaultActivity
 
 object SmsDefaultAppHelper {
     private const val TAG = BASE_TAG + "SmsDefaultAppHelper"

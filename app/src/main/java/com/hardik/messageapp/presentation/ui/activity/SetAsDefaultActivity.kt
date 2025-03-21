@@ -1,4 +1,4 @@
-package com.hardik.messageapp.presentation.ui
+package com.hardik.messageapp.presentation.ui.activity
 
 import android.content.Intent
 import android.os.Bundle

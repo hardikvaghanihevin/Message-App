@@ -10,4 +10,6 @@
 
     <color name="swipe_action_left">#5C753E</color>
     <color name="swipe_action_right">#3B756F</color>
+    <color name="nav_item_color_0" >#EDD6D6</color>
+    <color name="nav_item_color_1" >#E48787</color>
 </resources>
