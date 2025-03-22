@@ -1,0 +1,8 @@
+    val uri = Uri.withAppendedPath(Telephony.MmsSms.CONTENT_URI, "canonical-addresses")
+    val projection = arrayOf(
+        Telephony.Mms._ID, Telephony.Mms.Addr.ADDRESS, Telephony.Mms.Addr.CONTACT_ID
+    )
+
+    backup-20250322180921.json -> message.json
+
+    app link - https://play.google.com/store/apps/details?id=sms.app.messages.app.message.box.message.me
