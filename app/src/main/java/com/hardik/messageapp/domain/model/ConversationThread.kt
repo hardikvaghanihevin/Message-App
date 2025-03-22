@@ -39,14 +39,41 @@ import androidx.recyclerview.widget.DiffUtil
  * @property contactName The contact name associated with the phone number (if available).
  */
 data class ConversationThread(
-    val threadId: Long,         // Unique ID for the conversation thread
-    val snippet: String,        // Last message in the thread
-    val date: Long,             // Timestamp of the last message (epoch time in milliseconds)
-    val read: Boolean = false,  // Indicates if the last message was read (default: false)
-    val recipientIds: String,   // Recipient ID(s) linked to this thread
-    val phoneNumber: String,    // Phone number associated with the recipient ID
-    val contactName: String,    // Contact name retrieved from the phone number (if available)
-    val displayName: String,    // Display name set byu Contact name retrieved from the phone number (if available)
+//    val threadId: Long,         // Unique ID for the conversation thread
+//    val snippet: String,        // Last message in the thread
+//    val date: Long,             // Timestamp of the last message (epoch time in milliseconds)
+//    val read: Boolean = false,  // Indicates if the last message was read (default: false)
+//    val recipientIds: String,   // Recipient ID(s) linked to this thread
+//    val phoneNumber: String,    // Phone number associated with the recipient ID
+//    val contactName: String,    // Contact name retrieved from the phone number (if available)
+//    val displayName: String,    // Display name set byu Contact name retrieved from the phone number (if available)
+
+    val threadId: Long,         //(From Thread or Sms) Unique ID for the conversation thread, common for Sms messages
+    val id: Long,               //(From Sms) Unique ID for the conversation
+    val sender: String,         //(From Sms)
+    val messageBody: String,    //(From Sms)
+    val creator: String?,       //(From Sms)
+    val timestamp: Long,        //(From Sms)
+    val dateSent: Long,         //(From Sms)
+    val errorCode: Int,         //(From Sms)
+    val locked: Int,            //(From Sms)
+    val person: String?,        //(From Sms)
+    val protocol: String?,      //(From Sms)
+    val read: Boolean = false,  //(From Thread) Indicates if the last message was read (default: false)
+    val replyPath: Boolean,     //(From Sms)
+    val seen: Boolean,          //(From Sms)
+    val serviceCenter: String?, //(From Sms)
+    val status: Int,            //(From Sms)
+    val subject: String?,       // (From Sms)
+    val subscriptionId: Int,    // (From Sms)
+    val type: Int,              // (From Sms)
+    val isArchived: Boolean = false, // (From Sms)
+    val snippet: String,        // (From Thread) Last message in the thread
+    val date: Long,             // (From Thread) Timestamp of the last message (epoch time in milliseconds)
+    val recipientIds: String,   // (From Thread) Recipient ID(s) linked to this thread
+    val phoneNumber: String,    // (From canonical-addresses) Phone number associated with the recipient ID
+    val contactName: String,    // (From CommonDataKinds.Phone) Contact name retrieved from the phone number (if available)
+    val displayName: String,    // (From CommonDataKinds.Phone) Display name set byu Contact name retrieved from the phone number (if available)
 ) {
     companion object {
         /**
@@ -68,12 +95,32 @@ data class ConversationThread(
              * Compares all relevant fields to detect any updates.
              */
             override fun areContentsTheSame(oldItem: ConversationThread, newItem: ConversationThread): Boolean {
-                return oldItem.snippet == newItem.snippet &&
-                        oldItem.date == newItem.date &&
+                return oldItem.threadId == newItem.threadId &&
+                        oldItem.id == newItem.id &&
+                        oldItem.sender == newItem.sender &&
+                        oldItem.messageBody == newItem.messageBody &&
+                        oldItem.creator == newItem.creator &&
+                        oldItem.timestamp == newItem.timestamp &&
+                        oldItem.dateSent == newItem.dateSent &&
+                        oldItem.errorCode == newItem.errorCode &&
+                        oldItem.locked == newItem.locked &&
+                        oldItem.person == newItem.person &&
+                        oldItem.protocol == newItem.protocol &&
                         oldItem.read == newItem.read &&
+                        oldItem.replyPath == newItem.replyPath &&
+                        oldItem.seen == newItem.seen &&
+                        oldItem.serviceCenter == newItem.serviceCenter &&
+                        oldItem.status == newItem.status &&
+                        oldItem.subject == newItem.subject &&
+                        oldItem.subscriptionId == newItem.subscriptionId &&
+                        oldItem.type == newItem.type &&
+                        oldItem.isArchived == newItem.isArchived &&
+                        oldItem.snippet == newItem.snippet &&
+                        oldItem.date == newItem.date &&
                         oldItem.recipientIds == newItem.recipientIds &&
                         oldItem.phoneNumber == newItem.phoneNumber &&
-                        oldItem.contactName == newItem.contactName
+                        oldItem.contactName == newItem.contactName &&
+                        oldItem.displayName == newItem.displayName
             }
         }
     }

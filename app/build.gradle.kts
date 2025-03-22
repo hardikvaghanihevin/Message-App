@@ -82,6 +82,9 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
+    // GsonBuilder
+    implementation ("com.google.code.gson:gson:2.11.0")
+
     // Glide for image loading
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.16.0")

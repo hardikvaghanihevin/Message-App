@@ -8,9 +8,11 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.net.Uri
 import android.provider.ContactsContract
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.hardik.messageapp.domain.model.Contact
 import com.hardik.messageapp.domain.repository.ContactRepository
+import com.hardik.messageapp.helper.Constants.BASE_TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -208,6 +210,7 @@ class ContactRepositoryImpl @Inject constructor(private val context: Context) : 
                 cursor.getString(cursor.getColumnIndexOrThrow("address"))
             } else null
         }
+        Log.i(BASE_TAG, "getPhoneNumberByRecipientId: $phoneNumber")
         emit(phoneNumber) // Emit either a phone number or null
     }.flowOn(Dispatchers.IO)
 
@@ -233,6 +236,7 @@ class ContactRepositoryImpl @Inject constructor(private val context: Context) : 
             } else null
         }
 
+        Log.v(BASE_TAG, "getContactNameByPhoneNumber: $contactName", )
         emit(contactName)
     }.flowOn(Dispatchers.IO)
 
