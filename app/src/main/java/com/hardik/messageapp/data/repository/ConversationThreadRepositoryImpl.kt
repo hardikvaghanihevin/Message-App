@@ -28,10 +28,11 @@ class ConversationThreadRepositoryImpl @Inject constructor(
     private val TAG = BASE_TAG + ConversationThreadRepositoryImpl::class.java.simpleName
 
     override fun getConversationThreads(): Flow<List<ConversationThread>> = flow {
+        val startTime = System.currentTimeMillis() // Start time
+
         val threadMap = mutableMapOf<Long, ConversationThread>()
 
         coroutineScope {
-            Log.e(TAG, "getConversationThreads: A", )
             val threadJob = async(Dispatchers.IO) { fetchThreads() }
             val smsJob = async(Dispatchers.IO) { fetchSms() }
             val contactsJob = async(Dispatchers.IO) { fetchContacts() }
@@ -39,7 +40,6 @@ class ConversationThreadRepositoryImpl @Inject constructor(
             val threadList = threadJob.await()
             val smsList = smsJob.await()
             val contactsMap = contactsJob.await()
-            Log.e(TAG, "getConversationThreads: B", )
 
             smsList.forEach { sms ->
                 val threadData = threadList.find { it.threadId == sms.threadId }
@@ -65,16 +65,18 @@ class ConversationThreadRepositoryImpl @Inject constructor(
         }
 
         emit(threadMap.values.toList())
-        Log.e(TAG, "getConversationThreads: c", )
+        val endTime = System.currentTimeMillis() // End time
+        val executionTime = endTime - startTime
+        Log.i(TAG, "Total execution time: ${executionTime}ms")
     }.flowOn(Dispatchers.IO)
 
 
     private fun fetchSms(): List<ConversationThread> {
-        val uri = Telephony.Sms.CONTENT_URI
 
         // ✅ Latest SMS for each thread directly fetch using sub-query
         //val selection = "${Telephony.Sms._ID} IN (SELECT MAX(${Telephony.Sms._ID})FROM smsGROUP BY ${Telephony.Sms.THREAD_ID})".trimIndent()
 
+        val uri = Telephony.Sms.CONTENT_URI
 
         val projection = arrayOf(
             Telephony.Sms.THREAD_ID, Telephony.Sms._ID, Telephony.Sms.ADDRESS, Telephony.Sms.BODY,

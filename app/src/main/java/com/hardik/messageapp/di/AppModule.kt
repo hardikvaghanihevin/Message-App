@@ -13,6 +13,7 @@ import com.hardik.messageapp.data.repository.ConversationThreadRepositoryImpl
 import com.hardik.messageapp.data.repository.DeleteRepositoryImpl
 import com.hardik.messageapp.data.repository.FavoriteRepositoryImpl
 import com.hardik.messageapp.data.repository.MessageRepositoryImpl
+import com.hardik.messageapp.data.repository.MyDataRepositoryImpl
 import com.hardik.messageapp.data.repository.PinRepositoryImpl
 import com.hardik.messageapp.data.repository.RecyclebinRepositoryImpl
 import com.hardik.messageapp.domain.repository.ArchiveRepository
@@ -22,6 +23,7 @@ import com.hardik.messageapp.domain.repository.ConversationThreadRepository
 import com.hardik.messageapp.domain.repository.DeleteRepository
 import com.hardik.messageapp.domain.repository.FavoriteRepository
 import com.hardik.messageapp.domain.repository.MessageRepository
+import com.hardik.messageapp.domain.repository.MyDataRepository
 import com.hardik.messageapp.domain.repository.PinRepository
 import com.hardik.messageapp.domain.repository.RecyclebinRepository
 import dagger.Module
@@ -120,6 +122,12 @@ object AppModule {
     @Singleton
     fun provideMessageRepository(@ApplicationContext context: Context): MessageRepository {
         return MessageRepositoryImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMyDataRepository(@ApplicationContext context: Context): MyDataRepository {
+        return MyDataRepositoryImpl(context)
     }
 
     @Provides

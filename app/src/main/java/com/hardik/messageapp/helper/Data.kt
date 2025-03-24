@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.provider.ContactsContract
 import android.provider.Telephony
+import android.telephony.PhoneNumberUtils
 import android.util.Log
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 data class DataOfConversation(
     val threadId: Long,         //(From Thread or Sms) Unique ID for the conversation thread, common for Sms messages
@@ -150,8 +152,23 @@ fun findContactByPhoneNumber(contactMap: Map<String, Contact>, phoneNumber: Stri
 
 // Function to normalize phone numbers (remove spaces, dashes, country codes if needed)
 fun normalizePhoneNumber(phone: String): String {
-    return phone.replace(Regex("[^0-9]"), "") // Removes all non-numeric characters
+    //return phone.replace(Regex("[^0-9]"), "") // Removes all non-numeric characters
+    //return phone.replace(Regex("[^0-9+]"), "") // Keep + for country codes
+    // Remove all non-numeric characters
+    val numericPhone = phone.replace(Regex("[^0-9]"), "")
+
+    // Detect and remove country code (e.g., +91 for India) if present
+    val regionCode = Locale.getDefault().country // Get the user's country (e.g., "IN" for India)
+    val countryCode = PhoneNumberUtils.formatNumberToE164(numericPhone, regionCode)?.substring(1) // Remove '+'
+
+    return if (countryCode != null && numericPhone.startsWith(countryCode)) {
+        numericPhone.removePrefix(countryCode) // Remove country code
+    } else {
+        numericPhone // Return full number if no country code detected
+    }
 }
+//?.replace("\\s".toRegex(), "") ?: continue
+
 
 private suspend fun getContactDetails(
     context: Context,

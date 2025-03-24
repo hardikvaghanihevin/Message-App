@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -58,7 +57,7 @@ class MessageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        conversationViewmodel.fetchConversationThreads()
+        //conversationViewmodel.fetchConversationThreads()
 
         conversationAdapter = ConversationAdapter (
             swipeLeftBtn = { item -> swipeLeft(item) },
@@ -72,7 +71,16 @@ class MessageFragment : Fragment() {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = conversationAdapter
 
-        lifecycleScope.launch { conversationViewmodel.conversationThreads.collectLatest { conversationAdapter.submitList(it) } }
+        lifecycleScope.launch { conversationViewmodel.conversationThreads.collectLatest {
+            conversationAdapter.submitList(it)
+            it.forEach {
+                //if (it.phoneNumber.contains("9428202279"))
+                    //Log.e(TAG, "onViewCreated: ${it.phoneNumber} is selected ----> name ${it.displayName}")
+
+            }
+        }
+
+        }
 
         // Attach Swipe Gesture
         val swipeHelper = ConversationSwipeGestureHelper(requireContext(),
