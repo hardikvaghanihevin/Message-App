@@ -11,6 +11,10 @@ interface MessageRepository {
     fun getMessages(messageIds: List<Long>): Flow<List<Message>>
     //endregion
 
+    //region Insert Messages
+    suspend fun insertMessage(message: Message)
+    //endregion
+
     //region Delete Messages
     suspend fun deleteMessage(smsIds: List<Long>): Boolean
     //endregion

@@ -3,9 +3,9 @@ package com.hardik.messageapp.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hardik.messageapp.domain.model.ConversationThread
-import com.hardik.messageapp.domain.usecase.GetMyDataUseCase
 import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.conversation.fetch.GetConversationThreadsUseCase
+import com.hardik.messageapp.domain.usecase.conversation.fetch.GetConversationUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,19 +16,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ConversationThreadViewModel @Inject constructor(
+    private val getConversationUseCase: GetConversationUseCase,
+
     private val getConversationThreadUseCase: GetConversationThreadsUseCase,
-    private val myDataUseCase: GetMyDataUseCase,
 
     private val deleteConversationThreadUseCase: DeleteConversationThreadUseCase
 ) : ViewModel() {
 
-    init {
-        viewModelScope.launch {
-            myDataUseCase().collectLatest { conversationThread ->
-                _conversationThreads.value = conversationThread
-            }
-        }
-    }
+    init { fetchConversationThreads() }
 
     //region Fetch ConversationThread (Message list)
 
@@ -38,8 +33,8 @@ class ConversationThreadViewModel @Inject constructor(
 
     fun fetchConversationThreads() {
         viewModelScope.launch {
-            getConversationThreadUseCase().collectLatest { conversationThreads ->
-                _conversationThreads.value = conversationThreads
+            getConversationUseCase().collectLatest { conversationThread ->
+                _conversationThreads.value = conversationThread
             }
         }
     }
@@ -65,8 +60,6 @@ class ConversationThreadViewModel @Inject constructor(
         }
     }
     //endregion
-
-
 
 
 }

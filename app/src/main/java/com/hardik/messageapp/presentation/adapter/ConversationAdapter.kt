@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hardik.messageapp.databinding.ItemConversationBinding
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.model.ConversationThread.Companion.DIFF_CALLBACK
+import com.hardik.messageapp.presentation.util.DateUtil.DATE_FORMAT_dd_MMM
+import com.hardik.messageapp.presentation.util.DateUtil.longToString
 
 class ConversationAdapter (
     val swipeLeftBtn: (ConversationThread) -> Unit,
@@ -27,7 +29,7 @@ class ConversationAdapter (
         fun bind(item: ConversationThread, position: Int) {
             binding.tvTitle.text = item.displayName
             binding.tvSnippet.text = item.snippet
-            binding.tvDate.text = item.date.toString()
+            binding.tvDate.text = longToString(timestamp = item.date, pattern = DATE_FORMAT_dd_MMM)
 
             binding.conversationSwipeLeft.apply { visibility = View.GONE }.setOnClickListener { swipeLeftBtn(item) }
             binding.conversationSwipeRight.apply { visibility = View.GONE }.setOnClickListener { swipeRightBtn(item) }

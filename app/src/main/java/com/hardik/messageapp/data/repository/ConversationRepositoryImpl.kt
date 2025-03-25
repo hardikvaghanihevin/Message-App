@@ -10,7 +10,7 @@ import androidx.core.database.getStringOrNull
 import com.hardik.messageapp.domain.model.Contact
 import com.hardik.messageapp.domain.model.Conversation
 import com.hardik.messageapp.domain.model.Message
-import com.hardik.messageapp.domain.repository.MyDataRepository
+import com.hardik.messageapp.domain.repository.ConversationRepository
 import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.helper.removeCountryCode
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
@@ -20,11 +20,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class MyDataRepositoryImpl@Inject constructor(
+class ConversationRepositoryImpl@Inject constructor(
     private val context: Context,
     private val phoneNumberUtil: PhoneNumberUtil,
-): MyDataRepository {
-    private val TAG = BASE_TAG + MyDataRepositoryImpl::class.java.simpleName
+): ConversationRepository {
+    private val TAG = BASE_TAG + ConversationRepositoryImpl::class.java.simpleName
     override fun fetchConversations(): Flow<List<Conversation>> = flow {
         val projection = arrayOf(
             Telephony.Threads._ID,

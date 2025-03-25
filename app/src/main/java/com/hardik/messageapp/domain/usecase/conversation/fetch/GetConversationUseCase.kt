@@ -1,9 +1,9 @@
-package com.hardik.messageapp.domain.usecase
+package com.hardik.messageapp.domain.usecase.conversation.fetch
 
 import android.util.Log
 import com.google.gson.Gson
 import com.hardik.messageapp.domain.model.ConversationThread
-import com.hardik.messageapp.domain.repository.MyDataRepository
+import com.hardik.messageapp.domain.repository.ConversationRepository
 import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.helper.analyzeSender
 import com.hardik.messageapp.helper.removeCountryCode
@@ -22,16 +22,16 @@ import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
-class GetMyDataUseCase @Inject constructor(private val myDataRepository: MyDataRepository, private val phoneNumberUtil: PhoneNumberUtil) {
-    private val TAG = BASE_TAG + GetMyDataUseCase::class.java.simpleName
+class GetConversationUseCase @Inject constructor(private val conversationRepository: ConversationRepository, private val phoneNumberUtil: PhoneNumberUtil) {
+    private val TAG = BASE_TAG + GetConversationUseCase::class.java.simpleName
     private var startTime by Delegates.notNull<Long>() // Start time
     private var endTime by Delegates.notNull<Long>() // End time
 
     suspend operator fun invoke(): Flow<List<ConversationThread>> = flow {
         coroutineScope {
-            val threadJob = async(Dispatchers.IO) { myDataRepository.fetchConversations().first() }
-            val smsJob = async(Dispatchers.IO) { myDataRepository.fetchMessages().first() }
-            val contactsJob = async(Dispatchers.IO) { myDataRepository.fetchContacts().first() }
+            val threadJob = async(Dispatchers.IO) { conversationRepository.fetchConversations().first() }
+            val smsJob = async(Dispatchers.IO) { conversationRepository.fetchMessages().first() }
+            val contactsJob = async(Dispatchers.IO) { conversationRepository.fetchContacts().first() }
 
             val threadList = threadJob.await()
             val smsMap = smsJob.await()
@@ -99,8 +99,6 @@ class GetMyDataUseCase @Inject constructor(private val myDataRepository: MyDataR
                 .collect { emit(it) } // Emit the final result inside flow
         }
     }
-
-
 
     fun List<ConversationThread>.toJson(): String {
         val gson = Gson()

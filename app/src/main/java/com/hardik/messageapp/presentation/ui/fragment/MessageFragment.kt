@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -49,6 +50,7 @@ class MessageFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+        //EventBus.getDefault().register(this) // ✅ Register EventBus
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -65,7 +67,7 @@ class MessageFragment : Fragment() {
         conversationAdapter = ConversationAdapter (
             swipeLeftBtn = { item -> swipeLeft(item) },
             swipeRightBtn = { item -> swipeRight(item) },
-            onItemClick = { conversation -> //Log.i(TAG, "onViewCreated: $conversation")
+            onItemClick = { conversation ->
                         Log.e(TAG, "onViewCreated: ${conversation}", )
                           },
             onSelectionChanged = { selectedConversations -> Log.e(TAG, "onViewCreated: ", ) }
@@ -74,15 +76,13 @@ class MessageFragment : Fragment() {
         binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.recyclerView.adapter = conversationAdapter
 
-        lifecycleScope.launch { conversationViewmodel.conversationThreads.collectLatest {
-            conversationAdapter.submitList(it)
-            it.forEach {
-                //if (it.phoneNumber.contains("9428202279"))
-                    //Log.e(TAG, "onViewCreated: ${it.phoneNumber} is selected ----> name ${it.displayName}")
-
+        lifecycleScope.launch { conversationViewmodel.conversationThreads.collectLatest { conversationAdapter.submitList(it) } }
+        lifecycleScope.launch {
+            messageViewModel.smsReceived.collect {
+                // Refresh SMS list in UI
+                Toast.makeText(requireContext(), "New SMS Received!", Toast.LENGTH_SHORT).show()
+                fetchUpdatedMessageList()
             }
-        }
-
         }
 
         // Attach Swipe Gesture
@@ -102,8 +102,32 @@ class MessageFragment : Fragment() {
 
     }
 
+    private fun fetchUpdatedMessageList() {
+        conversationViewmodel.fetchConversationThreads()
+    }
+
     private fun swipeLeft(conversationThread: ConversationThread?) { Log.i(TAG, "onCreate: swipeLeft:- $conversationThread") }
     private fun swipeRight(conversationThread: ConversationThread?) { Log.v(TAG, "onCreate: swipeRight:- $conversationThread") }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        //EventBus.getDefault().unregister(this) // ✅ Unregister EventBus
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

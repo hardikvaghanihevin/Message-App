@@ -2,9 +2,6 @@ package com.hardik.messageapp.presentation.ui.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -17,13 +14,18 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.hardik.messageapp.R
 import com.hardik.messageapp.databinding.ActivityMainBinding
 import com.hardik.messageapp.databinding.NavViewBottomBinding
+import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.helper.SmsDefaultAppHelper.isDefaultSmsApp
 import com.hardik.messageapp.helper.SmsDefaultAppHelper.navigateToSetAsDefaultScreen
 import com.hardik.messageapp.presentation.adapter.ViewPagerAdapter
 import com.hardik.messageapp.presentation.custom_view.BottomNavManager
+import com.hardik.messageapp.presentation.viewmodel.ConversationThreadViewModel
 import com.hardik.messageapp.presentation.viewmodel.MessageViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 
 @AndroidEntryPoint
@@ -36,13 +38,8 @@ class MainActivity : AppCompatActivity() {
 //    private val pinViewModel: PinViewModel by viewModels()
 
     private lateinit var binding: ActivityMainBinding
+    private val conversationViewModel: ConversationThreadViewModel by viewModels()
     private val messageViewModel: MessageViewModel by viewModels()
-
-    private val smsReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            messageViewModel.fetchSmsMessages() // Update SMS list when a new message arrives
-        }
-    }
 
     private lateinit var viewPager: ViewPager2
 
@@ -54,6 +51,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // ✅ Register EventBus when Activity is created
+        EventBus.getDefault().register(this)
 
         viewPager = binding.viewPager
 
@@ -103,8 +103,22 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
+        // ✅ Unregister EventBus when Activity is destroyed
+        EventBus.getDefault().unregister(this)
     }
 
+    // ✅ Handle SMS Event (Auto Updates UI)
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onSmsReceived(event: Message) {
+        Log.d(TAG, "EventBus -> New SMS from ${event.sender}: ${event.messageBody}")
+
+        // ✅ Fetch updated messages from ViewModel
+        conversationViewModel.fetchConversationThreads()
+        messageViewModel.fetchSmsMessages()
+
+        // Show Toast (Optional)
+        //Toast.makeText(this, "New SMS from ${event.sender}", Toast.LENGTH_SHORT).show()
+    }
 
 }
 

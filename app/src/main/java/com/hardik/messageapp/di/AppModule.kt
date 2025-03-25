@@ -9,21 +9,21 @@ import com.hardik.messageapp.data.local.dao.RecycleBinThreadDao
 import com.hardik.messageapp.data.repository.ArchiveRepositoryImpl
 import com.hardik.messageapp.data.repository.BlockRepositoryImpl
 import com.hardik.messageapp.data.repository.ContactRepositoryImpl
+import com.hardik.messageapp.data.repository.ConversationRepositoryImpl
 import com.hardik.messageapp.data.repository.ConversationThreadRepositoryImpl
 import com.hardik.messageapp.data.repository.DeleteRepositoryImpl
 import com.hardik.messageapp.data.repository.FavoriteRepositoryImpl
 import com.hardik.messageapp.data.repository.MessageRepositoryImpl
-import com.hardik.messageapp.data.repository.MyDataRepositoryImpl
 import com.hardik.messageapp.data.repository.PinRepositoryImpl
 import com.hardik.messageapp.data.repository.RecyclebinRepositoryImpl
 import com.hardik.messageapp.domain.repository.ArchiveRepository
 import com.hardik.messageapp.domain.repository.BlockRepository
 import com.hardik.messageapp.domain.repository.ContactRepository
+import com.hardik.messageapp.domain.repository.ConversationRepository
 import com.hardik.messageapp.domain.repository.ConversationThreadRepository
 import com.hardik.messageapp.domain.repository.DeleteRepository
 import com.hardik.messageapp.domain.repository.FavoriteRepository
 import com.hardik.messageapp.domain.repository.MessageRepository
-import com.hardik.messageapp.domain.repository.MyDataRepository
 import com.hardik.messageapp.domain.repository.PinRepository
 import com.hardik.messageapp.domain.repository.RecyclebinRepository
 import dagger.Module
@@ -39,16 +39,21 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object AppModule {
 
+//    @EntryPoint
+//    @InstallIn(SingletonComponent::class)
+//    interface MessageViewModelEntryPoint { fun getMessageViewModel(): MessageViewModel }
+
 //    @Provides
 //    @ViewModelScoped
 //    fun provideGetSmsMessagesUseCase(smsRepository: MessageRepository): GetMessagesUseCase { return GetMessagesUseCase(smsRepository) }
 
+    //region Provide Util Library class
     @Provides
     @Singleton
     fun providePhoneInstance (@ApplicationContext context: Context): PhoneNumberUtil{
         return PhoneNumberUtil.createInstance(context)
     }
-
+    //endregion
 
     //region Provide Database
     @Provides
@@ -134,8 +139,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMyDataRepository(@ApplicationContext context: Context, phoneNumberUtil: PhoneNumberUtil): MyDataRepository {
-        return MyDataRepositoryImpl(context, phoneNumberUtil)
+    fun provideMyDataRepository(@ApplicationContext context: Context, phoneNumberUtil: PhoneNumberUtil): ConversationRepository {
+        return ConversationRepositoryImpl(context, phoneNumberUtil)
     }
 
     @Provides

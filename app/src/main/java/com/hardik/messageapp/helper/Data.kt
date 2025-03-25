@@ -656,6 +656,13 @@ fun String.removeCountryCode(phoneInstance: PhoneNumberUtil): String {
 }
 
 
+data class SmsReceivedEvent(
+    val sender: String,
+    val message: String,
+    val timestamp: Long
+)
+
+
 
 
 

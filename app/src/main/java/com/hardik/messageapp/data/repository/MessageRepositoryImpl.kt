@@ -1,7 +1,9 @@
 package com.hardik.messageapp.data.repository
 
+import android.content.ContentValues
 import android.content.Context
 import android.database.ContentObserver
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
@@ -20,8 +22,9 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class MessageRepositoryImpl @Inject constructor(
-    private val context: Context
+    private val context: Context,
 ) : MessageRepository {
+    private val TAG = BASE_TAG + MessageRepositoryImpl::class.java.simpleName
     val projection = arrayOf(
         Telephony.Sms.THREAD_ID, Telephony.Sms._ID, Telephony.Sms.ADDRESS, Telephony.Sms.BODY,
         Telephony.Sms.DATE, Telephony.Sms.CREATOR, Telephony.Sms.DATE_SENT, Telephony.Sms.ERROR_CODE,
@@ -90,7 +93,7 @@ class MessageRepositoryImpl @Inject constructor(
                 messageList.add(sms)
             }
         }
-        Log.e(BASE_TAG, "queryMessage: ${messageList.size}", )
+        Log.e(TAG, "queryMessage: ${messageList.size}", )
         return messageList
     }
 
@@ -159,5 +162,95 @@ class MessageRepositoryImpl @Inject constructor(
     }
 
     //Todo : favorite, copy, ...
+    //endregion
+
+    //region Insert Messages
+    override suspend fun insertMessage(message: Message) {
+        /*try {
+            val threadId = getThreadId(message.sender) ?: 0L  // ✅ Fix: Use message.sender
+
+            val values = ContentValues().apply {
+                put("thread_id", threadId) // ✅ Retrieve from database
+                put("address", message.sender) // ✅ Sender Number
+                put("body", message.messageBody) // ✅ Message Content
+                put("date", message.timestamp) // ✅ Message Timestamp
+                put("date_sent", message.dateSent) // ❌ Not available, keeping default
+                put("read", if (message.read) 1 else 0) // ✅ 0 - Unread, 1 - Read
+                put("seen", if (message.seen) 1 else 0) // ✅ 0 - Unseen, 1 - Seen
+                put("type", message.type) // ✅ 1 for received, 2 for sent
+                put("service_center", message.serviceCenter) // ✅ Service Center (if available)
+                put("reply_path_present", if (message.replyPath) 1 else 0) // ✅ Reply Path
+                put("protocol", message.protocol?.toIntOrNull()) // ✅ Sometimes available
+                put("status", message.status) // ❌ Not available, keeping default 0
+                put("locked", message.locked) // ❌ Not available, default 0
+                put("error_code", message.errorCode) // ❌ Not available, default 0
+                put("subscription_id", message.subscriptionId) // ❌ Retrieve later if needed
+                put("subject", message.subject) // ❌ Not available, keeping default null
+                put("creator", message.creator) // ❌ Not available, keeping default null
+
+                //person,id,isActive
+            }
+
+            val uri = context.contentResolver.insert(Uri.parse("content://sms/inbox"), values)
+
+            Log.d(TAG, "SmsRepository -- SMS inserted into inbox with threadId $threadId: $uri")
+
+        } catch (e: Exception) {
+            Log.e(TAG, "SmsRepository -- Failed to insert SMS", e)
+        }*/
+        try {
+            val threadId = getThreadId(message.sender) ?: 0L
+            val values = ContentValues().apply {
+                put("thread_id", threadId)
+                put("address", message.sender)
+                put("body", message.messageBody)
+                put("date", message.timestamp)
+                put("read", if (message.read) 1 else 0)
+                put("seen", if (message.seen) 1 else 0)
+                put("type", message.type)
+                put("service_center", message.serviceCenter)
+                put("reply_path_present", if (message.replyPath) 1 else 0)
+            }
+
+            val uri = context.contentResolver.insert(Uri.parse("content://sms/inbox"), values)
+
+            if (uri == null) {
+                Log.e(TAG, "SMS insertion failed! Make sure the app is the default SMS app.")
+            } else {
+                Log.d(TAG, "SMS inserted into inbox: $uri")
+            }
+
+        } catch (e: Exception) {
+            Log.e(TAG, "SmsRepository -- Failed to insert SMS", e)
+        }
+    }
+
+
+    private fun getThreadId(sender: String): Long {
+        val uri = Uri.parse("content://sms/")
+        val projection = arrayOf("thread_id")
+        val selection = "address = ?"
+        val selectionArgs = arrayOf(sender)
+
+        context.contentResolver.query(uri, projection, selection, selectionArgs, null)?.use { cursor ->
+            if (cursor.moveToFirst()) {
+                return cursor.getLong(cursor.getColumnIndexOrThrow("thread_id"))
+            }
+        }
+        return 0
+    }
+
+    private fun updateThreadId(messageId: Long, threadId: Long) {
+        val values = ContentValues().apply {
+            put("thread_id", threadId)
+        }
+
+        context.contentResolver.update(
+            Uri.parse("content://sms/"),
+            values,
+            "id = ?",
+            arrayOf(messageId.toString())
+        )
+    }
     //endregion
 }

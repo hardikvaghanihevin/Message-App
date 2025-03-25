@@ -106,6 +106,8 @@ dependencies {
 
     implementation("io.michaelrocks:libphonenumber-android:8.12.51")
 
+    implementation ("org.greenrobot:eventbus:3.3.1")
+
 }
 
 //ksp {
