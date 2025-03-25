@@ -14,6 +14,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.hardik.messageapp.domain.model.Contact
 import com.hardik.messageapp.helper.Constants.BASE_TAG
+import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -631,6 +632,27 @@ fun getContactIdFromPhoneNumber(context: Context, phoneNumber: String): String? 
 
     //Log.i(BASE_TAG, "❌ Contact Not Found: phoneNumber=$phoneNumber, normalized=$normalizedNumber, contactId=$contactId")
     return contactId
+}
+
+
+fun String.removeCountryCode(phoneInstance: PhoneNumberUtil): String {
+    return try {
+        val phoneNumber = phoneInstance.parse(this, null)
+        var nationalNumber =
+            phoneInstance.getNationalSignificantNumber(phoneNumber).replace(" ", "")
+                .replace("-", "")
+                .replace("(", "").replace(")", "")
+        if (nationalNumber.startsWith("0")) {
+            nationalNumber = nationalNumber.substring(1)
+        }
+        nationalNumber
+    } catch (e: Exception) {
+        var cleanedNumber = this.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+        if (cleanedNumber.startsWith("0")) {
+            cleanedNumber = cleanedNumber.substring(1)
+        }
+        cleanedNumber
+    }
 }
 
 

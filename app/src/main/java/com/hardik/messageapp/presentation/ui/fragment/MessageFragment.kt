@@ -17,6 +17,7 @@ import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
 import com.hardik.messageapp.presentation.helper.ConversationSwipeGestureHelper
 import com.hardik.messageapp.presentation.viewmodel.ConversationThreadViewModel
+import com.hardik.messageapp.presentation.viewmodel.MessageViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -33,6 +34,7 @@ class MessageFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val conversationViewmodel: ConversationThreadViewModel by activityViewModels()
+    private val messageViewModel: MessageViewModel by activityViewModels()
     private lateinit var conversationAdapter: ConversationAdapter
 
     @Inject
@@ -58,6 +60,7 @@ class MessageFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //conversationViewmodel.fetchConversationThreads()
+        messageViewModel.fetchSmsMessages()
 
         conversationAdapter = ConversationAdapter (
             swipeLeftBtn = { item -> swipeLeft(item) },

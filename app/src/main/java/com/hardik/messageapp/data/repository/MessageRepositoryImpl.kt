@@ -5,11 +5,13 @@ import android.database.ContentObserver
 import android.os.Handler
 import android.os.Looper
 import android.provider.Telephony
+import android.util.Log
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.repository.MessageRepository
+import com.hardik.messageapp.helper.Constants.BASE_TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -88,6 +90,7 @@ class MessageRepositoryImpl @Inject constructor(
                 messageList.add(sms)
             }
         }
+        Log.e(BASE_TAG, "queryMessage: ${messageList.size}", )
         return messageList
     }
 

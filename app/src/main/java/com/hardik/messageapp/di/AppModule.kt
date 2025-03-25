@@ -31,6 +31,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import javax.inject.Singleton
 
 
@@ -41,6 +42,13 @@ object AppModule {
 //    @Provides
 //    @ViewModelScoped
 //    fun provideGetSmsMessagesUseCase(smsRepository: MessageRepository): GetMessagesUseCase { return GetMessagesUseCase(smsRepository) }
+
+    @Provides
+    @Singleton
+    fun providePhoneInstance (@ApplicationContext context: Context): PhoneNumberUtil{
+        return PhoneNumberUtil.createInstance(context)
+    }
+
 
     //region Provide Database
     @Provides
@@ -126,8 +134,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMyDataRepository(@ApplicationContext context: Context): MyDataRepository {
-        return MyDataRepositoryImpl(context)
+    fun provideMyDataRepository(@ApplicationContext context: Context, phoneNumberUtil: PhoneNumberUtil): MyDataRepository {
+        return MyDataRepositoryImpl(context, phoneNumberUtil)
     }
 
     @Provides

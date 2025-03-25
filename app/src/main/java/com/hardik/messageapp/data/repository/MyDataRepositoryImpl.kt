@@ -11,6 +11,9 @@ import com.hardik.messageapp.domain.model.Contact
 import com.hardik.messageapp.domain.model.Conversation
 import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.repository.MyDataRepository
+import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.helper.removeCountryCode
+import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -18,8 +21,10 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class MyDataRepositoryImpl@Inject constructor(
-    private val context: Context
+    private val context: Context,
+    private val phoneNumberUtil: PhoneNumberUtil,
 ): MyDataRepository {
+    private val TAG = BASE_TAG + MyDataRepositoryImpl::class.java.simpleName
     override fun fetchConversations(): Flow<List<Conversation>> = flow {
         val projection = arrayOf(
             Telephony.Threads._ID,
@@ -107,6 +112,7 @@ class MyDataRepositoryImpl@Inject constructor(
             }
         }
 
+        //Log.e(BASE_TAG, "fetchMessages: ${smsMap.size}", )
         emit(smsMap) // Emit the map directly
     }.flowOn(Dispatchers.IO)
 
@@ -141,15 +147,15 @@ class MyDataRepositoryImpl@Inject constructor(
         cursor?.use {
             while (it.moveToNext()) {
                 val contactId = it.getStringOrNull(it.getColumnIndexOrThrow(ContactsContract.Data.CONTACT_ID)) ?: ""
-                val phoneNumber = it.getStringOrNull(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER)) ?:
-                it.getStringOrNull(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))?.replace("\\s".toRegex(), "") ?: continue
+                val phoneNumber = it.getStringOrNull(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)) ?: continue
+                //val phoneNumber = it.getStringOrNull(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER)) ?: it.getStringOrNull(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))?.replace("\\s".toRegex(), "") ?: continue
                 //val phoneNumber = it.getStringOrNull(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NORMALIZED_NUMBER))?.replace("\\s".toRegex(), "") ?: continue
                 //val phoneNumber = it.getStringOrNull(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))?.let { number -> normalizePhoneNumber(number) } ?: continue
-                //val phoneNumber = it.getStringOrNull(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)) ?: continue
 
                 val mimeType = it.getStringOrNull(it.getColumnIndexOrThrow(ContactsContract.Data.MIMETYPE)) ?: ""
+                val phoneNumberKey = phoneNumber.removeCountryCode(phoneNumberUtil)
 
-                val contact = contactMap.getOrPut(phoneNumber) {
+                val contact = contactMap.getOrPut(phoneNumberKey) {
                     Contact(contactId = contactId, phoneNumbers = mutableListOf(phoneNumber))
                 }
 
@@ -179,10 +185,65 @@ class MyDataRepositoryImpl@Inject constructor(
                 }
             }
         }
-        //contactMap.forEach{ Log.i(BASE_TAG, "fetchContacts: key:${it.key} - P:${it.value.phoneNumbers} - D:${it.value.displayName} - F:${it.value.firstName} - L:${it.value.lastName}", ) }
+        //contactMap.forEach{ Log.i(TAG, "fetchContacts: key:${it.key} - P:${it.value.phoneNumbers} - D:${it.value.displayName} - F:${it.value.firstName} - L:${it.value.lastName}", ) }
 
         emit(contactMap) // ✅ Emits Map<String, Contact>
     }.flowOn(Dispatchers.IO) // ✅ Runs on IO thread
+
+
+   /* override fun fetchMessages(): Flow<Map<Long, Message>> = flow {
+        val uri = Telephony.Sms.CONTENT_URI
+
+        val projection = arrayOf(
+            Telephony.Sms.THREAD_ID, Telephony.Sms._ID, Telephony.Sms.ADDRESS, Telephony.Sms.BODY,
+            Telephony.Sms.DATE, Telephony.Sms.CREATOR, Telephony.Sms.DATE_SENT, Telephony.Sms.ERROR_CODE,
+            Telephony.Sms.LOCKED, Telephony.Sms.PERSON, Telephony.Sms.PROTOCOL, Telephony.Sms.READ,
+            Telephony.Sms.REPLY_PATH_PRESENT, Telephony.Sms.SEEN, Telephony.Sms.SERVICE_CENTER,
+            Telephony.Sms.STATUS, Telephony.Sms.SUBJECT, Telephony.Sms.SUBSCRIPTION_ID, Telephony.Sms.TYPE
+        )
+
+        val cursor = context.contentResolver.query(
+            uri, projection, null, null, "${Telephony.Sms.DATE} DESC"
+        )
+
+        val smsList = mutableListOf<Message>()
+
+        cursor?.use {
+            while (it.moveToNext()) {
+                val message = Message(
+                    id = it.getLongOrNull(it.getColumnIndex(Telephony.Sms._ID)) ?: 0L,
+                    threadId = it.getLongOrNull(it.getColumnIndex(Telephony.Sms.THREAD_ID)) ?: 0L,
+                    sender = it.getStringOrNull(it.getColumnIndex(Telephony.Sms.ADDRESS)) ?: "",
+                    messageBody = it.getStringOrNull(it.getColumnIndex(Telephony.Sms.BODY)) ?: "",
+                    timestamp = it.getLongOrNull(it.getColumnIndex(Telephony.Sms.DATE)) ?: 0L,
+                    dateSent = it.getLongOrNull(it.getColumnIndex(Telephony.Sms.DATE_SENT)) ?: 0L,
+                    creator = it.getStringOrNull(it.getColumnIndex(Telephony.Sms.CREATOR)),
+                    errorCode = it.getIntOrNull(it.getColumnIndex(Telephony.Sms.ERROR_CODE)) ?: 0,
+                    locked = it.getIntOrNull(it.getColumnIndex(Telephony.Sms.LOCKED)) ?: 0,
+                    person = it.getStringOrNull(it.getColumnIndex(Telephony.Sms.PERSON)),
+                    protocol = it.getStringOrNull(it.getColumnIndex(Telephony.Sms.PROTOCOL)),
+                    read = it.getIntOrNull(it.getColumnIndex(Telephony.Sms.READ)) == 1,
+                    replyPath = it.getIntOrNull(it.getColumnIndex(Telephony.Sms.REPLY_PATH_PRESENT)) == 1,
+                    seen = it.getIntOrNull(it.getColumnIndex(Telephony.Sms.SEEN)) == 1,
+                    serviceCenter = it.getStringOrNull(it.getColumnIndex(Telephony.Sms.SERVICE_CENTER)),
+                    status = it.getIntOrNull(it.getColumnIndex(Telephony.Sms.STATUS)) ?: 0,
+                    subject = it.getStringOrNull(it.getColumnIndex(Telephony.Sms.SUBJECT)),
+                    subscriptionId = it.getIntOrNull(it.getColumnIndex(Telephony.Sms.SUBSCRIPTION_ID)) ?: 0,
+                    type = it.getIntOrNull(it.getColumnIndex(Telephony.Sms.TYPE)) ?: 0,
+                    isArchived = false
+                )
+                smsList.add(message)
+            }
+        }
+
+        //Log.e(BASE_TAG, "fetchMessages: ${smsList.size}")
+        val latestSmsMap = smsList
+            .groupBy { it.threadId } // Group by threadId
+            .mapValues { entry -> entry.value.maxByOrNull { it.timestamp }!! } // Get the latest message per threadId
+
+        emit(latestSmsMap) // Emit the latest messages map
+    }.flowOn(Dispatchers.IO)*/
+
 
 
 

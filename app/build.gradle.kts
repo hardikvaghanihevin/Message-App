@@ -103,6 +103,9 @@ dependencies {
 
     // Splash support
     implementation ("androidx.core:core-splashscreen:1.2.0-beta01")
+
+    implementation("io.michaelrocks:libphonenumber-android:8.12.51")
+
 }
 
 //ksp {
