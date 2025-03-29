@@ -9,9 +9,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.hardik.messageapp.databinding.FragmentSettingBinding
 import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.LogUtil
-import com.hardik.messageapp.helper.getConversations
-import com.hardik.messageapp.helper.toJson
 import com.hardik.messageapp.presentation.viewmodel.ContactViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -57,10 +54,7 @@ class SettingFragment : Fragment() {
 //                it.forEach{ Log.i(TAG, "onViewCreated: $it") }
 //                Log.v(TAG, "onViewCreated: ${it.size}")
 //            }
-                getConversations(requireContext()).collect { data ->
-                    val json = data.toJson()
-                    LogUtil.d(TAG, "onViewCreated: \n$json")
-                }
+
         }
 
     }

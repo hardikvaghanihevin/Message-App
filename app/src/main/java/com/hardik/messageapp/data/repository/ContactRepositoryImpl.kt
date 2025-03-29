@@ -28,52 +28,11 @@ class ContactRepositoryImpl @Inject constructor(private val context: Context) : 
 
     override fun getContacts1(): Flow<List<Contact>> = flow {
         val contactList = mutableListOf<Contact>()
-        val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
-        val projection = arrayOf(
-            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
-            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-            ContactsContract.CommonDataKinds.Phone.NUMBER
-        )
-
-        val cursor = context.contentResolver.query(uri, projection, null, null, null)
-        cursor?.use {
-            val idIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
-            val nameIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-            val numberIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-
-            while (it.moveToNext()) {
-                val id = it.getString(idIndex)
-                val name = it.getString(nameIndex)
-                val number = it.getString(numberIndex)
-                contactList.add(Contact(contactId = id, displayName = name, phoneNumbers = mutableListOf(number)))
-            }
-        }
         emit(contactList)
     }.flowOn(Dispatchers.IO)
 
     override fun searchContact(phoneNumber: String): Flow<Contact?> = flow {
-        val uri = Uri.withAppendedPath(
-            ContactsContract.PhoneLookup.CONTENT_FILTER_URI,
-            Uri.encode(phoneNumber)
-        )
-        val projection = arrayOf(
-            ContactsContract.PhoneLookup.DISPLAY_NAME,
-            ContactsContract.PhoneLookup._ID
-        )
-
-        val cursor = context.contentResolver.query(uri, projection, null, null, null)
         var contact: Contact? = null
-
-        cursor?.use {
-            if (it.moveToFirst()) {
-                val idIndex = it.getColumnIndex(ContactsContract.PhoneLookup._ID)
-                val nameIndex = it.getColumnIndex(ContactsContract.PhoneLookup.DISPLAY_NAME)
-
-                val id = it.getString(idIndex)
-                val name = it.getString(nameIndex)
-                contact = Contact(id, name, phoneNumber)
-            }
-        }
         emit(contact)
     }.flowOn(Dispatchers.IO)
 
@@ -116,8 +75,8 @@ class ContactRepositoryImpl @Inject constructor(private val context: Context) : 
 
     override suspend fun editContact(contact: Contact) {
         val where = "${ContactsContract.Data.CONTACT_ID} = ? AND ${ContactsContract.Data.MIMETYPE} = ?"
-        val nameArgs = arrayOf(contact.contactId, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-        val phoneArgs = arrayOf(contact.contactId, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+        val nameArgs = arrayOf(contact.contactId.toString(), ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+        val phoneArgs = arrayOf(contact.contactId.toString(), ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
 
         // Update Name
         val nameValues = android.content.ContentValues().apply {
@@ -143,58 +102,6 @@ class ContactRepositoryImpl @Inject constructor(private val context: Context) : 
 
     override fun getContacts(): Flow<List<Contact>> = flow {
         val contactsMap = mutableMapOf<String, Contact>()
-
-        val projection = arrayOf(
-            ContactsContract.Data.CONTACT_ID,
-            ContactsContract.Data.MIMETYPE,
-            ContactsContract.CommonDataKinds.Phone.NUMBER,
-            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-            ContactsContract.CommonDataKinds.Email.ADDRESS,
-            ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME,
-            ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME,
-            ContactsContract.CommonDataKinds.Photo.PHOTO_URI
-        )
-
-        val cursor = context.contentResolver.query(
-            ContactsContract.Data.CONTENT_URI,
-            projection,
-            "${ContactsContract.Data.MIMETYPE} IN (?, ?, ?, ?)",
-            arrayOf(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
-                ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE,
-                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE,
-                ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE
-            ),
-            null
-        )
-
-        cursor?.use {
-            while (it.moveToNext()) {
-                val contactId = it.getString(it.getColumnIndexOrThrow(ContactsContract.Data.CONTACT_ID))
-                val mimeType = it.getString(it.getColumnIndexOrThrow(ContactsContract.Data.MIMETYPE))
-
-                val contact = contactsMap.getOrPut(contactId) { Contact(contactId) }
-
-                when (mimeType) {
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE -> {
-                        val phoneNumber = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                        contact.phoneNumbers.add(phoneNumber)
-                        contact.displayName = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                    }
-                    ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE -> {
-                        val email = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Email.ADDRESS))
-                        contact.emails.add(email)
-                    }
-                    ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE -> {
-                        contact.firstName = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME))
-                        contact.lastName = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME))
-                    }
-                    ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE -> {
-                        contact.photoUri = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO_URI))
-                    }
-                }
-            }
-        }
 
         emit(contactsMap.values.toList()) // Emit the list of contacts
     }.flowOn(Dispatchers.IO) // Run on background thread

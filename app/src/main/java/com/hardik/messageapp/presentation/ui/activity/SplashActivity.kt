@@ -9,6 +9,7 @@ import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.preference.PreferenceManager
 import com.hardik.messageapp.databinding.ActivitySplashBinding
+import com.hardik.messageapp.domain.usecase.conversation.fetch.GetConversationUseCase
 import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.helper.Constants.KEY_IS_APP_SET_AS_DEFAULT_SHOW_SET_AS_DEFAULT_ACTIVITY
 import com.hardik.messageapp.helper.Constants.KEY_IS_FIRST_TIME_LAUNCH_SHOW_LANGUAGE_ACTIVITY
@@ -19,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
@@ -27,6 +29,8 @@ class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySplashBinding
 
+    @Inject
+    lateinit var getConversationUseCase: GetConversationUseCase
     companion object {
         var splashScrn: SplashScreen? = null
     }
@@ -44,6 +48,8 @@ class SplashActivity : AppCompatActivity() {
 
         // Launch the next screen asynchronously
         CoroutineScope(Dispatchers.Main).launch {
+            if (SmsDefaultAppHelper.isDefaultSmsApp(this@SplashActivity)) { getConversationUseCase() }
+
             delay(100) // Short delay to mimic splash duration
             navigateToNextScreen()
         }

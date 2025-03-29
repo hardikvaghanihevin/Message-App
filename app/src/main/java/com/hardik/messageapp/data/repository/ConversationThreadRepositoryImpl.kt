@@ -13,6 +13,8 @@ import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.ContactRepository
 import com.hardik.messageapp.domain.repository.ConversationThreadRepository
 import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.helper.removeCountryCode
+import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -23,6 +25,7 @@ import javax.inject.Inject
 
 class ConversationThreadRepositoryImpl @Inject constructor(
     private val context: Context,
+    private val phoneNumberUtil: PhoneNumberUtil,
     private val contactRepository: ContactRepository,
 ) : ConversationThreadRepository {
     private val TAG = BASE_TAG + ConversationThreadRepositoryImpl::class.java.simpleName
@@ -45,7 +48,17 @@ class ConversationThreadRepositoryImpl @Inject constructor(
                 val threadData = threadList.find { it.threadId == sms.threadId }
                 val analyze = analyzeSender(sms.sender)
 
-                val contactId = getContactIdFromPhoneNumber(context, sms.sender)
+                val (normalizeNumber, displayName, photoUri) = if (analyze == 1) { // numbers
+                    val normalizeNumberKey: String = sms.sender.replace(" ", "").replace("-", "").removeCountryCode(phoneNumberUtil)
+                    //val contactId: Int? = contactsMap[normalizeNumberKey]?.contactId
+                    val photoUri: String? = contactsMap[normalizeNumberKey]?.photoUri
+                    val displayName: String? = contactsMap[normalizeNumberKey]?.displayName
+
+
+                    Triple(normalizeNumberKey, displayName, photoUri) // Return a Triple
+                } else {
+                    Triple( sms.sender, sms.sender, "") // Return a Triple with matching types
+                }
 
                 threadData?.let {
                     threadMap[sms.threadId] = sms.copy(
@@ -53,14 +66,24 @@ class ConversationThreadRepositoryImpl @Inject constructor(
                         date = it.date,
                         recipientIds = it.recipientIds,
                         read = it.read,
-                        phoneNumber = (contactId?.let { id -> contactsMap[id]?.phoneNumbers }
-                            .takeIf { analyze == 1 } ?: sms.sender).toString(),
-                        contactName = (contactId?.let { id -> (contactsMap[id]?.firstName + " " + contactsMap[id]?.lastName).trim() }
-                            ?: ""),
-                        displayName = contactId?.let { id -> contactsMap[id]?.displayName }
-                            ?: sms.sender ?: ""
+                        normalizeNumber = normalizeNumber,
+                        photoUri = photoUri ?: "",
+                        displayName = displayName ?: "Unknown",
                     )
                 }
+                /*val contactId = getContactIdFromPhoneNumber(context, sms.sender)
+
+                threadData?.let {
+                    threadMap[sms.threadId] = sms.copy(
+                        snippet = it.snippet,
+                        date = it.date,
+                        recipientIds = it.recipientIds,
+                        read = it.read,
+                        normalizeNumber = (contactId?.let { id -> contactsMap[id]?.phoneNumbers }.takeIf { analyze == 1 } ?: sms.sender).toString(),
+                        photoUri = contactId?.let { id -> contactsMap[id]?.photoUri } ?: "", //(contactId?.let { id -> (contactsMap[id]?.firstName + " " + contactsMap[id]?.lastName).trim() } ?: ""),
+                        displayName = contactId?.let { id -> contactsMap[id]?.displayName } ?: sms.sender ?: ""
+                    )
+                }*/
             }
         }
 
@@ -126,7 +149,7 @@ class ConversationThreadRepositoryImpl @Inject constructor(
                             ?: 0,
                         type = it.getIntOrNull(it.getColumnIndexOrThrow(Telephony.Sms.TYPE)) ?: 0,
                         isArchived = false, snippet = "", date = 0, recipientIds = "",
-                        phoneNumber = "", contactName = "", displayName = ""
+                        normalizeNumber = "", photoUri = "", displayName = ""
                     )
                 }
             }
@@ -169,7 +192,7 @@ class ConversationThreadRepositoryImpl @Inject constructor(
                             ?: "Unknown",
                         read = it.getIntOrNull(it.getColumnIndex(Telephony.Threads.READ)) == 1,
 
-                        phoneNumber = "", contactName = "", displayName = "",
+                        normalizeNumber = "", photoUri = "", displayName = "",
                         id = 0, sender = "", messageBody = "", creator = null,
                         timestamp = 0, dateSent = 0, errorCode = 0, locked = 0,
                         person = null, protocol = null, replyPath = false,
@@ -185,65 +208,6 @@ class ConversationThreadRepositoryImpl @Inject constructor(
 
     private fun fetchContacts(): Map<String, Contact> {
         val contactMap = mutableMapOf<String, Contact>()
-
-        val projection = arrayOf(
-            ContactsContract.Data.CONTACT_ID,
-            ContactsContract.Data.MIMETYPE,
-            ContactsContract.CommonDataKinds.Phone.NUMBER,
-            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
-            ContactsContract.CommonDataKinds.Email.ADDRESS,
-            ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME,
-            ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME,
-            ContactsContract.CommonDataKinds.Photo.PHOTO_URI
-        )
-
-        val cursor = context.contentResolver.query(
-            ContactsContract.Data.CONTENT_URI,
-            projection,
-            "${ContactsContract.Data.MIMETYPE} IN (?, ?, ?, ?)",
-            arrayOf(
-                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE,
-                ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE,
-                ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE,
-                ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE
-            ),
-            null
-        )
-
-        cursor?.use {
-            while (it.moveToNext()) {
-                val contactId =
-                    it.getString(it.getColumnIndexOrThrow(ContactsContract.Data.CONTACT_ID))
-                val mimeType =
-                    it.getString(it.getColumnIndexOrThrow(ContactsContract.Data.MIMETYPE))
-
-                val contact = contactMap.getOrPut(contactId) { Contact(contactId) }
-
-                when (mimeType) {
-                    ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE -> {
-                        val phoneNumber = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER))
-                        contact.phoneNumbers.add(phoneNumber)
-                        contact.displayName = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-                    }
-
-                    ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE -> {
-                        contact.firstName = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME))
-                        contact.lastName = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME))
-                    }
-
-                    ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE -> {
-                        val email = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Email.ADDRESS))
-                        contact.emails.add(email)
-                    }
-
-
-                    ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE -> {
-                        contact.photoUri = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Photo.PHOTO_URI))
-                    }
-                }
-            }
-        }
-        //Log.e(BASE_TAG, "fetchContacts: $contactMap", )
 
         return contactMap // ✅ Return Map<String, Contact>
     }
@@ -287,7 +251,8 @@ class ConversationThreadRepositoryImpl @Inject constructor(
     }
 
     private fun normalizePhoneNumber(phone: String): String {
-        return phone.replace(Regex("[^0-9]"), "") // Removes all non-numeric characters
+        // Removes all non-numeric characters
+        return phone.replace(Regex("[^0-9]"), "")
     }
 
 
@@ -354,10 +319,8 @@ class ConversationThreadRepositoryImpl @Inject constructor(
             }
 
             while (cursor.moveToNext()) {
-                val threadId =
-                    cursor.getLongOrNull(threadIdIndex) ?: continue // If null, skip this iteration
-                val lastMessage =
-                    cursor.getStringOrNull(snippetIndex) ?: "" // Default to an empty string if null
+                val threadId = cursor.getLongOrNull(threadIdIndex) ?: continue // If null, skip this iteration
+                val lastMessage = cursor.getStringOrNull(snippetIndex) ?: "" // Default to an empty string if null
                 val timestamp = cursor.getLongOrNull(dateIndex) ?: 0L // Default to 0 if null
                 val recipientIds = cursor.getStringOrNull(recipientIdsIndex)
                     ?: "Unknown" // Default to "Unknown" if null

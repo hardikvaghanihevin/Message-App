@@ -97,6 +97,90 @@ class MessageRepositoryImpl @Inject constructor(
         return messageList
     }
 
+    private fun queryMessageByThreadId(threadId: Long): List<Message> {
+        val messages = mutableListOf<Message>()
+        val projection = arrayOf(
+            Telephony.Sms._ID,
+            Telephony.Sms.THREAD_ID,
+            Telephony.Sms.ADDRESS,
+            Telephony.Sms.BODY,
+            Telephony.Sms.DATE,
+            Telephony.Sms.DATE_SENT,
+            Telephony.Sms.TYPE,
+            Telephony.Sms.READ
+        )
+
+        val selection = "${Telephony.Sms.THREAD_ID} = ?"
+        val selectionArgs = arrayOf(threadId.toString())
+
+        val cursor = context.contentResolver.query(
+            Telephony.Sms.CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            "${Telephony.Sms.DATE} ASC" // Sort (ASC,DESC) messages by date in descending order
+        )
+
+        cursor?.use {
+            val idIndex = it.getColumnIndex(Telephony.Sms._ID)
+            val threadIdIndex = it.getColumnIndex(Telephony.Sms.THREAD_ID)
+            val senderIndex = it.getColumnIndex(Telephony.Sms.ADDRESS)
+            val bodyIndex = it.getColumnIndex(Telephony.Sms.BODY)
+            val timestampIndex = it.getColumnIndex(Telephony.Sms.DATE)
+            val dateSentIndex = it.getColumnIndex(Telephony.Sms.DATE_SENT)
+            val typeIndex = it.getColumnIndex(Telephony.Sms.TYPE)
+            val readIndex = it.getColumnIndex(Telephony.Sms.READ)
+
+            while (it.moveToNext()) {
+                val message = Message(
+                    threadId = it.getLong(threadIdIndex),
+                    id = it.getLong(idIndex),
+                    sender = it.getString(senderIndex) ?: "Unknown",
+                    messageBody = it.getString(bodyIndex) ?: "",
+                    creator = null, // Not available in SMS provider
+                    timestamp = it.getLong(timestampIndex),
+                    dateSent = it.getLong(dateSentIndex),
+                    errorCode = 0, // Not available in SMS provider
+                    locked = 0, // Not available in SMS provider
+                    person = null,
+                    protocol = null,
+                    read = it.getInt(readIndex) == 1,
+                    replyPath = false,
+                    seen = false,
+                    serviceCenter = null,
+                    status = 0,
+                    subject = null,
+                    subscriptionId = 0,
+                    type = it.getInt(typeIndex),
+                    isArchived = false,
+                    unSeenCount = 0
+                )
+                messages.add(message)
+            }
+        }
+
+        return messages
+    }
+
+
+    override fun getMessagesByThreadId(threadId: Long) = callbackFlow {
+        val messages = queryMessageByThreadId(threadId)
+        trySend(messages).isSuccess // Emit the initial message list for the given threadId
+
+        // Observer for real-time updates
+        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                trySend(queryMessageByThreadId(threadId)).isSuccess // Emit updated messages
+            }
+        }
+
+        context.contentResolver.registerContentObserver(Telephony.Sms.CONTENT_URI, true, observer)
+
+        awaitClose { context.contentResolver.unregisterContentObserver(observer) }
+
+    }.flowOn(Dispatchers.IO)
+
+
     //region Fetch Message list
     override fun getMessages(): Flow<List<Message>> = callbackFlow {
         val messages = queryMessage()

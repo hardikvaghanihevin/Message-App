@@ -1,11 +1,11 @@
 package com.hardik.messageapp.presentation.ui.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -15,8 +15,13 @@ import com.hardik.messageapp.databinding.FragmentMessageBinding
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.ContactRepository
 import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.helper.Constants.KEY_MESSAGE_ID
+import com.hardik.messageapp.helper.Constants.KEY_NORMALIZE_NUMBER
+import com.hardik.messageapp.helper.Constants.KEY_SEARCH_QUERY
+import com.hardik.messageapp.helper.Constants.KEY_THREAD_ID
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
 import com.hardik.messageapp.presentation.helper.ConversationSwipeGestureHelper
+import com.hardik.messageapp.presentation.ui.activity.ChatActivity
 import com.hardik.messageapp.presentation.viewmodel.ConversationThreadViewModel
 import com.hardik.messageapp.presentation.viewmodel.MessageViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -61,29 +66,29 @@ class MessageFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        //conversationViewmodel.fetchConversationThreads()
-        messageViewModel.fetchSmsMessages()
-
         conversationAdapter = ConversationAdapter (
             swipeLeftBtn = { item -> swipeLeft(item) },
             swipeRightBtn = { item -> swipeRight(item) },
             onItemClick = { conversation ->
-                        Log.e(TAG, "onViewCreated: ${conversation}", )
+                Log.e(TAG, "onViewCreated: clicked number:${conversation.normalizeNumber}" )
+
+                //messageViewModel.getMessagesByThreadId(conversation.threadId) //call before to to chat screen
+                val intent = Intent(requireContext(), ChatActivity::class.java)
+                intent.putExtra(KEY_THREAD_ID, conversation.threadId) // as Int
+                intent.putExtra(KEY_MESSAGE_ID, conversation.id) // as Int
+                intent.putExtra(KEY_NORMALIZE_NUMBER, conversation.normalizeNumber) // as String
+                intent.putExtra(KEY_SEARCH_QUERY, "") // as String
+
+                requireContext().startActivity(intent)
+
                           },
-            onSelectionChanged = { selectedConversations -> Log.e(TAG, "onViewCreated: ", ) }
+            onSelectionChanged = { selectedConversations -> Log.e(TAG, "onViewCreated: ${selectedConversations.size}", ) }
         )
 
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = false }
         binding.recyclerView.adapter = conversationAdapter
 
         lifecycleScope.launch { conversationViewmodel.conversationThreads.collectLatest { conversationAdapter.submitList(it) } }
-        lifecycleScope.launch {
-            messageViewModel.smsReceived.collect {
-                // Refresh SMS list in UI
-                Toast.makeText(requireContext(), "New SMS Received!", Toast.LENGTH_SHORT).show()
-                fetchUpdatedMessageList()
-            }
-        }
 
         // Attach Swipe Gesture
         val swipeHelper = ConversationSwipeGestureHelper(requireContext(),
@@ -102,10 +107,6 @@ class MessageFragment : Fragment() {
 
     }
 
-    private fun fetchUpdatedMessageList() {
-        conversationViewmodel.fetchConversationThreads()
-    }
-
     private fun swipeLeft(conversationThread: ConversationThread?) { Log.i(TAG, "onCreate: swipeLeft:- $conversationThread") }
     private fun swipeRight(conversationThread: ConversationThread?) { Log.v(TAG, "onCreate: swipeRight:- $conversationThread") }
 
@@ -113,56 +114,6 @@ class MessageFragment : Fragment() {
         super.onDestroy()
         //EventBus.getDefault().unregister(this) // ✅ Unregister EventBus
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    fun fetchContactInfo(context: Context, recipientId: String): Flow<Pair<String?, String?>> = flow {
-//        val phoneNumber = getPhoneNumberByRecipientId(context, recipientId)
-//        val contactName = phoneNumber?.let { getContactNameByPhoneNumber(context, it) }
-//        emit(Pair(contactName, phoneNumber))
-//    }.flowOn(Dispatchers.IO)
-//
-//    fun getPhoneNumberByRecipientId(context: Context, recipientId: String): String? {
-//        val uri = Uri.parse("content://mms-sms/canonical-addresses")
-//        val projection = arrayOf("_id", "address")
-//        val selection = "_id = ?"
-//        val selectionArgs = arrayOf(recipientId)
-//
-//        context.contentResolver.query(uri, projection, selection, selectionArgs, null)?.use { cursor ->
-//            if (cursor.moveToFirst()) {
-//                return cursor.getString(cursor.getColumnIndexOrThrow("address"))
-//            }
-//        }
-//        return null
-//    }
-//
-//
-//    fun getContactNameByPhoneNumber(context: Context, phoneNumber: String): String? {
-//        val uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber))
-//        val projection = arrayOf(ContactsContract.PhoneLookup.DISPLAY_NAME)
-//
-//        context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-//            if (cursor.moveToFirst()) {
-//                return cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.PhoneLookup.DISPLAY_NAME))
-//            }
-//        }
-//        return null
-//    }
 
 
     companion object {

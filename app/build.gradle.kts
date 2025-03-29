@@ -104,8 +104,10 @@ dependencies {
     // Splash support
     implementation ("androidx.core:core-splashscreen:1.2.0-beta01")
 
+    // Phone Number Util (for parsing and formatting phone numbers)
     implementation("io.michaelrocks:libphonenumber-android:8.12.51")
 
+    // Event Bus (broadcasting events anyway)
     implementation ("org.greenrobot:eventbus:3.3.1")
 
 }

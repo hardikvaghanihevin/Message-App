@@ -16,6 +16,7 @@ import com.hardik.messageapp.data.repository.FavoriteRepositoryImpl
 import com.hardik.messageapp.data.repository.MessageRepositoryImpl
 import com.hardik.messageapp.data.repository.PinRepositoryImpl
 import com.hardik.messageapp.data.repository.RecyclebinRepositoryImpl
+import com.hardik.messageapp.data.repository.SearchRepositoryImpl
 import com.hardik.messageapp.domain.repository.ArchiveRepository
 import com.hardik.messageapp.domain.repository.BlockRepository
 import com.hardik.messageapp.domain.repository.ContactRepository
@@ -26,6 +27,7 @@ import com.hardik.messageapp.domain.repository.FavoriteRepository
 import com.hardik.messageapp.domain.repository.MessageRepository
 import com.hardik.messageapp.domain.repository.PinRepository
 import com.hardik.messageapp.domain.repository.RecyclebinRepository
+import com.hardik.messageapp.domain.repository.SearchRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -113,8 +115,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideConversationThreadRepository(@ApplicationContext context: Context, contactRepository: ContactRepository): ConversationThreadRepository {
-        return ConversationThreadRepositoryImpl(context, contactRepository)
+    fun provideConversationThreadRepository(@ApplicationContext context: Context, phoneNumberUtil: PhoneNumberUtil, contactRepository: ContactRepository): ConversationThreadRepository {
+        return ConversationThreadRepositoryImpl(context, phoneNumberUtil, contactRepository)
     }
 
     @Provides
@@ -145,9 +147,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePinRepository(pinThreadDao: PinThreadDao,
-                             conversationThreadRepository: ConversationThreadRepository
-    ): PinRepository {
+    fun providePinRepository(pinThreadDao: PinThreadDao, conversationThreadRepository: ConversationThreadRepository): PinRepository {
         return PinRepositoryImpl(pinThreadDao, conversationThreadRepository)
     }
 
@@ -158,6 +158,12 @@ object AppModule {
                                     conversationThreadRepository: ConversationThreadRepository
     ): RecyclebinRepository {
         return RecyclebinRepositoryImpl(context, recycleBinThreadDao, conversationThreadRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSearchRepository(@ApplicationContext context: Context, phoneNumberUtil: PhoneNumberUtil): SearchRepository {
+        return SearchRepositoryImpl(context, phoneNumberUtil)
     }
     //endregion
 }

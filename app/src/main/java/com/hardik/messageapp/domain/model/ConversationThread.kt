@@ -1,6 +1,7 @@
 package com.hardik.messageapp.domain.model
 
 import androidx.recyclerview.widget.DiffUtil
+import com.google.gson.Gson
 
 /*data class ConversationThread1(
     val threadId: Long,       // Unique ID for the conversation thread
@@ -39,15 +40,6 @@ import androidx.recyclerview.widget.DiffUtil
  * @property contactName The contact name associated with the phone number (if available).
  */
 data class ConversationThread(
-//    val threadId: Long,         // Unique ID for the conversation thread
-//    val snippet: String,        // Last message in the thread
-//    val date: Long,             // Timestamp of the last message (epoch time in milliseconds)
-//    val read: Boolean = false,  // Indicates if the last message was read (default: false)
-//    val recipientIds: String,   // Recipient ID(s) linked to this thread
-//    val phoneNumber: String,    // Phone number associated with the recipient ID
-//    val contactName: String,    // Contact name retrieved from the phone number (if available)
-//    val displayName: String,    // Display name set byu Contact name retrieved from the phone number (if available)
-
     val threadId: Long,         //(From Thread or Sms) Unique ID for the conversation thread, common for Sms messages
     val id: Long,               //(From Sms) Unique ID for the conversation
     val sender: String,         //(From Sms)
@@ -71,9 +63,10 @@ data class ConversationThread(
     val snippet: String,        // (From Thread) Last message in the thread
     val date: Long,             // (From Thread) Timestamp of the last message (epoch time in milliseconds)
     val recipientIds: String,   // (From Thread) Recipient ID(s) linked to this thread
-    val phoneNumber: String,    // (From canonical-addresses) Phone number associated with the recipient ID
-    val contactName: String,    // (From CommonDataKinds.Phone) Contact name retrieved from the phone number (if available)
+    val normalizeNumber: String,    // (From canonical-addresses) Phone number associated with the recipient ID
+    val photoUri: String,       // (From CommonDataKinds.Photo) Contact photo(URI) retrieved (if available)
     val displayName: String,    // (From CommonDataKinds.Phone) Display name set byu Contact name retrieved from the phone number (if available)
+    val unSeenCount: Int = 0,       // (From CommonDataKinds.)
 ) {
     companion object {
         /**
@@ -118,10 +111,17 @@ data class ConversationThread(
                         oldItem.snippet == newItem.snippet &&
                         oldItem.date == newItem.date &&
                         oldItem.recipientIds == newItem.recipientIds &&
-                        oldItem.phoneNumber == newItem.phoneNumber &&
-                        oldItem.contactName == newItem.contactName &&
-                        oldItem.displayName == newItem.displayName
+                        oldItem.normalizeNumber == newItem.normalizeNumber &&
+                        oldItem.photoUri == newItem.photoUri &&
+                        oldItem.displayName == newItem.displayName &&
+                        oldItem.unSeenCount == newItem.unSeenCount
             }
         }
+
+        fun List<ConversationThread>.toJson(): String {
+            val gson = Gson()
+            return gson.toJson(this)
+        }
     }
+
 }

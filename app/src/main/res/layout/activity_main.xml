@@ -6,12 +6,60 @@
     android:layout_height="match_parent"
     tools:context=".presentation.ui.activity.MainActivity">
 
+    <RelativeLayout
+        android:id="@+id/custom_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/viewPager"
+        android:elevation="4dp">
+
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="Messages"
+            android:textSize="20sp"
+            android:textColor="@color/text_color_1"
+            android:textStyle="bold"
+            android:layout_marginStart="16dp"/>
+
+        <ImageView
+            android:id="@+id/toolbar_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/toolbar_more"
+            android:layout_centerVertical="true"
+            android:src="@drawable/dummy_ic_search"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/text_color_1" />
+
+        <ImageView
+            android:id="@+id/toolbar_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/dummy_ic_more_vert"
+            android:padding="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            app:tint="@color/text_color_1" />
+
+    </RelativeLayout>
+
     <!-- ViewPager2 for Fragments -->
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
         app:layout_constraintBottom_toTopOf="@id/included_navViewBottom"
         android:visibility="visible" />
 
@@ -38,7 +86,7 @@
         android:id="@+id/included_navViewBottom"
         layout="@layout/nav_view_bottom"
         android:layout_width="match_parent"
-        android:layout_height="55dp"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

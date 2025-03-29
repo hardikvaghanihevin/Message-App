@@ -32,9 +32,16 @@ class MessageViewModel @Inject constructor(
     val messages: StateFlow<List<Message>> = _messages.asStateFlow()
 
     fun fetchSmsMessages() {
+        viewModelScope.launch { getMessagesUseCase().collectLatest { messages -> _messages.value = messages } }
+    }
+
+    private val _messagesOfThread = MutableStateFlow<List<Message>>(emptyList())
+    val messagesOfThread: StateFlow<List<Message>> = _messagesOfThread.asStateFlow()
+
+    fun getMessagesByThreadId(threadId: Long) {
         viewModelScope.launch {
-            getMessagesUseCase().collectLatest { messages ->
-                _messages.value = messages
+            getMessagesUseCase.getMessagesByThreadId(threadId = threadId).collectLatest { messages ->
+                _messagesOfThread.value = messages
             }
         }
     }
@@ -68,4 +75,7 @@ class MessageViewModel @Inject constructor(
         }
     }
     //endregion
+
+
+
 }
