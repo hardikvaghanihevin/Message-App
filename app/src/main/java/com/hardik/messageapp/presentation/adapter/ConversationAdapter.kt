@@ -18,8 +18,10 @@ import com.hardik.messageapp.databinding.ItemConversationBinding
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.model.ConversationThread.Companion.DIFF_CALLBACK
 import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.helper.analyzeSender
 import com.hardik.messageapp.presentation.util.DateUtil.DATE_FORMAT_dd_MMM
 import com.hardik.messageapp.presentation.util.DateUtil.longToString
+import com.hardik.messageapp.presentation.util.IcPlaceholderHelper
 import java.util.regex.Pattern
 
 class ConversationAdapter (
@@ -53,14 +55,7 @@ class ConversationAdapter (
                 }
                 //endregion
 
-                //region set Image if available
-                Glide.with(ivProfile.context)
-                    .load(item.photoUri)
-                    .placeholder(R.drawable.dummy_ic_user)
-                    .error(R.drawable.dummy_ic_user)
-                    .into(ivProfile)
-                //endregion
-
+                setProfileImageAndText(item) //set Image if available
                 setupSwipeActions(item) // swipe action and there clicks
                 updateSelectionUI(item) // select/unselect
                 setupClickListeners(item) // click listeners
@@ -69,6 +64,47 @@ class ConversationAdapter (
                 val otp = extractOTP(item.snippet)
                 showOtpIfAvailable(otp)
             }
+        }
+
+        private fun setProfileImageAndText(item: ConversationThread, isSelected: Boolean = false) {
+            val senderType = analyzeSender(item.sender)
+
+            var imgUri: Pair<Char, Any> = if (senderType == 1) {
+                // From numbers messages
+                if (item.contactId != -1) {
+                    if (item.photoUri.isNotEmpty()) {
+                        Pair('?', item.photoUri)
+                    } else {
+                        // Set alphabetic placeholder when numbers are saved but the image is not available
+                        val placeholder = IcPlaceholderHelper.getPlaceholderDrawable(item.displayName)
+
+                        binding.tvPlaceholderChar.apply {
+                            visibility = View.VISIBLE
+                            text = placeholder.first.uppercaseChar().toString()
+                        }
+
+                        placeholder
+                    }
+                } else {
+                    Pair('?', R.drawable.ic_user)
+                }
+            } else {
+                // From company message
+                Pair('?', R.drawable.ic_massage)
+            }
+
+            // If selected, use a different drawable for profile
+            imgUri = if (isSelected) Pair('?', R.drawable.ic_selected_item) else imgUri.copy()
+
+            // Hide placeholder text if using an image
+            if (imgUri.first == '?') { binding.tvPlaceholderChar.visibility = View.GONE }
+
+            // Load profile image using Glide
+            Glide.with(binding.ivProfile.context)
+                .load(imgUri.second)
+                .placeholder(R.drawable.ic_user)
+                .error(R.drawable.ic_user)
+                .into(binding.ivProfile)
         }
 
         private fun setupSwipeActions(item: ConversationThread) {
@@ -84,12 +120,12 @@ class ConversationAdapter (
 
         private fun updateSelectionUI(item: ConversationThread) {
             val context = binding.rootLayout.context
-            val drawableRes = if (selectedItems.contains(item)) {
-                R.drawable.bg_conversation_select
-            } else {
-                R.drawable.bg_conversation_unselect
-            }
-            binding.rootLayout.background = ContextCompat.getDrawable(context, drawableRes)
+            val isSelected = selectedItems.contains(item)
+
+            binding.rootLayout.background = ContextCompat.getDrawable(context, if (isSelected) R.drawable.bg_conversation_select else R.drawable.bg_conversation_unselect)
+
+            setProfileImageAndText(item, isSelected = isSelected) // Call function separately to set profile
+
         }
 
         private fun setupClickListeners(item: ConversationThread) {

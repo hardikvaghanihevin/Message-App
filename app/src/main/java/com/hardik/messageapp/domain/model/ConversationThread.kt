@@ -63,6 +63,7 @@ data class ConversationThread(
     val snippet: String,        // (From Thread) Last message in the thread
     val date: Long,             // (From Thread) Timestamp of the last message (epoch time in milliseconds)
     val recipientIds: String,   // (From Thread) Recipient ID(s) linked to this thread
+    val contactId: Int,
     val normalizeNumber: String,    // (From canonical-addresses) Phone number associated with the recipient ID
     val photoUri: String,       // (From CommonDataKinds.Photo) Contact photo(URI) retrieved (if available)
     val displayName: String,    // (From CommonDataKinds.Phone) Display name set byu Contact name retrieved from the phone number (if available)

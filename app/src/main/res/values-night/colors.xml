@@ -11,7 +11,8 @@
     <color name="color_08">#4E4F52</color> <!-- 4E4F52 Text Secondary -->
     <color name="color_09">#3148D1</color> <!-- 3148D1 Primary -->
     <color name="color_10">#FF570C</color> <!-- FF570C Accent -->
-    <color name="color_11">#4E4F52</color> <!-- 4E4F52 Icon -->
+    <color name="color_11">#FF0707</color> <!-- FF0707 Icon -->
+    <color name="color_12">#000000</color> <!-- 000000 Icon -->
 
     <!--Window color-->
     <color name="action_bar_color" >@color/color_01</color>

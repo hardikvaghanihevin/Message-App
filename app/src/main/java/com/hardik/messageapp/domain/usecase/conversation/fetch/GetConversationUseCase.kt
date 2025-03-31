@@ -65,11 +65,12 @@ class GetConversationUseCase @Inject constructor(private val conversationReposit
                         val foundContact: Contact? = contacts[phoneNumberKey]
 
                         if (foundContact != null) {
+                            val contactId: Int = foundContact.contactId
                             val normalizeNumber: String = foundContact.normalizeNumber
                             val photoUri: String = foundContact.photoUri ?: ""
                             val displayName: String = foundContact.displayName ?: sender
 
-                            foundContact.copy(normalizeNumber = normalizeNumber, photoUri = photoUri, displayName = displayName)
+                            foundContact.copy(contactId = contactId, normalizeNumber = normalizeNumber, photoUri = photoUri, displayName = displayName)
                         } else {
                             // Provide a default Contact object when not found
                             Contact(
@@ -118,6 +119,7 @@ class GetConversationUseCase @Inject constructor(private val conversationReposit
                         snippet = thread.snippet,
                         date = thread.date,
                         recipientIds = thread.recipientIds,
+                        contactId = contact.contactId,
                         normalizeNumber = contact.normalizeNumber,
                         photoUri = contact.photoUri ?: "",
                         displayName = contact.displayName ,

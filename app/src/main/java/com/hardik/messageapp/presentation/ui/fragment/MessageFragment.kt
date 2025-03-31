@@ -3,6 +3,7 @@ package com.hardik.messageapp.presentation.ui.fragment
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,7 @@ import com.hardik.messageapp.helper.Constants.KEY_NORMALIZE_NUMBER
 import com.hardik.messageapp.helper.Constants.KEY_SEARCH_QUERY
 import com.hardik.messageapp.helper.Constants.KEY_THREAD_ID
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
+import com.hardik.messageapp.presentation.custom_view.CustomDividerItemDecoration
 import com.hardik.messageapp.presentation.helper.ConversationSwipeGestureHelper
 import com.hardik.messageapp.presentation.ui.activity.ChatActivity
 import com.hardik.messageapp.presentation.viewmodel.ConversationThreadViewModel
@@ -82,11 +84,19 @@ class MessageFragment : Fragment() {
                 requireContext().startActivity(intent)
 
                           },
-            onSelectionChanged = { selectedConversations -> Log.e(TAG, "onViewCreated: ${selectedConversations.size}", ) }
+            onSelectionChanged = { selectedConversations -> Log.e(TAG, "onViewCreated: ${selectedConversations.size}", )
+
+
+            }
         )
 
-        binding.recyclerView.layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = false }
+        val layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = false }
+        binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.adapter = conversationAdapter
+
+        // Add divider
+        val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 34f, requireContext().resources.displayMetrics).toInt()
+        binding.recyclerView.addItemDecoration(CustomDividerItemDecoration(requireContext(), marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
 
         lifecycleScope.launch { conversationViewmodel.conversationThreads.collectLatest { conversationAdapter.submitList(it) } }
 

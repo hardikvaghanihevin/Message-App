@@ -91,9 +91,9 @@ class MainActivity : AppCompatActivity() {
                 //ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_CONTACTS), REQUEST_CONTACTS_PERMISSION)
 
             binding.toolbarSearch.setOnClickListener { startActivity(Intent(this, SearchActivity::class.java)) }
-            binding.toolbarMore.setOnClickListener {
-                showPopupMenu(it)  // Show custom popup menu on click of more button in toolbar
-            }
+            binding.toolbarMore.setOnClickListener { showPopupMenu(it) }  // Show custom popup menu on click of more button in toolbar
+
+
 
         } else {
             Log.e(TAG, "onCreate: do nothing")

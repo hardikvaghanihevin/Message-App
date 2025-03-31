@@ -4,82 +4,160 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_01"
     tools:context=".presentation.ui.activity.MainActivity">
 
-    <RelativeLayout
-        android:id="@+id/custom_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/viewPager"
-        android:elevation="4dp">
-
-        <TextView
-            android:id="@+id/toolbar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:text="Messages"
-            android:textSize="20sp"
-            android:textColor="@color/text_color_1"
-            android:textStyle="bold"
-            android:layout_marginStart="16dp"/>
-
-        <ImageView
-            android:id="@+id/toolbar_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/toolbar_more"
-            android:layout_centerVertical="true"
-            android:src="@drawable/dummy_ic_search"
-            android:padding="12dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="@color/text_color_1" />
-
-        <ImageView
-            android:id="@+id/toolbar_more"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:src="@drawable/dummy_ic_more_vert"
-            android:padding="12dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            app:tint="@color/text_color_1" />
-
-    </RelativeLayout>
-
-    <!-- ViewPager2 for Fragments -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/collapsingToolbar"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
-        app:layout_constraintBottom_toTopOf="@id/included_navViewBottom"
-        android:visibility="visible" />
+        app:layout_constraintBottom_toTopOf="@+id/included_navViewBottom"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimary"
+            android:fitsSystemWindows="true"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/collapseTool"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                app:contentScrim="?attr/colorPrimary"
+                app:layout_scrollFlags="snap|exitUntilCollapsed|scroll">
+
+                <!-- View 2: Collapsible Content (With Parallax Effect) -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:scaleType="centerCrop"
+                    app:layout_collapseMode="parallax"
+                    app:layout_collapseParallaxMultiplier="0.5">
+
+                    <LinearLayout
+                        android:id="@+id/expanded_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/unread_messages"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="25 unread messages"
+                            android:textColor="@color/black"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+
+                        <Button
+                            android:id="@+id/view_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:backgroundTint="@color/black"
+                            android:text="View"
+                            android:textColor="@color/white" />
+                    </LinearLayout>
+                </RelativeLayout>
+
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+            <!--Custom toolbar-->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_gravity="bottom"
+                android:background="?attr/colorPrimary"
+                app:layout_anchor="@+id/collapsingToolbar"
+                app:layout_collapseMode="pin">
+
+                <RelativeLayout
+                    android:id="@+id/custom_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="?attr/colorPrimary"
+                    android:elevation="4dp"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <TextView
+                        android:id="@+id/toolbar_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="16dp"
+                        android:text="Messages"
+                        android:visibility="visible"
+                        android:textColor="@color/text_color_1"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+
+                    <ImageView
+                        android:id="@+id/toolbar_search"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toStartOf="@id/toolbar_more"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="12dp"
+                        android:src="@drawable/dummy_ic_search"
+                        app:tint="@color/text_color_1" />
+
+                    <ImageView
+                        android:id="@+id/toolbar_more"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="12dp"
+                        android:src="@drawable/dummy_ic_more_vert"
+                        app:tint="@color/text_color_1" />
+
+                </RelativeLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <!-- ViewPager2 for Fragments -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <!-- Floating Action Button in Center -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabNewConversation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
         android:contentDescription="New Conversation"
         android:src="@drawable/dummy_ic_add"
+        android:visibility="visible"
         app:backgroundTint="@color/white"
         app:elevation="6dp"
         app:fabSize="normal"
-        app:maxImageSize="24dp"
         app:layout_constraintBottom_toTopOf="@id/included_navViewBottom"
-        app:layout_constraintTop_toTopOf="@id/included_navViewBottom"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="20dp"
-        android:visibility="visible" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/included_navViewBottom"
+        app:maxImageSize="24dp" />
 
     <!-- Custom Bottom Navigation View -->
     <include
@@ -88,7 +166,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+

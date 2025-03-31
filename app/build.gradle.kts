@@ -110,6 +110,8 @@ dependencies {
     // Event Bus (broadcasting events anyway)
     implementation ("org.greenrobot:eventbus:3.3.1")
 
+    // Circular image
+    //implementation ("de.hdodenhof:circleimageview:3.1.0")
 }
 
 //ksp {

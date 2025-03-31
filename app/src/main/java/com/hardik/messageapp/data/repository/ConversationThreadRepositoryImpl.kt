@@ -149,6 +149,7 @@ class ConversationThreadRepositoryImpl @Inject constructor(
                             ?: 0,
                         type = it.getIntOrNull(it.getColumnIndexOrThrow(Telephony.Sms.TYPE)) ?: 0,
                         isArchived = false, snippet = "", date = 0, recipientIds = "",
+                        contactId = -1,
                         normalizeNumber = "", photoUri = "", displayName = ""
                     )
                 }
@@ -192,7 +193,7 @@ class ConversationThreadRepositoryImpl @Inject constructor(
                             ?: "Unknown",
                         read = it.getIntOrNull(it.getColumnIndex(Telephony.Threads.READ)) == 1,
 
-                        normalizeNumber = "", photoUri = "", displayName = "",
+                        contactId = -1, normalizeNumber = "", photoUri = "", displayName = "",
                         id = 0, sender = "", messageBody = "", creator = null,
                         timestamp = 0, dateSent = 0, errorCode = 0, locked = 0,
                         person = null, protocol = null, replyPath = false,

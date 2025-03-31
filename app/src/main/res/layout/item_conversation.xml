@@ -5,8 +5,7 @@
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginHorizontal="8dp"
-    android:layout_marginVertical="4dp"
+    android:layout_marginVertical="2dp"
     android:background="@drawable/bg_conversation_unselect">
 
     <LinearLayout
@@ -41,12 +40,31 @@
                 android:orientation="horizontal"
                 android:padding="8dp">
 
-                <ImageView
-                    android:id="@+id/ivProfile"
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/dummy_ic_user" />
+                    android:layout_height="40dp">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/ic_user"
+                        android:scaleType="centerInside"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
+
+                    <TextView
+                        android:id="@+id/tvPlaceholderChar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:singleLine="true"
+                        android:gravity="center"
+                        tools:visibility="visible"
+                        android:visibility="gone"
+                        android:textColor="@color/white"
+                        tools:text="A"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -70,10 +88,10 @@
                         android:id="@+id/tvSnippet"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxLines="3"
+                        android:maxLines="1"
                         android:minLines="1"
                         android:singleLine="false"
-                        tools:text="Hey, how are you?\n alkga\n al;ga\n ahjgaakldj"
+                        tools:text="Hey, how are you?"
                         android:textColor="#666666"
                         android:textSize="14sp" />
                 </LinearLayout>
