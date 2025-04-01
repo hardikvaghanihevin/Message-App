@@ -12,14 +12,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.hardik.messageapp.databinding.FragmentMessageBinding
+import com.hardik.messageapp.databinding.FragmentPrivateBinding
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.ContactRepository
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.Constants.KEY_MESSAGE_ID
-import com.hardik.messageapp.helper.Constants.KEY_NORMALIZE_NUMBER
-import com.hardik.messageapp.helper.Constants.KEY_SEARCH_QUERY
-import com.hardik.messageapp.helper.Constants.KEY_THREAD_ID
+import com.hardik.messageapp.helper.Constants
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
 import com.hardik.messageapp.presentation.custom_view.CustomDividerItemDecoration
 import com.hardik.messageapp.presentation.helper.ConversationSwipeGestureHelper
@@ -33,14 +29,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
 @AndroidEntryPoint
-class MessageFragment : Fragment() {
-    private val TAG = BASE_TAG + MessageFragment::class.java.simpleName
-    private var _binding: FragmentMessageBinding? = null
+class PrivateFragment : Fragment() {
+    private val TAG = Constants.BASE_TAG + PrivateFragment::class.java.simpleName
+    private var _binding: FragmentPrivateBinding? = null
     private val binding get() = _binding!!
 
     private val conversationViewmodel: ConversationThreadViewModel by activityViewModels()
@@ -51,42 +43,45 @@ class MessageFragment : Fragment() {
     lateinit var contactRepository: ContactRepository
 
     private var param1: String? = null
-    private var param2: String? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+            //param1 = it.getString(ARG_PARAM1)
         }
         //EventBus.getDefault().register(this) // ✅ Register EventBus
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentMessageBinding.inflate(inflater,container, false)
+        _binding = FragmentPrivateBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        conversationAdapter = ConversationAdapter (
+        conversationAdapter = ConversationAdapter(
             swipeLeftBtn = { item -> swipeLeft(item) },
             swipeRightBtn = { item -> swipeRight(item) },
             onItemClick = { conversation ->
-                Log.e(TAG, "onViewCreated: clicked number:${conversation.normalizeNumber}" )
+                Log.e(TAG, "onViewCreated: clicked number:${conversation.normalizeNumber}")
 
                 //messageViewModel.getMessagesByThreadId(conversation.threadId) //call before to to chat screen
                 val intent = Intent(requireContext(), ChatActivity::class.java)
-                intent.putExtra(KEY_THREAD_ID, conversation.threadId) // as Int
-                intent.putExtra(KEY_MESSAGE_ID, conversation.id) // as Int
-                intent.putExtra(KEY_NORMALIZE_NUMBER, conversation.normalizeNumber) // as String
-                intent.putExtra(KEY_SEARCH_QUERY, "") // as String
+                intent.putExtra(Constants.KEY_THREAD_ID, conversation.threadId) // as Int
+                intent.putExtra(Constants.KEY_MESSAGE_ID, conversation.id) // as Int
+                intent.putExtra(
+                    Constants.KEY_NORMALIZE_NUMBER,
+                    conversation.normalizeNumber
+                ) // as String
+                intent.putExtra(Constants.KEY_SEARCH_QUERY, "") // as String
 
                 requireContext().startActivity(intent)
 
-                          },
-            onSelectionChanged = { selectedConversations -> Log.e(TAG, "onViewCreated: ${selectedConversations.size}", )
+            },
+            onSelectionChanged = { selectedConversations ->
+                Log.e(TAG, "onViewCreated: ${selectedConversations.size}",)
 
 
             }
@@ -97,8 +92,20 @@ class MessageFragment : Fragment() {
         binding.recyclerView.adapter = conversationAdapter
 
         // Add divider
-        val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 34f, requireContext().resources.displayMetrics).toInt()
-        binding.recyclerView.addItemDecoration(CustomDividerItemDecoration(requireContext(), marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
+        val marginInPx = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            34f,
+            requireContext().resources.displayMetrics
+        ).toInt()
+        binding.recyclerView.addItemDecoration(
+            CustomDividerItemDecoration(
+                requireContext(),
+                marginStart = marginInPx * 2,
+                marginEnd = marginInPx / 2,
+                marginTop = 0,
+                marginBottom = 0
+            )
+        )
 
         lifecycleScope.launch { conversationViewmodel.conversationThreads.collectLatest { conversationAdapter.submitList(it) } }
 
@@ -115,13 +122,22 @@ class MessageFragment : Fragment() {
         // Attach scroll listener separately
         binding.recyclerView.addOnScrollListener(swipeHelper.getScrollListener())
 
-        binding.toolbarSearch.setOnClickListener { startActivity(Intent(requireContext(), SearchActivity::class.java)) }
+        binding.toolbarSearch.setOnClickListener { startActivity(
+            Intent(
+                requireContext(),
+                SearchActivity::class.java
+            )
+        ) }
         binding.toolbarMore.setOnClickListener { (activity as MainActivity).showPopupMenu(it) }  // Show custom popup menu on click of more button in toolbar
 
     }
 
-    private fun swipeLeft(conversationThread: ConversationThread?) { Log.i(TAG, "onCreate: swipeLeft:- $conversationThread") }
-    private fun swipeRight(conversationThread: ConversationThread?) { Log.v(TAG, "onCreate: swipeRight:- $conversationThread") }
+    private fun swipeLeft(conversationThread: ConversationThread?) {
+        Log.i(TAG, "onCreate: swipeLeft:- $conversationThread")
+    }
+    private fun swipeRight(conversationThread: ConversationThread?) {
+        Log.v(TAG, "onCreate: swipeRight:- $conversationThread")
+    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -129,15 +145,4 @@ class MessageFragment : Fragment() {
     }
 
 
-    companion object {
-
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            MessageFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
 }

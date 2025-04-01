@@ -8,10 +8,10 @@
         android:pathData="M0,0h120v120h-120z"/>
     <path
         android:pathData="M60,60m-60,0a60,60 0,1 1,120 0a60,60 0,1 1,-120 0"
-        android:fillColor="#3148D1"/>
+        android:fillColor="@color/color_09"/>
     <path
         android:pathData="M85.4,43.35C86.53,44.49 86.53,46.34 85.4,47.48L56.23,76.65C55.09,77.78 53.24,77.78 52.1,76.65L37.52,62.06C36.38,60.92 36.38,59.08 37.52,57.94C38.66,56.8 40.51,56.8 41.65,57.94L54.17,70.46L81.27,43.35C82.41,42.22 84.26,42.22 85.4,43.35Z"
-        android:fillColor="#ffffff"
+        android:fillColor="@color/white"
         android:fillType="evenOdd"/>
   </group>
 </vector>

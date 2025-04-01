@@ -2,7 +2,6 @@ package com.hardik.messageapp.presentation.ui.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -90,10 +89,6 @@ class MainActivity : AppCompatActivity() {
             Log.e(TAG, "onCreate: $isGranted", )
                 //ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_CONTACTS), REQUEST_CONTACTS_PERMISSION)
 
-            binding.toolbarSearch.setOnClickListener { startActivity(Intent(this, SearchActivity::class.java)) }
-            binding.toolbarMore.setOnClickListener { showPopupMenu(it) }  // Show custom popup menu on click of more button in toolbar
-
-
 
         } else {
             Log.e(TAG, "onCreate: do nothing")
@@ -113,7 +108,7 @@ class MainActivity : AppCompatActivity() {
         EventBus.getDefault().unregister(this)
     }
 
-    private fun showPopupMenu(view: View){
+    fun showPopupMenu(view: View){
         val menuItems = listOf("Edit", "Delete", "Share", "Settings") // Menu options
 
         val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = menuItems, showUnderLine = true) { selectedItem ->
