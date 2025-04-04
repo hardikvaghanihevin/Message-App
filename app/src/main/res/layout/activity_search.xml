@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_01"
     tools:context=".presentation.ui.activity.SearchActivity">
 
 
@@ -12,20 +13,20 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        app:layout_constraintTop_toTopOf="parent"
+        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@id/recyclerView"
-        android:elevation="4dp">
+        app:layout_constraintTop_toTopOf="parent">
         <!--app:layout_constraintBottom_toTopOf="@id/viewPager"-->
 
         <ImageView
             android:id="@+id/btnBack"
-            android:layout_centerVertical="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/dummy_ic_back"
-            android:padding="12dp"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
             android:contentDescription="Back"
-            android:layout_gravity="center_vertical"/>
+            android:padding="12dp"
+            android:src="@drawable/dummy_ic_back" />
 
 
         <EditText
@@ -34,13 +35,13 @@
             android:layout_height="match_parent"
             android:layout_toEndOf="@id/btnBack"
             android:layout_weight="1"
-            android:hint="Search"
             android:background="@android:color/transparent"
-            android:paddingEnd="12dp"
+            android:hint="Search"
             android:paddingStart="0dp"
-            android:textSize="16sp"/>
-            <!--android:drawableStart="@drawable/dummy_ic_search"
-            android:drawablePadding="8dp"-->
+            android:paddingEnd="12dp"
+            android:textSize="16sp" />
+        <!--android:drawableStart="@drawable/dummy_ic_search"
+        android:drawablePadding="8dp"-->
     </RelativeLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -48,9 +49,9 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:overScrollMode="never"
-        app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/custom_toolbar"
         tools:listitem="@layout/item_conversation" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -2,8 +2,8 @@
 <resources>
     <!--Main all color-->
     <color name="color_01">#020403</color> <!-- 020403 Background Primary -->
-    <color name="color_02">#181818</color> <!-- 181818 Background Secondary -->
-    <color name="color_03">#171717</color> <!-- 171717 Surface Primary -->
+    <color name="color_02">#0D0D0D</color> <!-- 181818 Background Secondary -->
+    <color name="color_03">#181818</color> <!-- 171717 Surface Primary -->
     <color name="color_04">#2D2D2D</color> <!-- 2D2D2D Surface Secondary -->
     <color name="color_05">#6D6D6D</color> <!-- 6D6D6D Border Light -->
     <color name="color_06">#474747</color> <!-- 474747 Border Dark -->

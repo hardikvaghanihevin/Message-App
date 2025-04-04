@@ -1,6 +1,5 @@
 package com.hardik.messageapp.presentation.adapter
 
-import android.annotation.SuppressLint
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -28,7 +27,7 @@ class ConversationAdapter (
     val swipeLeftBtn: (ConversationThread) -> Unit,
     val swipeRightBtn: (ConversationThread) -> Unit,
     private val onItemClick: (ConversationThread) -> Unit, // Normal click callback
-    private val onSelectionChanged: (List<ConversationThread>) -> Unit // Selection callback
+    private val onSelectionChanged: (List<ConversationThread>, Int) -> Unit // Selection callback
 ) : ListAdapter<ConversationThread, ConversationAdapter.ConversationViewHolder>(DIFF_CALLBACK) {
     private val TAG = BASE_TAG + ConversationAdapter::class.java.simpleName
 
@@ -141,15 +140,28 @@ class ConversationAdapter (
             }
         }
 
-        @SuppressLint("NotifyDataSetChanged")
+//        @SuppressLint("NotifyDataSetChanged")
+//        private fun toggleSelection(item: ConversationThread) {
+//            if (!selectedItems.add(item)) { selectedItems.remove(item) }
+//
+//            if (selectedItems.isEmpty()) isSelectionMode = false // Disable selection mode when nothing is selected
+//
+//            notifyDataSetChanged() // Refresh UI
+//            onSelectionChanged(selectedItems.toList()) // Send updated selection
+//
+//        }
         private fun toggleSelection(item: ConversationThread) {
-            if (!selectedItems.add(item)) { selectedItems.remove(item) }
+            if (selectedItems.contains(item)) {
+                selectedItems.remove(item)
+            } else {
+                selectedItems.add(item)
+            }
 
-            if (selectedItems.isEmpty()) isSelectionMode = false // Disable selection mode when nothing is selected
+            // Enable/disable selection mode based on selection count
+            isSelectionMode = selectedItems.isNotEmpty()
 
-            notifyDataSetChanged() // Refresh UI
-            onSelectionChanged(selectedItems.toList()) // Send updated selection
-
+            notifyItemChanged(currentList.indexOf(item)) // ✅ Only refresh the clicked item
+            onSelectionChanged(selectedItems.toList(), currentList.size)
         }
 
         //region OTP Functions
@@ -170,7 +182,9 @@ class ConversationAdapter (
                 binding.otpLayout.visibility = View.GONE
             } else {
                 binding.otpLayout.visibility = View.VISIBLE
-                binding.otpText.text = otp
+                binding.otpText.apply {
+                    text = ContextCompat.getString(this.context, R.string.copy_otp)//otp
+                }
 
                 // Handle OTP click (copy to clipboard)
                 binding.otpLayout.setOnClickListener {
@@ -206,7 +220,7 @@ class ConversationAdapter (
         selectedItems.addAll(currentList)//currentList.indices
         isSelectionMode = true
         notifyItemRangeChanged(0, itemCount)
-        onSelectionChanged(selectedItems.toList()) // Send selected list
+        onSelectionChanged(selectedItems.toList(), currentList.size) // Send selected list
     }
 
     // Unselect all items
@@ -216,9 +230,10 @@ class ConversationAdapter (
         selectedItems.clear()
         isSelectionMode = false
         notifyItemRangeChanged(0, itemCount)
-        onSelectionChanged(emptyList()) // Send empty list
+        onSelectionChanged(emptyList(), currentList.size) // Send empty list
     }
 
     // Get live selected count
-    fun getSelectedCount(): Int = selectedItems.size
+    fun getSelectedItemCount(): Int = selectedItems.size
+
 }

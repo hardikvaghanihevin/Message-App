@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/color_01"
     android:orientation="vertical"
     tools:context=".presentation.ui.fragment.PrivateFragment">
 
@@ -50,7 +51,7 @@
                             android:id="@+id/unread_messages"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="25 unread messages"
+                            android:text="@string/unread_messages"
                             android:textColor="@color/black"
                             android:textSize="22sp"
                             android:textStyle="bold" />
@@ -64,6 +65,17 @@
                             android:text="View"
                             android:textColor="@color/white" />
                     </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_selected_count_messages"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="1 Selected"
+                        android:textColor="@color/black"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
                 </RelativeLayout>
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -92,9 +104,10 @@
                         android:layout_centerVertical="true"
                         android:layout_marginStart="16dp"
                         android:drawablePadding="8dp"
-                        android:text="All"
+                        android:text="@string/all"
                         android:textColor="@color/text_color_1"
                         android:textSize="16sp"
+                        android:visibility="gone"
                         app:drawableStartCompat="@drawable/ic_all_unselected_item" />
 
                     <TextView
@@ -103,12 +116,33 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="16dp"
-                        android:text="Messages"
+                        android:text="@string/private_message"
                         android:textColor="@color/text_color_1"
                         android:textSize="20sp"
                         android:textStyle="bold"
-                        android:visibility="gone" />
+                        android:visibility="gone"
+                        tools:visibility="visible" />
 
+                    <View
+                        android:id="@+id/toolbar_title_indicator"
+                        android:layout_width="4dp"
+                        android:layout_height="4dp"
+                        android:layout_alignTop="@id/toolbar_title"
+                        android:layout_marginStart="3dp"
+                        android:layout_marginTop="5dp"
+                        android:layout_toEndOf="@id/toolbar_title"
+                        android:background="@drawable/badge_background" />
+
+                    <TextView
+                        android:id="@+id/tv_selected_count_messages1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="1 Selected"
+                        android:textColor="@color/black"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        android:visibility="gone" />
 
                     <ImageView
                         android:id="@+id/toolbar_search"
@@ -133,7 +167,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:padding="12dp"
-                        android:src="@drawable/dummy_ic_more_vert"
+                        android:src="@drawable/real_ic_more"
                         app:tint="@color/text_color_1" />
 
                 </RelativeLayout>

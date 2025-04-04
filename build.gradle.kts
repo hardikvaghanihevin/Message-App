@@ -8,6 +8,11 @@ buildscript {
 }
 
 plugins {
+
+//    id("com.android.application") version "8.2.2" apply false
+//    id("org.jetbrains.kotlin.android") version "1.9.23" apply false
+//    id("io.realm.kotlin") version "1.13.0" apply false
+
     id("com.android.application") version "8.1.2" apply false
     id("org.jetbrains.kotlin.android") version "1.9.24" apply false//1.9.0 -> 1.9.10 -> 2.0.21
 

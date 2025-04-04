@@ -3,6 +3,7 @@
     <style name="Base.Theme.MessageApp" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/action_bar_color</item>
 
+        <!-- Color change when system change theme-->
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
 
         <!-- Disable Android 12+ splash screen -->

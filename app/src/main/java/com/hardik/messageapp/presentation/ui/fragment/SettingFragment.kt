@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.hardik.messageapp.databinding.FragmentSettingBinding
@@ -17,7 +16,7 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 @AndroidEntryPoint
-class SettingFragment : Fragment() {
+class SettingFragment : BaseFragment() {
     private val TAG = BASE_TAG + SettingFragment::class.java.simpleName
 
     private var _binding: FragmentSettingBinding? = null
@@ -57,6 +56,10 @@ class SettingFragment : Fragment() {
 
         }
 
+    }
+
+    override fun handleSoftBackPress(): Boolean {
+        return false
     }
 
 

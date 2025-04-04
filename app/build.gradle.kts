@@ -6,6 +6,8 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     id ("com.google.firebase.crashlytics")
+
+    //id("io.realm.kotlin")
 }
 
 android {
@@ -112,6 +114,8 @@ dependencies {
 
     // Circular image
     //implementation ("de.hdodenhof:circleimageview:3.1.0")
+
+    //implementation("io.realm.kotlin:library-base:1.13.0")
 }
 
 //ksp {

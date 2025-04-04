@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -27,7 +26,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class SearchActivity : AppCompatActivity() {
+class SearchActivity : BaseActivity() {
     private val TAG = BASE_TAG + SearchActivity::class.java.simpleName
 
     private lateinit var binding: ActivitySearchBinding
@@ -91,6 +90,8 @@ class SearchActivity : AppCompatActivity() {
     }
 
     private fun setupSearchBar() {
+        binding.searchEditText.requestFocus()
+
         binding.searchEditText.doAfterTextChanged { text ->
             lifecycleScope.launch {
                 delay(300) // Small debounce to reduce frequent calls

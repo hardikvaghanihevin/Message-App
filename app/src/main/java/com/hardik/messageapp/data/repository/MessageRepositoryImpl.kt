@@ -18,8 +18,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 class MessageRepositoryImpl @Inject constructor(
     private val context: Context,
@@ -33,71 +38,9 @@ class MessageRepositoryImpl @Inject constructor(
         Telephony.Sms.STATUS, Telephony.Sms.SUBJECT, Telephony.Sms.SUBSCRIPTION_ID, Telephony.Sms.TYPE
     )
 
-    private fun queryMessage(
-        selection: String? = null,
-        selectionArgs: Array<String>? = null
-    ): List<Message> {
-        val uri = Telephony.Sms.CONTENT_URI
-
-
-        val messageList = mutableListOf<Message>()
-
-        context.contentResolver.query(
-            uri,
-            projection,
-            selection,
-            selectionArgs,
-            "${Telephony.Sms.DATE} DESC"
-        )?.use { cursor ->
-            while (cursor.moveToNext()) {
-                val sms = Message(
-
-                    threadId = cursor.getLongOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.THREAD_ID))
-                        ?: 0L,
-                    id = cursor.getLongOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms._ID))
-                        ?: 0L,
-                    sender = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS))
-                        ?: " ",
-                    messageBody = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.BODY))
-                        ?: "",
-                    creator = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.CREATOR))
-                        ?: "",
-                    timestamp = cursor.getLongOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.DATE))
-                        ?: 0L,
-                    dateSent = cursor.getLongOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.DATE_SENT))
-                        ?: 0L,
-                    errorCode = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.ERROR_CODE))
-                        ?: 0,
-                    locked = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.LOCKED))
-                        ?: 0,
-                    person = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.PERSON))
-                        ?: "",
-                    protocol = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.PROTOCOL))
-                        ?: "",
-                    read = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.READ)) == 1,
-                    replyPath = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.REPLY_PATH_PRESENT)) == 1,
-                    seen = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.SEEN)) == 1,
-                    serviceCenter = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.SERVICE_CENTER))
-                        ?: "",
-                    status = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.STATUS))
-                        ?: 0,
-                    subject = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.SUBJECT))
-                        ?: "",
-                    subscriptionId = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID))
-                        ?: 0,
-                    type = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.TYPE))
-                        ?: 0,
-                    isArchived = false // Default value
-
-                )
-                messageList.add(sms)
-            }
-        }
-        Log.e(TAG, "queryMessage: ${messageList.size}", )
-        return messageList
-    }
-
+    //region this method is working
     private fun queryMessageByThreadId(threadId: Long): List<Message> {
+        Log.e(TAG, "$TAG - queryMessageByThreadId: ", )
         val messages = mutableListOf<Message>()
         val projection = arrayOf(
             Telephony.Sms._ID,
@@ -164,61 +107,178 @@ class MessageRepositoryImpl @Inject constructor(
 
 
     override fun getMessagesByThreadId(threadId: Long) = callbackFlow {
-        val messages = queryMessageByThreadId(threadId)
-        trySend(messages).isSuccess // Emit the initial message list for the given threadId
+        Log.e(TAG, "$TAG - getMessagesByThreadId: ", )
+        val initialMessages = queryMessageByThreadId(threadId)
+        var lastEmittedMessages: List<Message> = initialMessages
+
+        trySend(initialMessages).isSuccess // Emit initial list
 
         // Observer for real-time updates
         val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
             override fun onChange(selfChange: Boolean) {
-                trySend(queryMessageByThreadId(threadId)).isSuccess // Emit updated messages
+                val updatedMessages = queryMessageByThreadId(threadId)
+
+                if (updatedMessages != lastEmittedMessages) {  // Prevent infinite loop
+                    lastEmittedMessages = updatedMessages
+                    trySend(updatedMessages).isSuccess // Emit only if data is actually different
+                }
             }
         }
 
         context.contentResolver.registerContentObserver(Telephony.Sms.CONTENT_URI, true, observer)
 
         awaitClose { context.contentResolver.unregisterContentObserver(observer) }
-
-    }.flowOn(Dispatchers.IO)
+    }.distinctUntilChanged().flowOn(Dispatchers.IO) // Prevent duplicate emissions
+    //endregion
 
 
     //region Fetch Message list
-    override fun getMessages(): Flow<List<Message>> = callbackFlow {
-        val messages = queryMessage()
-        trySend(messages).isSuccess // Emit the initial message list
+    private fun queryMessage(
+        selection: String? = null,
+        selectionArgs: Array<String>? = null
+    ): List<Message> {
+        Log.e(TAG, "$TAG - queryMessage: ", )
+        val uri = Telephony.Sms.CONTENT_URI
 
-        // Optionally, observe changes if you want real-time updates
-        val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
-            override fun onChange(selfChange: Boolean) {
-                trySend(queryMessage()).isSuccess // Emit updated messages on change
+
+        val messageList = mutableListOf<Message>()
+
+        context.contentResolver.query(
+            uri,
+            projection,
+            selection,
+            selectionArgs,
+            "${Telephony.Sms.DATE} DESC"
+        )?.use { cursor ->
+            while (cursor.moveToNext()) {
+                val sms = Message(
+
+                    threadId = cursor.getLongOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.THREAD_ID))
+                        ?: 0L,
+                    id = cursor.getLongOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms._ID))
+                        ?: 0L,
+                    sender = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.ADDRESS))
+                        ?: " ",
+                    messageBody = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.BODY))
+                        ?: "",
+                    creator = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.CREATOR))
+                        ?: "",
+                    timestamp = cursor.getLongOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.DATE))
+                        ?: 0L,
+                    dateSent = cursor.getLongOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.DATE_SENT))
+                        ?: 0L,
+                    errorCode = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.ERROR_CODE))
+                        ?: 0,
+                    locked = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.LOCKED))
+                        ?: 0,
+                    person = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.PERSON))
+                        ?: "",
+                    protocol = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.PROTOCOL))
+                        ?: "",
+                    read = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.READ)) == 1,
+                    replyPath = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.REPLY_PATH_PRESENT)) == 1,
+                    seen = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.SEEN)) == 1,
+                    serviceCenter = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.SERVICE_CENTER))
+                        ?: "",
+                    status = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.STATUS))
+                        ?: 0,
+                    subject = cursor.getStringOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.SUBJECT))
+                        ?: "",
+                    subscriptionId = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.SUBSCRIPTION_ID))
+                        ?: 0,
+                    type = cursor.getIntOrNull(cursor.getColumnIndexOrThrow(Telephony.Sms.TYPE))
+                        ?: 0,
+                    isArchived = false // Default value
+
+                )
+                messageList.add(sms)
             }
         }
-        context.contentResolver.registerContentObserver(Telephony.Sms.CONTENT_URI, true, observer)
+        //Log.e(TAG, "queryMessage: ${messageList.size}", )
+        return messageList
+    }
 
-        awaitClose { context.contentResolver.unregisterContentObserver(observer) }
+    private var startTime by Delegates.notNull<Long>() // Start time
+    private var endTime by Delegates.notNull<Long>() // End time
+    override fun getMessages(): Flow<List<Message>> = flow {
+        Log.e(TAG, "$TAG - getMessages: ", )
+        val messages = queryMessage()
+        emit(messages)
 
     }.flowOn(Dispatchers.IO)
+        .onStart { startTime = System.currentTimeMillis() }
+        .onCompletion { cause ->
+            endTime = System.currentTimeMillis()
+            //Log.i(TAG, "$TAG - Total execution time: ${endTime - startTime}ms")
+            //if (cause is CancellationException) { Log.w(TAG, "$TAG - Flow was cancelled: ${cause.message}") }
+        }
 
     override fun getMessages(messageId: Long): Flow<Message?> = callbackFlow {
+        Log.e(TAG, "$TAG - getMessages: by id", )
         val selection = "${Telephony.Sms._ID} = ?"
         val selectionArgs = arrayOf(messageId.toString())
 
         val messages = queryMessage(selection, selectionArgs)
         trySend(messages.firstOrNull()).isSuccess // Emit the single message (or null if not found)
 
-        awaitClose {} // No need to observe changes here
+        //awaitClose {} // No need to observe changes here
+        awaitClose { close() } // Explicitly close the channel
 
     }.flowOn(Dispatchers.IO)
 
     override fun getMessages(messageIds: List<Long>): Flow<List<Message>> = callbackFlow {
+        Log.e(TAG, "$TAG - getMessages: by ids", )
         val selection = "${Telephony.Sms._ID} IN (${messageIds.joinToString(",")})"
 
         val messages = queryMessage(selection)
         trySend(messages).isSuccess // Emit filtered messages
 
-        awaitClose {} // No need to observe changes here
+        //awaitClose {} // No need to observe changes here
+        awaitClose { close() } // Explicitly close the channel
 
     }.flowOn(Dispatchers.IO)
+
+       /*
+        override fun getMessages(): Flow<List<Message>> = flow {
+        val messages = queryMessage()
+        emit(messages)
+
+    }.flowOn(Dispatchers.IO)
+        .onStart { startTime = System.currentTimeMillis() }
+        .onCompletion { cause ->
+            endTime = System.currentTimeMillis()
+            Log.i(TAG, "${TAG} - Total execution time: ${endTime - startTime}ms")
+
+            if (cause is CancellationException) {
+                Log.w(TAG, "Flow was cancelled: ${cause.message}")
+            }
+        }
+
+       override fun getMessages(): Flow<List<Message>> = callbackFlow {
+           val messages = queryMessage()
+           Log.e(TAG, "getMessages: ${messages.size}", )
+           trySend(messages).isSuccess // Emit the initial message list
+
+           // Optionally, observe changes if you want real-time updates
+           val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+               override fun onChange(selfChange: Boolean) {
+                   trySend(queryMessage()).isSuccess // Emit updated messages on change
+               }
+           }
+           context.contentResolver.registerContentObserver(Telephony.Sms.CONTENT_URI, true, observer)
+
+           awaitClose { context.contentResolver.unregisterContentObserver(observer) }
+
+       }.flowOn(Dispatchers.IO)*/
     //endregion
+
+
+
+
+
+
+
+
 
     //region Delete Messages
     override suspend fun deleteMessage(smsIds: List<Long>): Boolean {
@@ -308,6 +368,62 @@ class MessageRepositoryImpl @Inject constructor(
             Log.e(TAG, "SmsRepository -- Failed to insert SMS", e)
         }
     }
+
+
+    override suspend fun insertOrUpdateMessages(messages: List<Message>) {
+        //messages.forEach { Log.i(TAG, "$TAG - insertOrUpdateMessages: ${it.id} ${it.read} - ${it.messageBody}") }
+
+        try {
+            messages.forEach { message ->
+                val values = ContentValues().apply {
+                    put(Telephony.Sms.THREAD_ID, message.threadId)
+                    put(Telephony.Sms.ADDRESS, message.sender)
+                    put(Telephony.Sms.BODY, message.messageBody)
+                    put(Telephony.Sms.DATE, message.timestamp)
+                    put(Telephony.Sms.DATE_SENT, message.dateSent)
+                    put(Telephony.Sms.READ, if (message.read) 1 else 0)
+                    put(Telephony.Sms.SEEN, if (message.seen) 1 else 0)
+                    put(Telephony.Sms.TYPE, message.type)
+                    put(Telephony.Sms.SERVICE_CENTER, message.serviceCenter)
+                    put(Telephony.Sms.REPLY_PATH_PRESENT, if (message.replyPath) 1 else 0)
+                    put(Telephony.Sms.SUBSCRIPTION_ID, message.subscriptionId)
+                }
+
+                // Check if the message already exists using `_id`
+                val existingMessageCursor = context.contentResolver.query(
+                    Uri.parse("content://sms"),
+                    arrayOf("_id"),
+                    "_id = ?",
+                    arrayOf(message.id.toString()),
+                    null
+                )
+
+                if (existingMessageCursor?.moveToFirst() == true) {
+                    // Message exists, update it
+                    val updateUri = Uri.parse("content://sms/${message.id}")
+                    val rowsUpdated = context.contentResolver.update(updateUri, values, null, null)
+
+                    if (rowsUpdated > 0) {
+                        Log.d(TAG, "SMS updated: ${message.id}")
+                    } else {
+                        Log.e(TAG, "Failed to update SMS: ${message.id}")
+                    }
+                } else {
+                    // Message does not exist, insert it
+                    val insertUri = context.contentResolver.insert(Uri.parse("content://sms/inbox"), values)
+                    if (insertUri == null) {
+                        Log.e(TAG, "SMS insertion failed! Make sure the app is the default SMS app.")
+                    } else {
+                        Log.d(TAG, "SMS inserted: $insertUri")
+                    }
+                }
+                existingMessageCursor?.close()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "SmsRepository -- Failed to insert/update SMS", e)
+        }
+    }
+
 
 
     private fun getThreadId(sender: String): Long {

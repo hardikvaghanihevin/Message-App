@@ -32,6 +32,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
+            android:paddingVertical="6dp"
             android:orientation="vertical">
 
             <LinearLayout
@@ -90,10 +91,10 @@
                         android:layout_height="wrap_content"
                         android:maxLines="1"
                         android:minLines="1"
-                        android:singleLine="false"
-                        tools:text="Hey, how are you?"
+                        android:singleLine="true"
                         android:textColor="#666666"
-                        android:textSize="14sp" />
+                        android:textSize="14sp"
+                        tools:text="Hey, how are you?" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -128,7 +129,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="60dp"
+                android:layout_marginBottom="6dp"
                 android:orientation="horizontal"
+                android:background="@drawable/bg_copy_otp"
                 android:paddingBottom="8dp"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -136,15 +139,17 @@
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:src="@drawable/dummy_ic_copy" />
+                    android:src="@drawable/real_ic_copy_otp" />
 
                 <TextView
                     android:id="@+id/otp_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginStart="5dp"
-                    tools:text="47447"
+                    android:layout_marginStart="8dp"
+                    android:text="@string/copy_otp"
+                    android:textColor="@color/color_09"
+                    tools:text="Copy otp - 47447"
                     android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>

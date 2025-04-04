@@ -94,7 +94,7 @@
             android:id="@+id/img_copy_otpLayout"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/dummy_ic_copy"
+            android:src="@drawable/real_ic_copy_otp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

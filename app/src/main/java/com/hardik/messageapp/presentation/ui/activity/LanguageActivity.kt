@@ -3,7 +3,6 @@ package com.hardik.messageapp.presentation.ui.activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import com.hardik.messageapp.databinding.ActivityLanguageBinding
 import com.hardik.messageapp.helper.Constants.BASE_TAG
@@ -12,7 +11,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
 @AndroidEntryPoint
-class LanguageActivity : AppCompatActivity() {
+class LanguageActivity : BaseActivity() {
     private val TAG = BASE_TAG + LanguageActivity::class.java.simpleName
 
     private var isFirstLaunch by Delegates.notNull<Boolean>()

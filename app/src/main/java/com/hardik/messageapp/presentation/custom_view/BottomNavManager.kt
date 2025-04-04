@@ -1,5 +1,6 @@
 package com.hardik.messageapp.presentation.custom_view
 
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -7,6 +8,7 @@ import com.hardik.messageapp.R
 import com.hardik.messageapp.databinding.NavViewBottomBinding
 
 object BottomNavManager {
+    enum class CountType { GENERAL, PRIVATE }
 
     fun setup(
         binding: NavViewBottomBinding,
@@ -14,11 +16,11 @@ object BottomNavManager {
         onPrivateClick: (() -> Unit)? = null
     ) {
         // Default selection
-        setSelected(binding, binding.navViewBottomLlMessage, isLeftSelected = true)
+        setSelected(binding, binding.navViewBottomLlGeneral, isLeftSelected = true)
 
         // Click listeners
-        binding.navViewBottomLlMessage.setOnClickListener {
-            setSelected(binding, binding.navViewBottomLlMessage, isLeftSelected = true)
+        binding.navViewBottomLlGeneral.setOnClickListener {
+            setSelected(binding, binding.navViewBottomLlGeneral, isLeftSelected = true)
             onMessageClick?.invoke() // Call function if provided
         }
 
@@ -34,6 +36,8 @@ object BottomNavManager {
         // Apply selected styles
         selectedView.setBackgroundResource(R.drawable.bottom_nav_background_1)
         val textView = selectedView.getChildAt(0) as TextView
+        val textViewCount = selectedView.getChildAt(1) as TextView
+
         val selectedColor = ContextCompat.getColor(selectedView.context, R.color.color_nav_item_select)
 
         textView.setTextColor(selectedColor)
@@ -45,22 +49,13 @@ object BottomNavManager {
         )
     }
 
-    private fun setSelected(binding: NavViewBottomBinding, selectedView: LinearLayout) {
-        resetSelection(binding)
-
-        selectedView.setBackgroundResource(R.drawable.bottom_nav_background_1)
-        val textView = selectedView.getChildAt(0) as TextView
-        val selectedColor = ContextCompat.getColor(selectedView.context, R.color.color_nav_item_select)
-
-        textView.setTextColor(selectedColor)
-        setDrawableColor(textView, selectedColor)
-    }
-
     private fun resetSelection(binding: NavViewBottomBinding) {
-        val views = listOf(binding.navViewBottomLlMessage, binding.navViewBottomLlPrivate)
+        val views = listOf(binding.navViewBottomLlGeneral, binding.navViewBottomLlPrivate)
         for (view in views) {
             view.setBackgroundResource(R.drawable.bottom_nav_background_0)
             val textView = view.getChildAt(0) as TextView
+            val textViewCount = view.getChildAt(1) as TextView
+
             val defaultColor = ContextCompat.getColor(view.context, R.color.color_nav_item_unselect)
 
             textView.setTextColor(defaultColor)
@@ -73,7 +68,37 @@ object BottomNavManager {
             drawable?.setTint(color)
         }
     }
+
+    fun updateCount(binding: NavViewBottomBinding, countType: CountType, count: Int) {
+        val countTextView: TextView = when (countType) {
+            CountType.GENERAL -> binding.generalCount.apply {
+                visibility = View.VISIBLE.takeIf { count > 0 } ?: View.GONE
+                text = count.toString()
+            }
+            CountType.PRIVATE -> binding.privateCount.apply {
+                visibility = View.VISIBLE.takeIf { count > 0 } ?: View.GONE
+                text = count.toString()
+            }
+        }
+
+//        countTextView.let {
+//            // Update the background
+//            it.setBackgroundResource(R.drawable.badge_background)
+//
+//            // Update the text
+//            it.text = count
+//
+//            // Update layout parameters if needed
+//            val layoutParams = it.layoutParams
+//            layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+//            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+//            it.layoutParams = layoutParams
+//
+//            it.requestLayout() // Force recalculation
+//        }
+    }
 }
+
 
 
 /* todo: it also use fun with implement interface for click

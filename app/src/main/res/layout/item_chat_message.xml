@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/color_01"
     android:paddingHorizontal="4dp"
     android:paddingVertical="0dp">
 
@@ -48,10 +49,13 @@
             android:id="@+id/tvMessageReceive"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:autoLink="all"
             android:background="@drawable/bg_chat_receive"
+            android:linksClickable="true"
             android:paddingHorizontal="14dp"
             android:paddingVertical="10dp"
             android:textColor="@color/black"
+            android:textColorLink="@color/color_09"
             android:textSize="16sp"
             app:layout_constraintBottom_toTopOf="@id/tvTimeReceive"
             app:layout_constraintStart_toStartOf="parent"
@@ -78,18 +82,19 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="6dp"
+            android:background="@drawable/bg_copy_otp"
             android:orientation="horizontal"
             android:paddingBottom="8dp"
             android:visibility="gone"
-            app:layout_constraintTop_toBottomOf="@id/tvTimeReceive"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTimeReceive"
             tools:visibility="visible">
 
             <ImageView
                 android:layout_width="20dp"
                 android:layout_height="20dp"
-                android:src="@drawable/dummy_ic_copy" />
+                android:src="@drawable/real_ic_copy_otp" />
 
             <TextView
                 android:id="@+id/otp_text"
@@ -97,8 +102,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="@dimen/_5sdp"
-                tools:text="47447"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                tools:text="47447" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -119,10 +124,13 @@
             android:id="@+id/tvMessageSend"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:autoLink="all"
             android:background="@drawable/bg_chat_send"
+            android:linksClickable="true"
             android:paddingHorizontal="14dp"
             android:paddingVertical="10dp"
             android:textColor="@color/black"
+            android:textColorLink="@color/color_09"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@id/tvTimeSend"
             app:layout_constraintEnd_toEndOf="parent"

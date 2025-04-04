@@ -21,30 +21,94 @@
             android:visibility="visible" />
 
         <!-- Floating Action Button in Center -->
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fabNewConversation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="20dp"
-            android:contentDescription="New Conversation"
-            android:src="@drawable/dummy_ic_add"
-            android:visibility="visible"
-            app:backgroundTint="@color/white"
-            app:elevation="6dp"
-            app:fabSize="normal"
+        <ImageView
+            android:id="@+id/img_newConversation"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:layout_centerVertical="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_margin="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:maxImageSize="24dp" />
+            android:src="@drawable/real_ic_new_conversation"
+            android:contentDescription="@string/contentDescription_new_conversation" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <!-- Custom Bottom Navigation View -->
-    <include
-        android:id="@+id/included_navViewBottom"
-        layout="@layout/nav_view_bottom"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        />
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/included_navViewBottom"
+            layout="@layout/nav_view_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            />
+
+        <!-- Bottom menu-->
+        <include
+            android:id="@+id/included_navViewBottomMenu1"
+            layout="@layout/nav_view_bottom_menu_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            />
+
+        <include
+            android:id="@+id/included_navViewBottomMenu2"
+            layout="@layout/nav_view_bottom_menu_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            />
+        <include
+            android:id="@+id/included_navViewBottomMenu3"
+            layout="@layout/nav_view_bottom_menu_3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            />
+        <include
+            android:id="@+id/included_navViewBottomMenu4"
+            layout="@layout/nav_view_bottom_menu_4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            />
+        <include
+            android:id="@+id/included_navViewBottomMenu5"
+            layout="@layout/nav_view_bottom_menu_5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            />
+        <include
+            android:id="@+id/included_navViewBottomMenu7"
+            layout="@layout/nav_view_bottom_menu_7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            />
+        <include
+            android:id="@+id/included_navViewBottomMenu8"
+            layout="@layout/nav_view_bottom_menu_8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>
 

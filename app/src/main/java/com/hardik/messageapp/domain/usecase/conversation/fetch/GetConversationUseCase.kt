@@ -1,14 +1,14 @@
 package com.hardik.messageapp.domain.usecase.conversation.fetch
 
 import android.util.Log
+import com.hardik.messageapp.data.local.dao.ArchivedThreadDao
+import com.hardik.messageapp.data.local.dao.RecycleBinThreadDao
 import com.hardik.messageapp.domain.model.Contact
 import com.hardik.messageapp.domain.model.Conversation
 import com.hardik.messageapp.domain.model.ConversationThread
-import com.hardik.messageapp.domain.model.ConversationThread.Companion.toJson
 import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.repository.ConversationRepository
 import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.LogUtil
 import com.hardik.messageapp.helper.analyzeSender
 import com.hardik.messageapp.helper.removeCountryCode
 import com.hardik.messageapp.presentation.util.AppDataSingleton
@@ -23,10 +23,16 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
-class GetConversationUseCase @Inject constructor(private val conversationRepository: ConversationRepository, private val phoneNumberUtil: PhoneNumberUtil) {
+class GetConversationUseCase @Inject constructor(
+    private val recycleBinThreadDao: RecycleBinThreadDao,
+    private val archivedThreadDao: ArchivedThreadDao,
+    private val conversationRepository: ConversationRepository,
+    private val phoneNumberUtil: PhoneNumberUtil)
+{
 
     private val TAG = BASE_TAG + GetConversationUseCase::class.java.simpleName
     private var startTime by Delegates.notNull<Long>() // Start time
@@ -39,18 +45,27 @@ class GetConversationUseCase @Inject constructor(private val conversationReposit
             val smsJob: Deferred<Map<Long, Message>> = async(Dispatchers.IO) { conversationRepository.fetchMessages().first() }
             val contactsJob: Deferred<Map<String, Contact>> = async(Dispatchers.IO) { conversationRepository.fetchContacts().first() }
 
+            val recycleBinThreadIdsJob: Deferred<List<Long>> = async(Dispatchers.IO) { recycleBinThreadDao.getRecycleBinThreadIds().first() }
+            val archiveThreadIdsJob: Deferred<List<Long>> = async(Dispatchers.IO) { archivedThreadDao.getArchivedThreadIds().first() }
+
             val threadList = threadJob.await()
             val smsMap = smsJob.await()
             val contactsMap = contactsJob.await()
+            val recycleBinThreadIds = recycleBinThreadIdsJob.await()
+            val archiveThreadIds = archiveThreadIdsJob.await()
+
 
             combine(
                 flowOf(threadList),
                 flowOf(smsMap),
-                flowOf(contactsMap)
-            ) { threads, messages, contacts ->
-                Log.e(TAG, "invoke: ${threads.size}, ${messages.size}")
+                flowOf(contactsMap),
+                flowOf(recycleBinThreadIds),
+                flowOf(archiveThreadIds)
+            ) { threads, messages, contacts, binThreadIds, archivedThreadIds ->
+                Log.e(TAG, "$TAG - invoke: ${threads.size}, ${messages.size}")
 
-                threads.mapNotNull { thread ->
+                // ✅ Generate conversation list
+                val conversationList = threads.mapNotNull { thread ->
                     val message = messages[thread.threadId] // Get the latest message for the thread
                     val sender = message?.sender?.trim()
 
@@ -126,17 +141,32 @@ class GetConversationUseCase @Inject constructor(private val conversationReposit
                         unSeenCount = message.unSeenCount,
                     )
                 }
+
+                // ✅ Filter conversations (Remove archived & recycle bin threads)
+                val filteredList = conversationList.filterNot { it.threadId in binThreadIds || it.threadId in archivedThreadIds }
+
+
+                Pair(conversationList , filteredList)
             }
                 .flowOn(Dispatchers.IO)
                 .onStart { startTime = System.currentTimeMillis() }
                 .onCompletion {
                     endTime = System.currentTimeMillis()
-                    Log.i(TAG, "Total execution time Combine: ${endTime - startTime}ms")
+                    Log.i(TAG, "$TAG - Total execution time Combine: ${endTime - startTime}ms")
                 }
-                .collect { conversationList ->
-                    val privateList: List<ConversationThread> = conversationList.filter{ conversationThread -> conversationThread.normalizeNumber.isNotEmpty() }
-                    LogUtil.d(TAG, "PrivateList: ${privateList.toJson()}")
-                    AppDataSingleton.updateConversationThreads(conversationList)
+                    //LogUtil.d(TAG, "PrivateList: ${privateList.toJson()}")
+                .collect { (conversationList, filteredList) ->
+                    launch (Dispatchers.IO) { // Launch in IO dispatcher for background work
+                        AppDataSingleton.updateConversationThreads(conversationList) }
+
+                    launch (Dispatchers.IO) { // Launch in IO dispatcher for background work
+                        val privateList: List<ConversationThread> = conversationList.filter{ conversationThread -> conversationThread.normalizeNumber.isNotEmpty() }
+                        AppDataSingleton.updateConversationThreadsPrivate(privateList) }
+
+                    launch (Dispatchers.IO) { // Launch in IO dispatcher for background work
+                        AppDataSingleton.filterConversationThreads(filteredList) }
+
+
                 } // Emit the final result inside flow
 
         }

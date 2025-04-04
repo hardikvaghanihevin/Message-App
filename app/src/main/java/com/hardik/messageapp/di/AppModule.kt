@@ -167,3 +167,36 @@ object AppModule {
     }
     //endregion
 }
+
+/*@Module
+@InstallIn(ViewModelComponent::class) // ✅ ViewModel Scoped Dependencies
+object ViewModelModule {
+
+    @Provides
+    @ViewModelScoped
+    fun provideBaseViewModelDependencies(
+        getConversationUseCase: GetConversationUseCase,
+        deleteConversationThreadUseCase: DeleteConversationThreadUseCase,
+        getMessagesUseCase: GetMessagesUseCase,
+        deleteMessageUseCase: DeleteMessageUseCase,
+        insertMessageUseCase: InsertMessageUseCase
+    ): BaseViewModelDependencies {
+        return BaseViewModelDependencies(
+            getConversationUseCase,
+            deleteConversationThreadUseCase,
+            getMessagesUseCase,
+            deleteMessageUseCase,
+            insertMessageUseCase
+        )
+    }
+}
+
+@ViewModelScoped
+class BaseViewModelDependencies @Inject constructor(
+    val getConversationUseCase: GetConversationUseCase,
+    val deleteConversationThreadUseCase: DeleteConversationThreadUseCase,
+    val getMessagesUseCase: GetMessagesUseCase,
+    val deleteMessageUseCase: DeleteMessageUseCase,
+    val insertMessageUseCase: InsertMessageUseCase
+)*/
+

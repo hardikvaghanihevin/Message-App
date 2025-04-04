@@ -11,32 +11,32 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/recyclerViewMessages"
-        android:elevation="4dp">
+        android:elevation="4dp"
+        app:layout_constraintBottom_toTopOf="@id/ll_chatRec"
+        app:layout_constraintTop_toTopOf="parent">
 
         <TextView
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
             android:text="Messages"
-            android:textSize="20sp"
             android:textColor="@color/text_color_1"
-            android:textStyle="bold"
-            android:layout_marginStart="16dp"/>
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
         <ImageView
             android:id="@+id/toolbar_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/toolbar_more"
             android:layout_centerVertical="true"
-            android:src="@drawable/dummy_ic_search"
-            android:padding="12dp"
+            android:layout_toStartOf="@id/toolbar_more"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="12dp"
+            android:src="@drawable/dummy_ic_search"
             app:tint="@color/text_color_1" />
 
         <ImageView
@@ -45,34 +45,43 @@
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:src="@drawable/dummy_ic_more_vert"
-            android:padding="12dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
             android:focusable="true"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="12dp"
+            android:src="@drawable/real_ic_more"
             app:tint="@color/text_color_1" />
 
     </RelativeLayout>
 
     <!-- Messages List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewMessages"
+
+    <LinearLayout
+        android:id="@+id/ll_chatRec"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:overScrollMode="never"
-        android:paddingHorizontal="8dp"
-        android:scrollbars="vertical"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:gravity="bottom"
         app:layout_constraintBottom_toTopOf="@id/messageInputContainer"
-        app:layout_constraintTop_toBottomOf="@id/custom_toolbar"/>
+        app:layout_constraintTop_toBottomOf="@id/custom_toolbar">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewMessages"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:paddingHorizontal="8dp"
+            android:scrollbars="none"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+    </LinearLayout>
+
 
     <!-- Message Input Container -->
     <LinearLayout
         android:id="@+id/messageInputContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:background="@color/white"
+        android:orientation="horizontal"
         android:paddingHorizontal="8dp"
         android:paddingVertical="8dp"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -87,7 +96,7 @@
             android:hint="Type a message..."
             android:maxLines="3"
             android:padding="12dp"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
         <!-- Send Button -->
         <ImageButton

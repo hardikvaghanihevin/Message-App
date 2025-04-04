@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_view_bottom"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@android:color/transparent"
+    android:background="@color/color_01"
     android:elevation="4dp"
     android:orientation="vertical">
 
@@ -31,10 +33,10 @@
             android:orientation="horizontal"
             android:padding="8dp">
 
-            <!-- Left Side (Message Tab) -->
+            <!-- Left Side (General Message Tab) -->
             <LinearLayout
-                android:id="@+id/navViewBottom_ll_message"
-                android:layout_width="0dp"
+                android:id="@+id/navViewBottom_ll_general"
+                android:layout_width="wrap_content"
                 android:layout_height="45dp"
                 android:layout_weight="1"
                 android:clickable="true"
@@ -43,12 +45,12 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/navViewBottom_txt_message"
+                    android:id="@+id/navViewBottom_txt_general"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10dp"
                     android:layout_marginVertical="6dp"
-                    android:text="Message"
+                    android:text="@string/general"
                     android:textColor="@color/color_nav_item_select"
                     android:textSize="16sp" />
 
@@ -57,17 +59,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/badge_background"
+                    android:maxEms="5"
+                    android:maxLines="1"
+                    android:minEms="1"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="4dp"
-                    android:text="12"
+                    android:singleLine="true"
                     android:textColor="@color/color_bottom_nav_badge_item"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:text="12" />
             </LinearLayout>
 
             <!-- Right Side (Private Tab) -->
             <LinearLayout
                 android:id="@+id/navViewBottom_ll_private"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="45dp"
                 android:layout_weight="1"
                 android:clickable="true"
@@ -76,12 +82,12 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/navViewBottom_txt_settings"
+                    android:id="@+id/navViewBottom_txt_private"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="10dp"
                     android:layout_marginVertical="6dp"
-                    android:text="Private"
+                    android:text="@string/private_message"
                     android:textColor="@color/color_nav_item_unselect"
                     android:textSize="16sp" />
 
@@ -90,11 +96,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/badge_background_gray"
+                    android:maxEms="5"
+                    android:minEms="1"
                     android:paddingHorizontal="8dp"
                     android:paddingVertical="4dp"
-                    android:text="15"
+                    android:text=""
                     android:textColor="@color/color_bottom_nav_badge_item_darker_gray"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:text="15" />
             </LinearLayout>
 
         </LinearLayout>

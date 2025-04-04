@@ -5,7 +5,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.ContactsContract
 import android.provider.Telephony
-import android.util.Log
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
@@ -75,9 +74,10 @@ class ConversationRepositoryImpl@Inject constructor(
         emit(threads)
     }.flowOn(Dispatchers.IO) // Ensures execution happens on the IO thread
         .onStart { startTime = System.currentTimeMillis() }
-        .onCompletion {
+        .onCompletion {cause ->
             endTime = System.currentTimeMillis()
-            Log.i(TAG, "Total execution time Conversation: ${endTime - startTime}ms")
+            //Log.i(TAG, "$TAG - Total execution time Conversation: ${endTime - startTime}ms")
+            //if (cause is CancellationException) { Log.w(TAG, "$TAG - Flow was cancelled: ${cause.message}") }
         }
 
     private var startTimeFM by Delegates.notNull<Long>() // Start time
@@ -153,9 +153,11 @@ class ConversationRepositoryImpl@Inject constructor(
         emit(smsMap) // Emit the map directly
     }.flowOn(Dispatchers.IO)
         .onStart { startTimeFM = System.currentTimeMillis() }
-        .onCompletion {
+        .onCompletion {cause ->
             endTimeFM = System.currentTimeMillis()
-            Log.i(TAG, "Total execution time Message: ${endTimeFM - startTimeFM}ms")
+            //Log.i(TAG, "$TAG - Total execution time Message: ${endTimeFM - startTimeFM}ms")
+            //if (cause is CancellationException) { Log.w(TAG, "$TAG - Flow was cancelled: ${cause.message}") }
+
         }
 
     private var startTimeFC by Delegates.notNull<Long>() // Start time
@@ -217,10 +219,12 @@ class ConversationRepositoryImpl@Inject constructor(
         }
 
         emit(contactMap) // ✅ Emits Map<String, Contact>
-    }.flowOn(Dispatchers.IO) // ✅ Runs on IO thread
+    }.flowOn(Dispatchers.IO)
         .onStart { startTimeFC = System.currentTimeMillis() }
-        .onCompletion {
+        .onCompletion {cause ->
             endTimeFC = System.currentTimeMillis()
-            Log.i(TAG, "Total execution time Contact: ${endTimeFC - startTimeFC}ms")
+            //Log.i(TAG, "$TAG - Total execution time Contact: ${endTimeFC - startTimeFC}ms")
+            //if (cause is CancellationException) { Log.w(TAG, "$TAG - Flow was cancelled: ${cause.message}") }
+
         }
 }
