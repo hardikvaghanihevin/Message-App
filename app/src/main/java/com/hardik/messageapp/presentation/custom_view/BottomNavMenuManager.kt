@@ -14,7 +14,7 @@ enum class BottomMenu(val menuId: Int) {
     BOTTOM_MENU_4_DELETE_UNBLOCK(R.id.included_navViewBottomMenu4), // Contact Activity
     BOTTOM_MENU_5_FAVORITE_COPY_DELETE_MORE(R.id.included_navViewBottomMenu5), // Settings Activity
     BOTTOM_MENU_7_BLOCK_ARCHIVE_EDIT_DELETE(R.id.included_navViewBottomMenu7), // Settings Activity
-    BOTTOM_MENU_8_UNBLOCK_UNARCHIVE_ADD_DELETE(R.id.included_navViewBottomMenu8) // General Activity (Global)
+    BOTTOM_MENU_8_UNBLOCK_UNARCHIVE_ADD_DELETE(R.id.included_navViewBottomMenu8), // General Activity (Global);;
 }
 
 class BottomNavMenuManager {

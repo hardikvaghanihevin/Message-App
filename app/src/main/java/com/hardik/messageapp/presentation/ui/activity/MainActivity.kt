@@ -2,6 +2,7 @@ package com.hardik.messageapp.presentation.ui.activity
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
@@ -121,10 +122,12 @@ class MainActivity : BaseActivity() {
     }
 
     fun showPopupMenu(view: View){
-        val menuItems = listOf("Edit", "Delete", "Share", "Settings") // Menu options
+        val menuItems = listOf("Archive","Edit", "Delete", "Share", "Settings") // Menu options
 
         val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = menuItems, showUnderLine = true) { selectedItem ->
             when (selectedItem) {
+                "Archive" -> {startActivity(Intent(this, ArchiveActivity::class.java))}
+                "Recyclebin" -> {startActivity(Intent(this, RecyclebinActivity::class.java))}
                 "Edit" -> popupMenu01()
                 "Delete" -> popupMenu02()
                 "Share" -> popupMenu03()
@@ -140,13 +143,13 @@ class MainActivity : BaseActivity() {
     }
     fun popupMenu02() {
         Toast.makeText(this, "Delete clicked", Toast.LENGTH_SHORT).show()
-        val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
-        //conversationViewModel.deleteConversationByThreads(threads)
+//        val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+//        conversationViewModel.deleteConversationByThreads(threads)
     }
     fun popupMenu03() {
         Toast.makeText(this, "Share clicked", Toast.LENGTH_SHORT).show()
-        val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
-        //archiveViewModel.archiveConversationThread(threads)
+//        val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+//        archiveConversation(threads)
     }
     fun popupMenu04() {
         Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show()
@@ -168,6 +171,20 @@ class MainActivity : BaseActivity() {
     }
 
 
+    fun archiveConversation(threadIds: List<Long>){
+        archiveViewModel.archiveConversationThread(threadIds)
+
+        lifecycleScope.launch {
+            archiveViewModel.isArchivedConversationThread.collectLatest { isArchived: Boolean ->
+                conversationViewModel.fetchConversationThreads(needToUpdate = isArchived)
+            }
+        }
+    }
+
+    fun deleteConversation(threadIds: List<Long>){
+        //val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+        conversationViewModel.deleteConversationByThreads(threadIds)
+    }
 
 }
 

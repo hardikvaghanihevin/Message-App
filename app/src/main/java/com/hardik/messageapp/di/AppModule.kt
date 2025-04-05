@@ -96,9 +96,9 @@ object AppModule {
     @Provides
     @Singleton
     fun provideArchiveRepository(archivedThreadDao: ArchivedThreadDao,
-                                 conversationThreadRepository: ConversationThreadRepository
-    ): ArchiveRepository {
-        return ArchiveRepositoryImpl(archivedThreadDao, conversationThreadRepository)
+                                 recycleBinThreadDao: RecycleBinThreadDao,
+                                 conversationThreadRepository: ConversationThreadRepository): ArchiveRepository {
+        return ArchiveRepositoryImpl(archivedThreadDao, recycleBinThreadDao, conversationThreadRepository)
     }
 
     @Provides

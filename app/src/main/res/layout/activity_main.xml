@@ -60,22 +60,22 @@
             android:visibility="gone"
             />
 
-        <include
+        <!--<include
             android:id="@+id/included_navViewBottomMenu2"
             layout="@layout/nav_view_bottom_menu_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:visibility="gone"
-            />
-        <include
+            />-->
+        <!--<include
             android:id="@+id/included_navViewBottomMenu3"
             layout="@layout/nav_view_bottom_menu_3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:visibility="gone"
-            />
+            />-->
         <include
             android:id="@+id/included_navViewBottomMenu4"
             layout="@layout/nav_view_bottom_menu_4"

@@ -25,5 +25,7 @@
     <string name="favorite">Favorite</string>
     <string name="edit">Edit</string>
     <string name="add">Add</string>
+    <string name="recyclebin">Recyclebin</string>
+
     <!--<string name="copy">Copy</string>-->
 </resources>

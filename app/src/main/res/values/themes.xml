@@ -20,7 +20,7 @@
     </style>
 
     <style name="Theme.MessageApp" parent="Base.Theme.MessageApp" />
-    <style name="Theme.MessageApp.Fullscreen" parent="Base.Theme.MessageApp" >
+    <style name="Theme.MessageApp.Fullscreen" parent="Base.Theme.MessageApp">
         <item name="android:windowBackground">@color/background_secondary</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>

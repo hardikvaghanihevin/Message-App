@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hardik.messageapp.domain.model.ConversationThread
+import com.hardik.messageapp.domain.usecase.archive.ArchiveConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.conversation.fetch.GetConversationUseCase
 import com.hardik.messageapp.helper.Constants.BASE_TAG
@@ -25,7 +26,8 @@ import javax.inject.Inject
 class ConversationThreadViewModel  @Inject constructor(
     private val getConversationUseCase: GetConversationUseCase,
 
-    private val deleteConversationThreadUseCase: DeleteConversationThreadUseCase
+    private val deleteConversationThreadUseCase: DeleteConversationThreadUseCase,
+    private val archiveConversationThreadUseCase: ArchiveConversationThreadUseCase,
 ) : ViewModel() {
     private val TAG = BASE_TAG + ConversationThreadViewModel::class.java.simpleName
 
@@ -88,7 +90,7 @@ class ConversationThreadViewModel  @Inject constructor(
     }
     //endregion
 
-    //region Delete ConversationThread
+    //region Delete ConversationThreads
     private val _isDeleteConversationThread = MutableStateFlow<Boolean>(false)
     val isDeleteConversationThread: StateFlow<Boolean> = _isDeleteConversationThread.asStateFlow()
     fun deleteConversationByThreads(threadIds: List<Long>) {
@@ -101,7 +103,7 @@ class ConversationThreadViewModel  @Inject constructor(
                 }
         }
     }
-    //endregion
+    //endregion Delete ConversationThreads
 
 
 
@@ -124,8 +126,8 @@ class ConversationThreadViewModel  @Inject constructor(
     //region Combined State
     /** Combines selected conversations and toolbar collapse state. */
     val cvThreadAndToolbarCombinedState: StateFlow<Triple<List<ConversationThread>, Int,Pair<List<ConversationThread>,List<ConversationThread>>>> by lazy {
-        combine(countSelectedConversationThreads, toolbarCollapsedState, countUnreadGeneralAndPrivateConversationThreads) { conversations, collapseState, undreadGeneralPrivateConverThread ->
-            Triple(conversations, collapseState, undreadGeneralPrivateConverThread)
+        combine(countSelectedConversationThreads, toolbarCollapsedState, countUnreadGeneralAndPrivateConversationThreads) { conversations, collapseState, unreadGeneralPrivateConverThread ->
+            Triple(conversations, collapseState, unreadGeneralPrivateConverThread)
         }.stateIn(viewModelScope, SharingStarted.Lazily, Triple(emptyList(), CollapsingToolbarStateManager.STATE_EXPANDED, Pair(emptyList(), emptyList() )))
     }
     //endregion

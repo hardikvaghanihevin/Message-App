@@ -7,6 +7,8 @@ import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Filter
+import android.widget.Filterable
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
@@ -28,8 +30,15 @@ class ConversationAdapter (
     val swipeRightBtn: (ConversationThread) -> Unit,
     private val onItemClick: (ConversationThread) -> Unit, // Normal click callback
     private val onSelectionChanged: (List<ConversationThread>, Int) -> Unit // Selection callback
-) : ListAdapter<ConversationThread, ConversationAdapter.ConversationViewHolder>(DIFF_CALLBACK) {
+) : ListAdapter<ConversationThread, ConversationAdapter.ConversationViewHolder>(DIFF_CALLBACK),
+    Filterable {
     private val TAG = BASE_TAG + ConversationAdapter::class.java.simpleName
+
+    private var originalList: List<ConversationThread> = listOf()
+    fun setFullList(fullList: List<ConversationThread>, commitCallback: () -> Unit) {
+        originalList = fullList
+        submitList(fullList, commitCallback)
+    }
 
     private val selectedItems = mutableSetOf<ConversationThread>() // Use item content or unique ID instead of position
     private var isSelectionMode = false
@@ -227,13 +236,49 @@ class ConversationAdapter (
     fun unselectAll() {
         if (selectedItems.isEmpty()) return
 
+        // Create a copy to avoid ConcurrentModificationException
+        val previouslySelected = selectedItems.toList()
+
         selectedItems.clear()
         isSelectionMode = false
-        notifyItemRangeChanged(0, itemCount)
-        onSelectionChanged(emptyList(), currentList.size) // Send empty list
+
+        // Notify only those items that were previously selected
+        previouslySelected.forEach { item ->
+            notifyItemChanged(currentList.indexOf(item))
+        }
+
+        onSelectionChanged(emptyList(), currentList.size)
     }
+
+
 
     // Get live selected count
     fun getSelectedItemCount(): Int = selectedItems.size
+    override fun getFilter(): Filter {
+        return object : Filter() {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                val filteredList = if (constraint.isNullOrBlank()) {
+                    originalList
+                } else {
+                    val query = constraint.toString().lowercase()
+                    originalList.filter {
+                        it.displayName.lowercase().contains(query) ||
+                        it.snippet.lowercase().contains(query) ||
+                        it.messageBody.lowercase().contains(query)
+                    }
+                }
+
+                return FilterResults().apply {
+                    values = filteredList
+                }
+            }
+
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                val filteredData = results?.values as? List<ConversationThread> ?: emptyList()
+                submitList(filteredData)
+            }
+        }
+    }
+
 
 }

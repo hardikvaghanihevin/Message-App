@@ -55,7 +55,7 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
 
     private lateinit var toolbarStateManager: CollapsingToolbarStateManager
     private lateinit var toolbarStateChangeListener: CollapsingToolbarStateManager.OnStateChangeListener
-    var isAllSelected = false // Track selection state
+    private var isAllSelected = false // Track selection state
 
     @Inject
     lateinit var contactRepository: ContactRepository
@@ -212,7 +212,6 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
         toolbarStateManager.addOnStateChangeListener(toolbarStateChangeListener)
 
         // select all conversation
-
         binding.toolbarTvSelectAll.setOnClickListener {
             isAllSelected = !isAllSelected // Toggle selection state
 
@@ -225,8 +224,17 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
         //endregion
 
         //region bottom menu
-        mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlArchive?.setOnClickListener { Log.e(TAG, "onViewCreated: archive",) }
-        mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlDelete?.setOnClickListener { Log.e(TAG, "onViewCreated: delete",) }
+        mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlArchive?.setOnClickListener { Log.e(TAG, "onViewCreated: archive",)
+            val threadIds = conversationViewmodel.countSelectedConversationThreads.value.map { it.threadId }
+            (activity as MainActivity).archiveConversation(threadIds)
+            conversationAdapter.unselectAll()// todo: unselectAll after work is done
+
+        }
+        mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlDelete?.setOnClickListener { Log.e(TAG, "onViewCreated: delete",)
+            val threadIds = conversationViewmodel.countSelectedConversationThreads.value.map { it.threadId }
+            (activity as MainActivity).deleteConversation(threadIds)
+            conversationAdapter.unselectAll()// todo: unselectAll after work is done
+        }
         mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlMore?.setOnClickListener { Log.e(TAG, "onViewCreated: more",) }
         //endregion
 

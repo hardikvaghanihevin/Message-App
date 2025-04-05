@@ -26,7 +26,7 @@
             android:layout_gravity="center_vertical"
             android:contentDescription="Back"
             android:padding="12dp"
-            android:src="@drawable/dummy_ic_back" />
+            android:src="@drawable/real_ic_back" />
 
 
         <EditText
