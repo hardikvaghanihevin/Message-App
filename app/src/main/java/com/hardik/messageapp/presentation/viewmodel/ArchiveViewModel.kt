@@ -2,10 +2,12 @@ package com.hardik.messageapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.usecase.archive.ArchiveConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.archive.GetArchivedConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.archive.UnarchiveConversationThreadUseCase
+import com.hardik.messageapp.domain.usecase.block.BlockNumbersUseCase
 import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,6 +26,7 @@ class ArchiveViewModel @Inject constructor(
     private val archiveConversationThreadUseCase: ArchiveConversationThreadUseCase,
     private val unarchiveConversationThreadUseCase: UnarchiveConversationThreadUseCase,
 
+    private val blockNumbersUseCase: BlockNumbersUseCase,
     private val deleteConversationThreadUseCase: DeleteConversationThreadUseCase,
 ) : ViewModel() {
     init { fetchArchiveConversationThread() }
@@ -40,8 +43,8 @@ class ArchiveViewModel @Inject constructor(
     }
     // endregion
 
-    //region Add and Remove Archive ConversationThread
-    private val _isArchivedConversationThread = MutableStateFlow<Boolean>(false)
+    //region Add and Remove Archive ConversationThread //
+/*    private val _isArchivedConversationThread = MutableStateFlow<Boolean>(false)
     val isArchivedConversationThread: StateFlow<Boolean> = _isArchivedConversationThread.asStateFlow()
     fun archiveConversationThread(threadIds: List<Long>) {
         viewModelScope.launch {
@@ -51,7 +54,7 @@ class ArchiveViewModel @Inject constructor(
                     if (isArchived) fetchArchiveConversationThread()
                 }
         }
-    }
+    }*/
 
     private val _isUnarchivedConversationThread = MutableStateFlow<Boolean>(false)
     val isUnarchivedConversationThread: StateFlow<Boolean> = _isUnarchivedConversationThread.asStateFlow()
@@ -81,6 +84,20 @@ class ArchiveViewModel @Inject constructor(
     }
     // endregion Delete Conversation Thread
 
+    // region Block Conversation Thread
+    private val _isBlockArchiveConversationThread = MutableStateFlow<Boolean>(false)
+    val isBlockArchiveConversationThread: StateFlow<Boolean> = _isBlockArchiveConversationThread.asStateFlow()
+
+    fun blockArchiveConversationByThreadIds(blockThreads: List<BlockThreadEntity>) {
+        viewModelScope.launch {
+            blockNumbersUseCase(blockThreads = blockThreads)
+                .collectLatest { isBlocked -> _isBlockArchiveConversationThread.value = isBlocked
+
+                    if (isBlocked) fetchArchiveConversationThread() // refresh data list
+                }
+        }
+    }
+    // endregion Block Conversation Thread
 
     //region Count for selected conversationThreads
     /**

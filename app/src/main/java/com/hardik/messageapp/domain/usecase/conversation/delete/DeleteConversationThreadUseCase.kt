@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class DeleteConversationThreadUseCase @Inject constructor(private val deleteRepository: DeleteRepository) {
     //suspend operator fun invoke(threadIds: List<Long>): Boolean = deleteRepository.deleteConversationThreads(threadIds)
-    operator fun invoke(threadIds: List<Long>): Flow<Boolean> = flow {
+    operator fun invoke(threadIds: List<Long>) : Flow<Boolean> = flow {
         val isDeleted: Boolean = deleteRepository.deleteConversationThreads(threadIds)
         emit(isDeleted) // Emits the result
     }.flowOn(Dispatchers.IO) // Run on background thread

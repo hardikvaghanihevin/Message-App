@@ -4,35 +4,43 @@ import android.content.ContentValues
 import android.content.Context
 import android.provider.BlockedNumberContract
 import android.provider.Telephony
+import com.hardik.messageapp.data.local.dao.BlockThreadDao
 import com.hardik.messageapp.data.local.dao.RecycleBinThreadDao
 import com.hardik.messageapp.data.local.entity.RecycleBinThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.ConversationThreadRepository
 import com.hardik.messageapp.domain.repository.RecyclebinRepository
+import com.hardik.messageapp.presentation.util.AppDataSingleton
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class RecyclebinRepositoryImpl @Inject constructor(
     private val context: Context,
-    private val recycleBinThreadDao: RecycleBinThreadDao,
+    private val recycleBinThreadDao: RecycleBinThreadDao,// for soft deletes list
+    private val blockThreadDao: BlockThreadDao,
 
     private val conversationThreadRepository: ConversationThreadRepository,
 ) : RecyclebinRepository {
 
     //region Fetch deleted ConversationThread list
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getRecycleBinConversationThreads(): Flow<List<ConversationThread>> {
-        return recycleBinThreadDao.getRecycleBinThreadIds().flatMapLatest { threadIds ->
-            if (threadIds.isEmpty()) {
-                flowOf(emptyList()) // Return an empty list if no thread IDs exist
-            } else {
-                conversationThreadRepository.getConversationThreads(threadIds)
-            }
-        }
-    }
+    override fun getRecycleBinConversationThreads(): Flow<List<ConversationThread>> = flow {
+        //val systemSmsFlow: Flow<List<ConversationThread>> = conversationThreadRepository.getConversationThreads() // Get all SMS messages
+        val systemSmsFlow: Flow<List<ConversationThread>> = AppDataSingleton.conversationThreads // Get all SMS messages
+        val recyclebinIdsFlow: Flow<List<Long>> = recycleBinThreadDao.getRecycleBinThreadIds() // Get recycle bin IDs
+        val blockIdsFlow: Flow<List<Long>> = blockThreadDao.getBlockThreadIds() // Get recycle bin IDs
+
+        combine(systemSmsFlow, recyclebinIdsFlow, blockIdsFlow) { smsList, recyclebinIds, blockIds ->
+            smsList.filter { it.threadId in recyclebinIds && it.threadId !in blockIds} // Filter only recyclebin messages
+        }.collect { emit(it) }
+    }.flowOn(Dispatchers.IO)
     //endregion
 
     //region Add and Remove RecycleBin ConversationThread
@@ -65,18 +73,32 @@ class RecyclebinRepositoryImpl @Inject constructor(
     //endregion
 
     //region Delete ConversationThread Permanently
-    override suspend fun deletePermanently(threadIds: List<Long>): Boolean {
-        if (threadIds.isEmpty()) return false // Return false if the list is empty
+    override suspend fun deletePermanently(threadIds: List<Long>): Boolean = coroutineScope {
+        if (threadIds.isEmpty()) return@coroutineScope false
 
-        val uri = Telephony.Sms.CONTENT_URI
-        val selection = "${Telephony.Sms.THREAD_ID} IN (${threadIds.joinToString(",")})"
+        try {
+            val deleteSystemJob = async(Dispatchers.IO) {
+                val uri = Telephony.Sms.CONTENT_URI
+                val selection = "${Telephony.Sms.THREAD_ID} IN (${threadIds.joinToString(",")})"
+                val deletedRows = context.contentResolver.delete(uri, selection, null)
+                deletedRows > 0
+            }
 
-        val deletedRows = context.contentResolver.delete(uri, selection, null)
+            val deleteFromDbJob = async(Dispatchers.IO) {
+                recycleBinThreadDao.deleteFromRecycleBinThread(threadIds) // You should have a delete method
+                true // Assume successful if no exception
+            }
 
-        recycleBinThreadDao.restoreFromRecycleBinThread(threadIds)// todo : also remove from recyclebin
+            val systemResult = deleteSystemJob.await()
+            val dbResult = deleteFromDbJob.await()
 
-        return deletedRows > 0 // Return true if deletion was successful
+            systemResult && dbResult// Return true if deletion was successful
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
+
     //endregion
 
 }

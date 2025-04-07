@@ -2,13 +2,14 @@ package com.hardik.messageapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hardik.messageapp.domain.model.BlockedNumber
+import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.domain.usecase.block.BlockNumbersUseCase
 import com.hardik.messageapp.domain.usecase.block.GetBlockedNumbersUseCase
 import com.hardik.messageapp.domain.usecase.block.UnblockNumbersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -22,12 +23,12 @@ class BlockViewModel @Inject constructor(
 
     //region Fetch BlockConversationThread list
 
-    private val _blockedNumbers = MutableStateFlow<List<BlockedNumber>>(emptyList())
+    private val _blockedNumbers = MutableStateFlow<List<BlockThreadEntity>>(emptyList())
     val blockedNumbers = _blockedNumbers.asStateFlow()
     fun fetchBlockedNumbers() {
         viewModelScope.launch {
-            getBlockedNumbersUseCase().collect { numbers ->
-                _blockedNumbers.value = numbers
+            getBlockedNumbersUseCase().collect { blockThread ->
+                _blockedNumbers.value = blockThread
             }
         }
     }
@@ -35,17 +36,21 @@ class BlockViewModel @Inject constructor(
 
     //region Block and Unblock ConversationThread
 
-    fun blockNumbers(numbers: List<String>) {// blockViewModel.blockNumbers(listOf("+1234567890"))
+    fun blockNumbers(blockThreads: List<BlockThreadEntity>) {// blockViewModel.blockNumbers(listOf("+1234567890"))
         viewModelScope.launch {
-            val success = blockNumbersUseCase(numbers)
-            if (success) fetchBlockedNumbers()
+            blockNumbersUseCase(blockThreads)
+                .collectLatest { isBlock ->
+                    if (isBlock) fetchBlockedNumbers()
+                }
         }
     }
 
-    fun unblockNumbers(numbers: List<String>) {
+    fun unblockNumbers(blockThreads: List<BlockThreadEntity>) {
         viewModelScope.launch {
-            val success = unblockNumbersUseCase(numbers)
-            if (success) fetchBlockedNumbers()
+            unblockNumbersUseCase(blockThreads)
+                .collectLatest {isUnblock ->
+                    if (isUnblock) fetchBlockedNumbers() // refresh data list
+                }
         }
     }
     //endregion

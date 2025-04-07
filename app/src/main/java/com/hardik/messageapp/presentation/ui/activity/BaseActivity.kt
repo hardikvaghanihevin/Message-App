@@ -12,17 +12,23 @@ import androidx.appcompat.app.AppCompatActivity
 import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.presentation.custom_view.BottomMenu
 import com.hardik.messageapp.presentation.custom_view.BottomNavMenuManager
+import com.hardik.messageapp.presentation.viewmodel.ArchiveViewModel
+import com.hardik.messageapp.presentation.viewmodel.BlockViewModel
 import com.hardik.messageapp.presentation.viewmodel.ConversationThreadViewModel
 import com.hardik.messageapp.presentation.viewmodel.MessageViewModel
+import com.hardik.messageapp.presentation.viewmodel.RecyclebinViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-open class BaseActivity() : AppCompatActivity()
+abstract class BaseActivity() : AppCompatActivity()
 {
     private val TAG = BASE_TAG + BaseActivity::class.java.simpleName
     val conversationViewModel: ConversationThreadViewModel by viewModels()
 
     val messageViewModel: MessageViewModel by viewModels()
+    val archiveViewModel: ArchiveViewModel by viewModels()
+    val recyclebinViewModel: RecyclebinViewModel by viewModels()
+    val blockViewModel: BlockViewModel by viewModels()
 
     private val bottomNavMenuManager = BottomNavMenuManager()
 
@@ -81,6 +87,7 @@ open class BaseActivity() : AppCompatActivity()
      * Override this method in child Activities/Fragments to handle back press softly.
      * If it returns `true`, the default back action is prevented.
      */
-    open fun handleOnSoftBackPress(): Boolean { return false }
-    //protected abstract fun handleOnSoftBackPress(): Boolean
+    //open fun handleOnSoftBackPress(): Boolean { return false }
+    protected abstract fun handleOnSoftBackPress(): Boolean
+
 }

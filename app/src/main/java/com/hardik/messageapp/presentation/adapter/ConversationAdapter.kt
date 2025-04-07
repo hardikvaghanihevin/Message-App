@@ -20,9 +20,8 @@ import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.model.ConversationThread.Companion.DIFF_CALLBACK
 import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.helper.analyzeSender
-import com.hardik.messageapp.presentation.util.DateUtil.DATE_FORMAT_dd_MMM
-import com.hardik.messageapp.presentation.util.DateUtil.longToString
 import com.hardik.messageapp.presentation.util.IcPlaceholderHelper
+import com.hardik.messageapp.presentation.util.TimeFormatterForConversation
 import java.util.regex.Pattern
 
 class ConversationAdapter (
@@ -45,11 +44,15 @@ class ConversationAdapter (
 
     inner class ConversationViewHolder(val binding: ItemConversationBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: ConversationThread, position: Int) {
+        fun bind(item: ConversationThread, previousItem: ConversationThread? ,position: Int) {
             binding.apply {
                 tvTitle.text = item.displayName
                 tvSnippet.text = item.snippet
-                tvDate.text = longToString(item.date, DATE_FORMAT_dd_MMM)
+
+                val formatter = TimeFormatterForConversation()
+                val formattedTime = formatter.formatTimestamp(item.timestamp)
+
+                tvDate.text = formattedTime//longToString(item.date, DATE_FORMAT_dd_MMM)
 
                 //region Set text style based on read status
                 if (item.read) {
@@ -218,7 +221,10 @@ class ConversationAdapter (
     }
 
     override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
-        holder.bind(getItem(position), position)
+        if(position in currentList.indices) {
+            val previousItem = if (position > 0) currentList[position - 1] else null
+            holder.bind(getItem(position), previousItem, position)
+        }
     }
 
     // Select all items

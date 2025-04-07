@@ -1,6 +1,7 @@
 package com.hardik.messageapp.data.repository
 
 import com.hardik.messageapp.data.local.dao.ArchivedThreadDao
+import com.hardik.messageapp.data.local.dao.BlockThreadDao
 import com.hardik.messageapp.data.local.dao.RecycleBinThreadDao
 import com.hardik.messageapp.data.local.entity.ArchivedThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
@@ -15,8 +16,9 @@ import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class ArchiveRepositoryImpl @Inject constructor(
-    private val archivedThreadDao: ArchivedThreadDao,
-    private val recycleBinThreadDao: RecycleBinThreadDao,
+    private val archivedThreadDao: ArchivedThreadDao,// for archive list
+    private val recycleBinThreadDao: RecycleBinThreadDao,// for soft deletes list
+    private val blockThreadDao: BlockThreadDao,// for block list
 
     private val conversationThreadRepository: ConversationThreadRepository,
 ) : ArchiveRepository {
@@ -27,11 +29,11 @@ class ArchiveRepositoryImpl @Inject constructor(
         val systemSmsFlow: Flow<List<ConversationThread>> = AppDataSingleton.conversationThreads // Get all SMS messages
         val archivedIdsFlow: Flow<List<Long>> = archivedThreadDao.getArchivedThreadIds() // Get archived IDs
         val recyclebinIdsFlow: Flow<List<Long>> = recycleBinThreadDao.getRecycleBinThreadIds() // Get archived IDs
+        val blockIdsFlow: Flow<List<Long>> = blockThreadDao.getBlockThreadIds() // Get archived IDs
 
-        combine(systemSmsFlow, archivedIdsFlow, recyclebinIdsFlow) { smsList, archivedIds, recyclebinIds ->
+        combine(systemSmsFlow, archivedIdsFlow, recyclebinIdsFlow, blockIdsFlow) { smsList, archivedIds, recyclebinIds, blockIds ->
             //smsList.filter { it.threadId in archivedIds } // Filter only archived messages
-            //smsList.filter { it.threadId in recyclebinIds } // Filter only recyclebin messages
-            smsList.filter { it.threadId in archivedIds && it.threadId !in recyclebinIds } // Keep only those which are archived but NOT in recycle bin
+            smsList.filter { it.threadId in archivedIds && it.threadId !in recyclebinIds && it.threadId !in blockIds} // Keep only those which are archived but NOT in recycle bin
         }.collect { emit(it) }
     }.flowOn(Dispatchers.IO)
     //endregion

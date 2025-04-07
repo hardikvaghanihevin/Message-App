@@ -38,4 +38,8 @@ class LanguageActivity : BaseActivity() {
             finish()
         }
     }
+
+    override fun handleOnSoftBackPress(): Boolean {
+        return false
+    }
 }

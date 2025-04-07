@@ -5,19 +5,20 @@ import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
-import androidx.activity.viewModels
 import androidx.core.widget.doOnTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hardik.messageapp.R
+import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.databinding.ActivityArchiveBinding
 import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
 import com.hardik.messageapp.presentation.custom_view.BottomMenu
 import com.hardik.messageapp.presentation.custom_view.CustomDividerItemDecoration
+import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
+import com.hardik.messageapp.presentation.custom_view.PopupMenu
 import com.hardik.messageapp.presentation.util.AnimationViewHelper
-import com.hardik.messageapp.presentation.viewmodel.ArchiveViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -28,7 +29,6 @@ class ArchiveActivity: BaseActivity() {
 
     lateinit var binding: ActivityArchiveBinding
 
-    private val archiveViewModel: ArchiveViewModel by viewModels()
     private lateinit var conversationAdapter: ConversationAdapter
     private var isAllSelected = false // Track selection state
 
@@ -41,7 +41,7 @@ class ArchiveActivity: BaseActivity() {
         conversationAdapter = ConversationAdapter (
             swipeLeftBtn = { item ->  },
             swipeRightBtn = { item ->  },
-            onItemClick = { conversation -> },
+            onItemClick = { conversation -> Log.e(TAG, "onCreate: ${conversation}", )},
             onSelectionChanged = { selectedConversations, listSize ->
                 Log.e(TAG, "onCreate: ${selectedConversations.size} - $listSize", )
                 archiveViewModel.onSelectedChanged(selectedConversations)
@@ -62,7 +62,7 @@ class ArchiveActivity: BaseActivity() {
         val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 34f, resources.displayMetrics).toInt()
 
         binding.recyclerView.apply {
-            setPadding(0, 0, 0, marginInPx)  // Add padding programmatically
+            //setPadding(0, 0, 0, marginInPx)  // Add padding programmatically
             clipToPadding = false            // Allow scrolling into padding
             overScrollMode = View.OVER_SCROLL_NEVER // Disable overscroll effect
             addItemDecoration(CustomDividerItemDecoration(this@ArchiveActivity, marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
@@ -86,10 +86,8 @@ class ArchiveActivity: BaseActivity() {
 
         //region Toolbar
         // show toolbarRLOptions & hide toolbarLLSearch
-        binding.toolbarBack.setOnClickListener {
-            val b = handleOnSoftBackPress()
-            Log.e(TAG, "onCreate: $b", )
-        }
+        binding.toolbarBack.setOnClickListener { if (!handleOnSoftBackPress()){ onBackPressedDispatcher.onBackPressed() } }
+
         binding.toolbarCancel.setOnClickListener {
             archiveViewModel.onToolbarStateChanged(false)
             deactivateSearchBar()
@@ -99,7 +97,7 @@ class ArchiveActivity: BaseActivity() {
         binding.toolbarSearch.setOnClickListener { archiveViewModel.onToolbarStateChanged(true)
             activeSearchBar()
         }
-        binding.toolbarMore.setOnClickListener {  }  // Show custom popup menu on click of more button in toolbar
+        binding.toolbarMore.setOnClickListener { showPopupMenu(it) }  // Show custom popup menu on click of more button in toolbar
 
         binding.toolbarEdtSearch.doOnTextChanged { text, _, _, _ ->
             val query = text.toString()
@@ -169,19 +167,22 @@ class ArchiveActivity: BaseActivity() {
         binding.includedNavViewBottomMenu2.navViewBottomLlUnarchive.setOnClickListener {
             //Log.e(TAG, "onCreate: Unarchive",)
             val threadIds = archiveViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            unarchiveConversation(threadIds = threadIds)
+            unarchiveConversation(threadIds = threadIds) // unarchive all selected bin threads
 
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
         binding.includedNavViewBottomMenu2.navViewBottomLlBlock.setOnClickListener {
             Log.e(TAG, "onCreate: Block",)
+            val blockThreads = archiveViewModel.countSelectedConversationThreads.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber) }
+
+            blockArchiveConversation(blockThreads) // block all selected bin threads
 
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
         binding.includedNavViewBottomMenu2.navViewBottomLlDelete.setOnClickListener {
             //Log.e(TAG, "onCreate: Delete",)
             val threadIds = archiveViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            deleteArchiveConversation(threadIds)
+            deleteArchiveConversation(threadIds) // delete all selected bin threads
 
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
@@ -219,6 +220,16 @@ class ArchiveActivity: BaseActivity() {
         }
     }
 
+    private fun blockArchiveConversation(blockThreads: List<BlockThreadEntity>){
+        archiveViewModel.blockArchiveConversationByThreadIds(blockThreads)
+
+        lifecycleScope.launch {
+            archiveViewModel.isBlockArchiveConversationThread.collectLatest { isBlocked: Boolean ->
+                conversationViewModel.fetchConversationThreads(needToUpdate = isBlocked)
+            }
+        }
+
+    }
     private fun deleteArchiveConversation(threadIds: List<Long>){
         archiveViewModel.deleteArchiveConversationByThreadIds(threadIds)
 
@@ -228,14 +239,46 @@ class ArchiveActivity: BaseActivity() {
             }
         }
     }
-    
+
+
+    private fun showPopupMenu(view: View){
+
+        val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = PopupMenu.ARCHIVE.getMenuItems(this), showUnderLine = true) { selectedItem ->
+            when (selectedItem) {
+                getString(R.string.unarchive_all) -> { popupMenuUnarchiveAll() }
+                getString(R.string.delete_all) -> { popupMenuDeleteAll() }
+            }
+        }
+
+        //popupMenu.show() // Show the custom popup
+        // Show below and align to start
+        popupMenu.show(showAbove = false, alignStart = false)
+    }
+
+    private fun popupMenuUnarchiveAll() {
+        val selectedThreads = archiveViewModel.archivedConversations.value
+        if (selectedThreads.isNotEmpty()) {
+            val threadIds = selectedThreads.map { it.threadId }
+            unarchiveConversation(threadIds = threadIds) // unarchive all archived threads
+        }
+    }
+
+    private fun popupMenuDeleteAll() {
+        val selectedThreads = archiveViewModel.archivedConversations.value
+        if (selectedThreads.isNotEmpty()) {
+            val threadIds = selectedThreads.map { it.threadId }
+            deleteArchiveConversation(threadIds = threadIds) // delete all archived threads
+        }
+    }
+
 
     override fun handleOnSoftBackPress(): Boolean {
-        return if (isAllSelected || conversationAdapter.getSelectedItemCount() > 0 ) {
+        return if (isAllSelected || conversationAdapter.getSelectedItemCount() > 0 || isKeyboardVisible(window.decorView.rootView)) {
             conversationAdapter.unselectAll()
             isAllSelected = false
             binding.toolbarTvSelectAll.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_all_unselected_item, 0, 0, 0)
             hideBottomMenu()
+            hideKeyboard(window.decorView.rootView)
             true // Consume back press
         } else {
             false // Allow normal back press

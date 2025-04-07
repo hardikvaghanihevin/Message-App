@@ -90,6 +90,20 @@ class ConversationThreadViewModel  @Inject constructor(
     }
     //endregion
 
+    //region Add to Archive ConversationThread
+    private val _isArchivedConversationThread = MutableStateFlow<Boolean>(false)
+    val isArchivedConversationThread: StateFlow<Boolean> = _isArchivedConversationThread.asStateFlow()
+    fun archiveConversationThread(threadIds: List<Long>) {
+        viewModelScope.launch {
+            archiveConversationThreadUseCase(threadIds = threadIds)
+                .collectLatest{ isArchived -> _isArchivedConversationThread.value = isArchived
+
+                    if (isArchived) fetchConversationThreadsPrivate(needToUpdate = true)
+                }
+        }
+    }
+    //endregion Add to Archive ConversationThread
+
     //region Delete ConversationThreads
     private val _isDeleteConversationThread = MutableStateFlow<Boolean>(false)
     val isDeleteConversationThread: StateFlow<Boolean> = _isDeleteConversationThread.asStateFlow()

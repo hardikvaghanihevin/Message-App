@@ -74,4 +74,8 @@ class SplashActivity : BaseActivity() {
             }
         }
     }
+
+    override fun handleOnSoftBackPress(): Boolean {
+        return false
+    }
 }

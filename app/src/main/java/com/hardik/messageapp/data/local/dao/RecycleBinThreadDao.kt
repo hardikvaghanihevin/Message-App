@@ -17,6 +17,9 @@ interface RecycleBinThreadDao {
 
     @Query("DELETE FROM recyclebin_threads WHERE threadId IN (:threadIds)")
     suspend fun restoreFromRecycleBinThread(threadIds: List<Long>): Int
+
+    @Query("DELETE FROM recyclebin_threads WHERE threadId IN (:threadIds)")
+    suspend fun deleteFromRecycleBinThread(threadIds: List<Long>): Int
 }
 
 

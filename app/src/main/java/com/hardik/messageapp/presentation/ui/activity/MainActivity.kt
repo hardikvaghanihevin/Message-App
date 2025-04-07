@@ -9,7 +9,6 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -23,7 +22,7 @@ import com.hardik.messageapp.helper.SmsDefaultAppHelper.navigateToSetAsDefaultSc
 import com.hardik.messageapp.presentation.adapter.ViewPagerAdapter
 import com.hardik.messageapp.presentation.custom_view.BottomNavManager
 import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
-import com.hardik.messageapp.presentation.viewmodel.ArchiveViewModel
+import com.hardik.messageapp.presentation.custom_view.PopupMenu
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -40,7 +39,7 @@ class MainActivity : BaseActivity() {
 //    private val contactViewModel: ContactViewModel by viewModels()
 //    private val blockViewModel: BlockViewModel by viewModels()
 //    private val pinViewModel: PinViewModel by viewModels()
-    private val archiveViewModel: ArchiveViewModel by viewModels()
+//    private val archiveViewModel: ArchiveViewModel by viewModels()
 
 
     lateinit var binding: ActivityMainBinding
@@ -122,38 +121,46 @@ class MainActivity : BaseActivity() {
     }
 
     fun showPopupMenu(view: View){
-        val menuItems = listOf("Archive","Edit", "Delete", "Share", "Settings") // Menu options
 
-        val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = menuItems, showUnderLine = true) { selectedItem ->
+        val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = PopupMenu.HOME.getMenuItems(this), showUnderLine = true) { selectedItem ->
             when (selectedItem) {
-                "Archive" -> {startActivity(Intent(this, ArchiveActivity::class.java))}
-                "Recyclebin" -> {startActivity(Intent(this, RecyclebinActivity::class.java))}
-                "Edit" -> popupMenu01()
-                "Delete" -> popupMenu02()
-                "Share" -> popupMenu03()
-                "Settings" -> popupMenu04()
+                getString(R.string.delete_all) -> { popupMenuDeleteAll() }
+                getString(R.string.block_conversation) -> { popupMenuBlockConversation() }
+                getString(R.string.mark_as_read) -> { popupMenuMarkAsRead() }
+                getString(R.string.archived) -> { popupMenuArchived() }
+                getString(R.string.scheduled) -> { popupMenuSchedule() }
+                getString(R.string.starred_message) -> { popupMenuStarredMessage()}
+                getString(R.string.recycle_bin) -> { popupMenuRecycleBin() }
+                getString(R.string.settings) -> { popupMenuSettings() }
             }
         }
 
-        popupMenu.show() // Show the custom popup
+        //popupMenu.show() // Show the custom popup
+        // Show below and align to start
+        popupMenu.show(showAbove = false, alignStart = false)
     }
 
-    fun popupMenu01() {
-        Toast.makeText(this, "Edit clicked", Toast.LENGTH_SHORT).show()
-    }
-    fun popupMenu02() {
-        Toast.makeText(this, "Delete clicked", Toast.LENGTH_SHORT).show()
+    private fun popupMenuDeleteAll() {
+        Toast.makeText(this, "delete", Toast.LENGTH_SHORT).show()
 //        val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
 //        conversationViewModel.deleteConversationByThreads(threads)
     }
-    fun popupMenu03() {
-        Toast.makeText(this, "Share clicked", Toast.LENGTH_SHORT).show()
+    private fun popupMenuBlockConversation() {
+        Toast.makeText(this, "conversation ", Toast.LENGTH_SHORT).show()
+        Log.e(TAG, "popupMenuBlockConversation: ${blockViewModel.blockedNumbers.value}", )
+
+
+    }
+    private fun popupMenuMarkAsRead() {
+        Toast.makeText(this, "mark as read", Toast.LENGTH_SHORT).show()
 //        val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
 //        archiveConversation(threads)
     }
-    fun popupMenu04() {
-        Toast.makeText(this, "Settings clicked", Toast.LENGTH_SHORT).show()
-    }
+    private fun popupMenuArchived() { startActivity(Intent(this, ArchiveActivity::class.java)) }
+    private fun popupMenuSchedule() { /*startActivity(Intent(this, ArchiveActivity::class.java))*/ }
+    private fun popupMenuStarredMessage() { /*startActivity(Intent(this, ArchiveActivity::class.java))*/ }
+    private fun popupMenuRecycleBin() { startActivity(Intent(this, RecyclebinActivity::class.java)) }
+    private fun popupMenuSettings() { /*startActivity(Intent(this, ArchiveActivity::class.java))*/ }
 
 
 
@@ -172,10 +179,10 @@ class MainActivity : BaseActivity() {
 
 
     fun archiveConversation(threadIds: List<Long>){
-        archiveViewModel.archiveConversationThread(threadIds)
+        conversationViewModel.archiveConversationThread(threadIds)
 
         lifecycleScope.launch {
-            archiveViewModel.isArchivedConversationThread.collectLatest { isArchived: Boolean ->
+            conversationViewModel.isArchivedConversationThread.collectLatest { isArchived: Boolean ->
                 conversationViewModel.fetchConversationThreads(needToUpdate = isArchived)
             }
         }
@@ -186,5 +193,8 @@ class MainActivity : BaseActivity() {
         conversationViewModel.deleteConversationByThreads(threadIds)
     }
 
+    override fun handleOnSoftBackPress(): Boolean {
+        return false
+    }
 }
 

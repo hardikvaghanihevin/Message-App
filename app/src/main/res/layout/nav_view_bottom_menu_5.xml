@@ -51,7 +51,7 @@
                         android:id="@+id/navViewBottom_img_favorite"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/real_ic_favorite" />
+                        android:src="@drawable/real_ic_starred" />
 
                     <TextView
                         android:id="@+id/navViewBottom_txt_favorite"

@@ -7,6 +7,6 @@
 
     <item
         android:id="@+id/nav_setting"
-        android:icon="@drawable/dummy_ic_settings"
+        android:icon="@drawable/real_ic_settings"
         android:title="Settings"/>
 </menu>

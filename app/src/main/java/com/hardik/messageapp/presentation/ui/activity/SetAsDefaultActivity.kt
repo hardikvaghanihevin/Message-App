@@ -34,5 +34,9 @@ class SetAsDefaultActivity : BaseActivity() {
             }
         }
     }
+
+    override fun handleOnSoftBackPress(): Boolean {
+        return false
+    }
 }
 //PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean(KEY_IS_APP_SET_AS_DEFAULT_SHOW_SET_AS_DEFAULT_ACTIVITY, SmsDefaultAppHelper.isDefaultSmsApp(this@SetAsDefaultActivity)).apply()

@@ -91,3 +91,50 @@ class TimeFormatter {
         return diff in 1..6
     }
 }
+
+
+
+class TimeFormatterForConversation {
+
+    private val TIME_ONLY_FORMAT = "h:mm a"   // 6:10 PM
+    private val DATE_FORMAT = "dd MMM"        // 07 Apr
+
+    fun formatTimestamp(timestamp: Long): String {
+        val now = Calendar.getInstance()
+        val target = Calendar.getInstance().apply { timeInMillis = timestamp }
+
+        return when {
+            isSameDay(now, target) -> {
+                // Today
+                format(timestamp, TIME_ONLY_FORMAT)
+            }
+
+            isYesterday(now, target) -> {
+                // Yesterday
+                "Yesterday . ${format(timestamp, TIME_ONLY_FORMAT)}"
+            }
+
+            else -> {
+                // Anything older
+                format(timestamp, DATE_FORMAT)
+            }
+        }
+    }
+
+    private fun format(timestamp: Long, pattern: String): String {
+        return SimpleDateFormat(pattern, Locale.getDefault()).format(Date(timestamp))
+    }
+
+    private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+                && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
+    }
+
+    private fun isYesterday(today: Calendar, target: Calendar): Boolean {
+        val yesterday = Calendar.getInstance().apply {
+            timeInMillis = today.timeInMillis
+            add(Calendar.DAY_OF_YEAR, -1)
+        }
+        return isSameDay(yesterday, target)
+    }
+}

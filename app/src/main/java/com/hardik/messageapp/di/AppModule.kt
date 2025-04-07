@@ -3,6 +3,7 @@ package com.hardik.messageapp.di
 import android.content.Context
 import com.hardik.messageapp.data.local.AppDatabase
 import com.hardik.messageapp.data.local.dao.ArchivedThreadDao
+import com.hardik.messageapp.data.local.dao.BlockThreadDao
 import com.hardik.messageapp.data.local.dao.FavoriteMessageDao
 import com.hardik.messageapp.data.local.dao.PinThreadDao
 import com.hardik.messageapp.data.local.dao.RecycleBinThreadDao
@@ -74,6 +75,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideBlockThreadDao(database: AppDatabase): BlockThreadDao {
+        return database.blockThreadDao()
+    }
+
+    @Provides
+    @Singleton
     fun provideRecycleBinThreadDao(database: AppDatabase): RecycleBinThreadDao{
         return database.recycleBinThreadDao()
     }
@@ -97,14 +104,15 @@ object AppModule {
     @Singleton
     fun provideArchiveRepository(archivedThreadDao: ArchivedThreadDao,
                                  recycleBinThreadDao: RecycleBinThreadDao,
+                                 blockThreadDao: BlockThreadDao,
                                  conversationThreadRepository: ConversationThreadRepository): ArchiveRepository {
-        return ArchiveRepositoryImpl(archivedThreadDao, recycleBinThreadDao, conversationThreadRepository)
+        return ArchiveRepositoryImpl(archivedThreadDao, recycleBinThreadDao, blockThreadDao, conversationThreadRepository)
     }
 
     @Provides
     @Singleton
-    fun provideBlockRepository(@ApplicationContext context: Context): BlockRepository {
-        return BlockRepositoryImpl(context)
+    fun provideBlockRepository(@ApplicationContext context: Context, blockThreadDao: BlockThreadDao): BlockRepository {
+        return BlockRepositoryImpl(context, blockThreadDao)
     }
 
     @Provides
@@ -155,9 +163,10 @@ object AppModule {
     @Singleton
     fun provideRecycleBinRepository(@ApplicationContext context: Context,
                                     recycleBinThreadDao: RecycleBinThreadDao,
+                                    blockThreadDao: BlockThreadDao,
                                     conversationThreadRepository: ConversationThreadRepository
     ): RecyclebinRepository {
-        return RecyclebinRepositoryImpl(context, recycleBinThreadDao, conversationThreadRepository)
+        return RecyclebinRepositoryImpl(context, recycleBinThreadDao, blockThreadDao, conversationThreadRepository)
     }
 
     @Provides

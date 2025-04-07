@@ -12,6 +12,7 @@
         android:id="@+id/ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
         android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -25,15 +26,14 @@
             android:text="Left"
             android:textStyle="bold"
             android:visibility="gone"
-            tools:visibility="visible"
-            />
+            tools:visibility="visible" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="8"
-            android:paddingVertical="6dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingVertical="6dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -42,29 +42,29 @@
                 android:padding="8dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="40dp"
-                    android:layout_height="40dp">
+                    android:layout_width="46dp"
+                    android:layout_height="46dp">
 
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivProfile"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_user"
                         android:scaleType="centerInside"
+                        android:src="@drawable/ic_user"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
 
                     <TextView
                         android:id="@+id/tvPlaceholderChar"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:singleLine="true"
                         android:gravity="center"
-                        tools:visibility="visible"
-                        android:visibility="gone"
+                        android:singleLine="true"
                         android:textColor="@color/white"
-                        tools:text="A"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:visibility="gone"
+                        tools:text="A"
+                        tools:visibility="visible" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout
@@ -81,9 +81,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
-                        tools:text="John Doe"
                         android:textSize="16sp"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        tools:text="John Doe" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"/>
 
                     <TextView
                         android:id="@+id/tvSnippet"
@@ -107,9 +111,9 @@
                         android:id="@+id/tvDate"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        tools:text="22 Jan"
                         android:textSize="12sp"
-                        android:textStyle="normal" />
+                        android:textStyle="normal"
+                        tools:text="22 Jan" />
 
                     <ImageView
                         android:id="@+id/pin_image"
@@ -118,8 +122,7 @@
                         android:layout_gravity="end"
                         android:src="@drawable/dummy_ic_pin"
                         android:visibility="invisible"
-                        tools:visibility="visible"
-                        />
+                        tools:visibility="visible" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -130,8 +133,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="60dp"
                 android:layout_marginBottom="6dp"
-                android:orientation="horizontal"
                 android:background="@drawable/bg_copy_otp"
+                android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -149,8 +152,8 @@
                     android:layout_marginStart="8dp"
                     android:text="@string/copy_otp"
                     android:textColor="@color/color_09"
-                    tools:text="Copy otp - 47447"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:text="Copy otp - 47447" />
             </LinearLayout>
         </LinearLayout>
 
@@ -164,8 +167,7 @@
             android:text="Right"
             android:textStyle="bold"
             android:visibility="gone"
-            tools:visibility="visible"
-            />
+            tools:visibility="visible" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

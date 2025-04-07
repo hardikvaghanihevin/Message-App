@@ -253,4 +253,7 @@ class ChatActivity : BaseActivity() {
         //Toast.makeText(this, "New SMS from ${event.sender}", Toast.LENGTH_SHORT).show()
     }
 
+    override fun handleOnSoftBackPress(): Boolean {
+        return false
+    }
 }
