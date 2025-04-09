@@ -11,22 +11,22 @@ import com.hardik.messageapp.data.repository.ArchiveRepositoryImpl
 import com.hardik.messageapp.data.repository.BlockRepositoryImpl
 import com.hardik.messageapp.data.repository.ContactRepositoryImpl
 import com.hardik.messageapp.data.repository.ConversationRepositoryImpl
-import com.hardik.messageapp.data.repository.ConversationThreadRepositoryImpl
 import com.hardik.messageapp.data.repository.DeleteRepositoryImpl
 import com.hardik.messageapp.data.repository.FavoriteRepositoryImpl
 import com.hardik.messageapp.data.repository.MessageRepositoryImpl
 import com.hardik.messageapp.data.repository.PinRepositoryImpl
+import com.hardik.messageapp.data.repository.ReadRepositoryImpl
 import com.hardik.messageapp.data.repository.RecyclebinRepositoryImpl
 import com.hardik.messageapp.data.repository.SearchRepositoryImpl
 import com.hardik.messageapp.domain.repository.ArchiveRepository
 import com.hardik.messageapp.domain.repository.BlockRepository
 import com.hardik.messageapp.domain.repository.ContactRepository
 import com.hardik.messageapp.domain.repository.ConversationRepository
-import com.hardik.messageapp.domain.repository.ConversationThreadRepository
 import com.hardik.messageapp.domain.repository.DeleteRepository
 import com.hardik.messageapp.domain.repository.FavoriteRepository
 import com.hardik.messageapp.domain.repository.MessageRepository
 import com.hardik.messageapp.domain.repository.PinRepository
+import com.hardik.messageapp.domain.repository.ReadRepository
 import com.hardik.messageapp.domain.repository.RecyclebinRepository
 import com.hardik.messageapp.domain.repository.SearchRepository
 import dagger.Module
@@ -105,14 +105,15 @@ object AppModule {
     fun provideArchiveRepository(archivedThreadDao: ArchivedThreadDao,
                                  recycleBinThreadDao: RecycleBinThreadDao,
                                  blockThreadDao: BlockThreadDao,
-                                 conversationThreadRepository: ConversationThreadRepository): ArchiveRepository {
-        return ArchiveRepositoryImpl(archivedThreadDao, recycleBinThreadDao, blockThreadDao, conversationThreadRepository)
+                                 conversationRepository: ConversationRepository
+    ): ArchiveRepository {
+        return ArchiveRepositoryImpl(archivedThreadDao, recycleBinThreadDao, blockThreadDao, conversationRepository)
     }
 
     @Provides
     @Singleton
-    fun provideBlockRepository(@ApplicationContext context: Context, blockThreadDao: BlockThreadDao): BlockRepository {
-        return BlockRepositoryImpl(context, blockThreadDao)
+    fun provideBlockRepository(@ApplicationContext context: Context, blockThreadDao: BlockThreadDao, recycleBinThreadDao: RecycleBinThreadDao): BlockRepository {
+        return BlockRepositoryImpl(context, blockThreadDao, recycleBinThreadDao)
     }
 
     @Provides
@@ -121,11 +122,11 @@ object AppModule {
         return ContactRepositoryImpl(context)
     }
 
-    @Provides
+    /*@Provides
     @Singleton
     fun provideConversationThreadRepository(@ApplicationContext context: Context, phoneNumberUtil: PhoneNumberUtil, contactRepository: ContactRepository): ConversationThreadRepository {
         return ConversationThreadRepositoryImpl(context, phoneNumberUtil, contactRepository)
-    }
+    }*/
 
     @Provides
     @Singleton
@@ -155,8 +156,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePinRepository(pinThreadDao: PinThreadDao, conversationThreadRepository: ConversationThreadRepository): PinRepository {
-        return PinRepositoryImpl(pinThreadDao, conversationThreadRepository)
+    fun providePinRepository(pinThreadDao: PinThreadDao, conversationRepository: ConversationRepository): PinRepository {
+        return PinRepositoryImpl(pinThreadDao, conversationRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideReadRepository(@ApplicationContext context: Context): ReadRepository {
+        return ReadRepositoryImpl(context)
     }
 
     @Provides
@@ -164,9 +171,9 @@ object AppModule {
     fun provideRecycleBinRepository(@ApplicationContext context: Context,
                                     recycleBinThreadDao: RecycleBinThreadDao,
                                     blockThreadDao: BlockThreadDao,
-                                    conversationThreadRepository: ConversationThreadRepository
+                                    conversationRepository: ConversationRepository
     ): RecyclebinRepository {
-        return RecyclebinRepositoryImpl(context, recycleBinThreadDao, blockThreadDao, conversationThreadRepository)
+        return RecyclebinRepositoryImpl(context, recycleBinThreadDao, blockThreadDao, conversationRepository)
     }
 
     @Provides

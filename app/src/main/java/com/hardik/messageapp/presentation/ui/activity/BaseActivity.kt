@@ -65,6 +65,10 @@ abstract class BaseActivity() : AppCompatActivity()
         else { bottomNavMenuManager.hideBottomMenu(this, menuId) }
     }
 
+    fun fetchSmsMessages(needToUpdate: Boolean = false) {
+        messageViewModel.fetchSmsMessages(needToUpdate = needToUpdate)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         handleBackPress()

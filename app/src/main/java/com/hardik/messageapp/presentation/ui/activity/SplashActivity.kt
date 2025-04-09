@@ -24,7 +24,7 @@ import javax.inject.Inject
 @SuppressLint("CustomSplashScreen")
 @AndroidEntryPoint
 class SplashActivity : BaseActivity() {
-    private val TAG = BASE_TAG + SplashActivity::class.java
+    private val TAG = BASE_TAG + SplashActivity::class.java.simpleName
 
     private lateinit var binding: ActivitySplashBinding
 
@@ -47,7 +47,7 @@ class SplashActivity : BaseActivity() {
 
         // Launch the next screen asynchronously
         CoroutineScope(Dispatchers.Main).launch {
-            if (SmsDefaultAppHelper.isDefaultSmsApp(this@SplashActivity)) { getConversationUseCase() }
+            if (SmsDefaultAppHelper.isDefaultSmsApp(this@SplashActivity)) { getConversationUseCase(TAG) }
 
             delay(100) // Short delay to mimic splash duration
             navigateToNextScreen()

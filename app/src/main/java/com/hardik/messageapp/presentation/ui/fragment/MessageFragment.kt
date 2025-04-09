@@ -28,6 +28,7 @@ import com.hardik.messageapp.presentation.ui.activity.MainActivity
 import com.hardik.messageapp.presentation.ui.activity.SearchActivity
 import com.hardik.messageapp.presentation.util.AnimationViewHelper.toggleViewVisibilityWithAnimation
 import com.hardik.messageapp.presentation.util.CollapsingToolbarStateManager
+import com.hardik.messageapp.presentation.util.evaluateSelectionGetHomeBottomMenu
 import com.hardik.messageapp.presentation.viewmodel.ConversationThreadViewModel
 import com.hardik.messageapp.presentation.viewmodel.MessageViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,9 +50,9 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
 
     //private val conversationViewmodel: ConversationThreadViewModel by activityViewModels()
     //private val messageViewModel: MessageViewModel by activityViewModels()
-    private lateinit var conversationViewmodel: ConversationThreadViewModel
+    private lateinit var conversationViewModel: ConversationThreadViewModel
     private lateinit var messageViewModel: MessageViewModel
-    private lateinit var conversationAdapter: ConversationAdapter
+    lateinit var conversationAdapter: ConversationAdapter
 
     private lateinit var toolbarStateManager: CollapsingToolbarStateManager
     private lateinit var toolbarStateChangeListener: CollapsingToolbarStateManager.OnStateChangeListener
@@ -69,7 +70,7 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
         }
         //EventBus.getDefault().register(this) // ✅ Register EventBus
 
-        conversationViewmodel = (activity as MainActivity).conversationViewModel
+        conversationViewModel = (activity as MainActivity).conversationViewModel
         messageViewModel = (activity as MainActivity).messageViewModel
     }
 
@@ -81,7 +82,7 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
     @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.e(TAG, "$TAG - onViewCreated: ", )
+        //Log.e(TAG, "$TAG - onViewCreated: ", )
 
         _binding = FragmentMessageBinding.bind(view)
 
@@ -101,7 +102,7 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
                 requireActivity().startActivity(intent)
 
                           },
-            onSelectionChanged = { selectedConversations, listSize -> conversationViewmodel.onSelectedChanged(selectedConversations)
+            onSelectionChanged = { selectedConversations, listSize -> conversationViewModel.onSelectedChanged(selectedConversations)
 
                 (activity as MainActivity).showBottomMenu(BottomMenu.BOTTOM_MENU_1_ARCHIVE_DELETE_MORE).takeIf { selectedConversations.isNotEmpty() } ?: (activity as MainActivity).hideBottomMenu()
                 // Automatically update selection state & drawable
@@ -126,7 +127,7 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
         }
 
         lifecycleScope.launch {
-            conversationViewmodel.filteredConversationThreads.collectLatest { newList ->
+            conversationViewModel.filteredConversationThreads.collectLatest { newList ->
                 //val layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = false }
                 val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
                 val currentPosition = layoutManager.findFirstVisibleItemPosition()
@@ -153,51 +154,65 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
         binding.recyclerView.addOnScrollListener(swipeHelper.getScrollListener())
 
         binding.toolbarSearch.setOnClickListener { startActivity(Intent(requireContext(), SearchActivity::class.java)) }
-        binding.toolbarMore.setOnClickListener { (activity as MainActivity).showPopupMenu(it) }  // Show custom popup menu on click of more button in toolbar
+        binding.toolbarMore.setOnClickListener {
+            (activity as MainActivity).showPopupMenu(it)
+        }  // Show custom popup menu on click of more button in toolbar
 
         //region toolbar selected item count management & Toolbar selected count management countUnreadGeneralAndPrivateConversationThreads
-        lifecycleScope.launch { conversationViewmodel.cvThreadAndToolbarCombinedState.collectLatest { (selectedThreads, toolbarState, unReadGeneralPrivateThreadsPair) ->
+        lifecycleScope.launch { conversationViewModel.cvThreadAndToolbarCombinedState.collectLatest { (selectedThreads, toolbarState, unReadGeneralPrivateThreadsPair) ->
 
-            val isCollapsed = toolbarState in listOf(CollapsingToolbarStateManager.STATE_COLLAPSED, CollapsingToolbarStateManager.STATE_INTERMEDIATE)
-            val isExpanded = toolbarState in listOf(CollapsingToolbarStateManager.STATE_EXPANDED, )
+            val isCollapsed = toolbarState in listOf(CollapsingToolbarStateManager.STATE_COLLAPSED, )
+            val isExpanded = toolbarState in listOf(CollapsingToolbarStateManager.STATE_EXPANDED, CollapsingToolbarStateManager.STATE_INTERMEDIATE)
 
             binding.toolbarTitle.apply {
                 val visible = View.GONE.takeUnless { isCollapsed } ?: View.VISIBLE.takeIf { selectedThreads.isEmpty() } ?: View.GONE
-                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = 0L)
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
             }
             binding.toolbarTitleIndicator.apply {
                 val visible = View.GONE.takeUnless { isCollapsed } ?: View.VISIBLE.takeIf { selectedThreads.isEmpty() && unReadGeneralPrivateThreadsPair.first.isNotEmpty() } ?: View.GONE
-                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = 0L)
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
+            }
+
+            binding.toolbarMore.apply {
+                val visible = View.GONE.takeUnless { selectedThreads.isEmpty() } ?: View.VISIBLE
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
             }
 
             binding.toolbarTvSelectAll.apply {
                 val visible = View.GONE.takeIf { selectedThreads.isEmpty() } ?: View.VISIBLE
-                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible)
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
             }
 
             binding.expandedContent.apply {
                 val visible = View.GONE.takeUnless { selectedThreads.isEmpty() } ?: View.VISIBLE
-                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible)
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
             }
 
             binding.tvSelectedCountMessages.apply {// todo: for collapsed count
                 val visible = View.GONE.takeIf { selectedThreads.isEmpty() } ?: View.VISIBLE.takeIf { isExpanded } ?: View.GONE
-                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible)
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
                 text = "${selectedThreads.size} ${getString(R.string.selected)}"
             }
             binding.tvSelectedCountMessages1.apply {// todo: for toolbar count
                 val visible = View.GONE.takeIf { selectedThreads.isEmpty() } ?: View.VISIBLE.takeIf { isCollapsed } ?: View.GONE
-                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible)
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
                 text = "${selectedThreads.size} ${getString(R.string.selected)}"
 
             }
         }}
         //endregion
 
-        lifecycleScope.launch { messageViewModel.countMessages.collectLatest { messages ->
-            Log.i(TAG, "$TAG -onViewCreated: ${messages.size}", )
+        lifecycleScope.launch { messageViewModel.unreadMessageCount.collectLatest { messages ->
+            Log.i(TAG, "$TAG -onViewCreated: $messages", )
             binding.unreadMessages.apply {
-                text = "${messages.size} ${getString(R.string.unread_messages)}"
+                text = "$messages ${getString(R.string.unread_messages)}"
             }
         } }
 
@@ -206,7 +221,7 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
         toolbarStateManager = CollapsingToolbarStateManager(binding.appbarLayout)
 
         // Create an anonymous implementation of the listener
-        toolbarStateChangeListener = object : CollapsingToolbarStateManager.OnStateChangeListener { override fun onStateChanged(newState: Int) { conversationViewmodel.onToolbarStateChanged(newState) } }
+        toolbarStateChangeListener = object : CollapsingToolbarStateManager.OnStateChangeListener { override fun onStateChanged(newState: Int) { conversationViewModel.onToolbarStateChanged(newState) } }
 
         // Register the anonymous listener
         toolbarStateManager.addOnStateChangeListener(toolbarStateChangeListener)
@@ -225,17 +240,23 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
 
         //region bottom menu
         mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlArchive?.setOnClickListener { Log.e(TAG, "onViewCreated: archive",)
-            val threadIds = conversationViewmodel.countSelectedConversationThreads.value.map { it.threadId }
+            val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
             (activity as MainActivity).archiveConversation(threadIds)
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
 
         }
         mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlDelete?.setOnClickListener { Log.e(TAG, "onViewCreated: delete",)
-            val threadIds = conversationViewmodel.countSelectedConversationThreads.value.map { it.threadId }
+            val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
             (activity as MainActivity).deleteConversation(threadIds)
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
-        mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlMore?.setOnClickListener { Log.e(TAG, "onViewCreated: more",) }
+        mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlMore?.setOnClickListener {
+
+            val resultMenu = evaluateSelectionGetHomeBottomMenu(conversationViewModel.countSelectedConversationThreads.value)
+
+            (activity as MainActivity).showPopupMenuBottom(it, selectedMenu = resultMenu)
+
+        }
         //endregion
 
     }

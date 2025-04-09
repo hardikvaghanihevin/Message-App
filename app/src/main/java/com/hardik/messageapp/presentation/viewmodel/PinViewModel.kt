@@ -2,10 +2,9 @@ package com.hardik.messageapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.usecase.pin.GetPinnedConversationsUseCase
-import com.hardik.messageapp.domain.usecase.pin.PinConversationUseCase
-import com.hardik.messageapp.domain.usecase.pin.UnpinConversationUseCase
+import com.hardik.messageapp.domain.usecase.pin.PinConversationsUseCase
+import com.hardik.messageapp.domain.usecase.pin.UnpinConversationsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,14 +14,14 @@ import javax.inject.Inject
 @HiltViewModel
 class PinViewModel @Inject constructor(
     private val getPinnedConversationsUseCase: GetPinnedConversationsUseCase,
-    private val pinConversationUseCase: PinConversationUseCase,
-    private val unpinConversationUseCase: UnpinConversationUseCase
+    private val pinConversationsUseCase: PinConversationsUseCase,
+    private val unpinConversationsUseCase: UnpinConversationsUseCase
 ) : ViewModel() {
 
 
     //region Fetch PinnedConversationThread list
 
-    private val _pinnedConversations = MutableStateFlow<List<ConversationThread>>(emptyList())
+    private val _pinnedConversations = MutableStateFlow<List<Long>>(emptyList())
     val pinnedConversations = _pinnedConversations.asStateFlow()
     fun fetchPinnedConversations() {
         viewModelScope.launch {
@@ -35,18 +34,18 @@ class PinViewModel @Inject constructor(
 
     //region Pin and Unpin ConversationThread
 
-    fun pinConversations(threadIds: List<Long>) {
-        viewModelScope.launch {
-            val success = pinConversationUseCase(threadIds)
-            if (success) fetchPinnedConversations()
-        }
-    }
-
-    fun unpinConversations(threadIds: List<Long>) {
-        viewModelScope.launch {
-            val success = unpinConversationUseCase(threadIds)
-            if (success) fetchPinnedConversations()
-        }
-    }
+//    fun pinConversations(threadIds: List<Long>) {
+//        viewModelScope.launch {
+//            val success = pinConversationsUseCase(threadIds)
+//            if (success) fetchPinnedConversations()
+//        }
+//    }
+//
+//    fun unpinConversations(threadIds: List<Long>) {
+//        viewModelScope.launch {
+//            val success = unpinConversationsUseCase(threadIds)
+//            if (success) fetchPinnedConversations()
+//        }
+//    }
     //endregion
 }

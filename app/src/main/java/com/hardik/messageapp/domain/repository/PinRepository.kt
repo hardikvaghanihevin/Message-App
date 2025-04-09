@@ -1,12 +1,11 @@
 package com.hardik.messageapp.domain.repository
 
-import com.hardik.messageapp.domain.model.ConversationThread
 import kotlinx.coroutines.flow.Flow
 
 interface PinRepository {
 
     //region Fetch PinnedConversationThread list
-    fun getPinnedConversations(): Flow<List<ConversationThread>>
+    fun getPinnedConversations(): Flow<List<Long>>
     //endregion
 
     //region Pin and Unpin ConversationThread

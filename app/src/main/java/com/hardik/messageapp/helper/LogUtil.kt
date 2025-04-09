@@ -12,3 +12,4 @@ object LogUtil {
         }
     }
 }
+//Log.e(TAG, "popupMenuBlockConversation: \n${it.joinToString("\n") { thread -> "threadId=${thread.threadId}, sender=${thread.sender}, normalizeNumber=${thread.normalizeNumber}" }}")

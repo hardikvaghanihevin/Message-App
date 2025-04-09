@@ -3,10 +3,17 @@ package com.hardik.messageapp.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.usecase.archive.ArchiveConversationThreadUseCase
+import com.hardik.messageapp.domain.usecase.block.BlockConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.conversation.fetch.GetConversationUseCase
+import com.hardik.messageapp.domain.usecase.conversation.read.MarkAsReadConversationThreadUseCase
+import com.hardik.messageapp.domain.usecase.conversation.read.MarkAsUnreadConversationThreadUseCase
+import com.hardik.messageapp.domain.usecase.pin.GetPinnedConversationsUseCase
+import com.hardik.messageapp.domain.usecase.pin.PinConversationsUseCase
+import com.hardik.messageapp.domain.usecase.pin.UnpinConversationsUseCase
 import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.presentation.util.AppDataSingleton
 import com.hardik.messageapp.presentation.util.CollapsingToolbarStateManager
@@ -28,6 +35,15 @@ class ConversationThreadViewModel  @Inject constructor(
 
     private val deleteConversationThreadUseCase: DeleteConversationThreadUseCase,
     private val archiveConversationThreadUseCase: ArchiveConversationThreadUseCase,
+    private val blockConversationThreadsUseCase: BlockConversationThreadsUseCase,
+
+    private val pinnedConversationsUseCase: GetPinnedConversationsUseCase,
+    private val pinConversationsUseCase: PinConversationsUseCase,
+    private val unPinConversationsUseCase: UnpinConversationsUseCase,
+
+    private val markAsReadConversationThreadUseCase: MarkAsReadConversationThreadUseCase,
+    private val markAsUnreadConversationThreadUseCase: MarkAsUnreadConversationThreadUseCase,
+
 ) : ViewModel() {
     private val TAG = BASE_TAG + ConversationThreadViewModel::class.java.simpleName
 
@@ -53,37 +69,54 @@ class ConversationThreadViewModel  @Inject constructor(
 
     //region Fetch ConversationThread (Message list)
     fun fetchConversationThreads(needToUpdate: Boolean = false) {
-        if (needToUpdate){ viewModelScope.launch { getConversationUseCase() } }
+        if (needToUpdate){ viewModelScope.launch { getConversationUseCase(TAG) } }
 
         viewModelScope.launch {
 
             launch {
                 AppDataSingleton.conversationThreads.collectLatest {
-                    Log.e(TAG, "fetchConversationThreads: ${it.size}", )
-                    if (it.isEmpty()){ getConversationUseCase() }
+                    Log.v(TAG, "fetchConversationThreads: ${it.size}", )
+                    if (it.isEmpty()){ getConversationUseCase(TAG) }
                     else {
                         _conversationThreads.emit(it)
                     } // Update the state with the fetched conversation threads
                 }
             }
             launch {//todo: still pending
-                AppDataSingleton.filteredConversationThreads.collectLatest {
-                    _filteredConversationThreads.emit(it)
+                    //_filteredConversationThreads.emit(it) //todo: set pin thread first
+                combine(
+                    AppDataSingleton.filteredConversationThreads,
+                    pinnedConversationsUseCase()
+                ) { threadList: List<ConversationThread>, pinnedThreadIds: List<Long> ->
+
+                    val pinnedThreadIdSet = pinnedThreadIds.toSet()
+
+                    val pinned = threadList
+                        .filter { it.threadId in pinnedThreadIdSet }
+                        .map { it.copy(isPin = true) }
+
+                    val others = threadList
+                        .filterNot { it.threadId in pinnedThreadIdSet }
+                        .map { it.copy(isPin = false) }
+
+                    pinned + others
+                }.collectLatest { updatedList ->
+                    _filteredConversationThreads.emit(updatedList)
                 }
             }
         }
-        fetchConversationThreadsPrivate()
+        fetchConversationThreadsPrivate() // when data is update "fetchConversationThreads(needToUpdate: Boolean = false)"
     }
     //endregion
 
     //region Fetch ConversationThread (Message list) Private
     private fun fetchConversationThreadsPrivate(needToUpdate: Boolean = false) {
 
-        if (needToUpdate){ viewModelScope.launch { getConversationUseCase() } }
+        if (needToUpdate){ viewModelScope.launch { getConversationUseCase(TAG) } }
 
         viewModelScope.launch {
             AppDataSingleton.conversationThreadsPrivate.collectLatest {
-                if (it.isEmpty()){ getConversationUseCase() }
+                if (it.isEmpty()){ getConversationUseCase(TAG) }
                 _conversationThreadsPrivate.value = it  // Update the state with the fetched conversation threads
             }
         }
@@ -118,6 +151,73 @@ class ConversationThreadViewModel  @Inject constructor(
         }
     }
     //endregion Delete ConversationThreads
+
+    // region Block Conversation Thread
+    private val _isBlockConversationThread = MutableStateFlow<Boolean>(false)
+    val isBlockConversationThread: StateFlow<Boolean> = _isBlockConversationThread.asStateFlow()
+
+    fun blockConversationByThreads(blockThreads: List<BlockThreadEntity>) {
+        viewModelScope.launch {
+            blockConversationThreadsUseCase(blockThreads = blockThreads)
+                .collectLatest { isBlocked -> _isBlockConversationThread.value = isBlocked
+
+                    if (isBlocked) fetchConversationThreads(needToUpdate = true) // refresh data list
+                }
+        }
+    }
+    // endregion Block Conversation Thread
+
+
+    // region Pin and Unpin ConversationThread
+    /** Pin Conversation Thread */
+    fun pinConversationsByThreadIds(threadIds: List<Long>) {
+        viewModelScope.launch {
+            pinConversationsUseCase(threadIds = threadIds)
+                .collectLatest { isPinned ->
+                    if (isPinned) fetchConversationThreads(needToUpdate = true)
+                }
+        }
+    }
+
+    /** Unpin Conversation Thread */
+    fun unpinConversationsByThreadIds(threadIds: List<Long>) {
+        viewModelScope.launch {
+            unPinConversationsUseCase(threadIds = threadIds)
+                .collectLatest { isUnpinned ->
+                    if (isUnpinned) fetchConversationThreads(needToUpdate = true)
+                }
+        }
+    }
+    // endregion Pin and Unpin ConversationThread
+
+    // region Mark as read/unread Conversation Thread
+    /** Mark as read Conversation Thread */
+    private val _isMarkAsReadConversationThread = MutableStateFlow<Boolean>(false)
+    val isMarkAsReadConversationThread: StateFlow<Boolean> = _isMarkAsReadConversationThread.asStateFlow()
+    fun markAsReadConversationByThreadIds(threadIds: List<Long>) {
+        viewModelScope.launch {
+            markAsReadConversationThreadUseCase(threadIds = threadIds)
+                .collectLatest { isRead -> _isMarkAsReadConversationThread.value = isRead
+
+                    if (isRead) fetchConversationThreads(needToUpdate = true)
+                }
+        }
+    }
+
+    /** Mark as unread Conversation Thread */
+    private val _isMarkAsUnreadConversationThread = MutableStateFlow<Boolean>(false)
+    val isMarkAsUnreadConversationThread: StateFlow<Boolean> = _isMarkAsUnreadConversationThread.asStateFlow()
+    fun markAsUnreadConversationByThreadIds(threadIds: List<Long>) {
+        viewModelScope.launch {
+            markAsUnreadConversationThreadUseCase(threadIds = threadIds)
+                .collectLatest { isUnread -> _isMarkAsUnreadConversationThread.value = isUnread
+
+                    if (isUnread) fetchConversationThreads(needToUpdate = true)
+                }
+        }
+    }
+    // endregion Mark as read/unread Conversation Thread
+
 
 
 

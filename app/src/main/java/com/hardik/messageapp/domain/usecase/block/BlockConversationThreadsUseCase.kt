@@ -8,9 +8,10 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
-class UnblockNumbersUseCase @Inject constructor(private val repository: BlockRepository) {
+class BlockConversationThreadsUseCase @Inject constructor(private val repository: BlockRepository) {
     suspend operator fun invoke(blockThreads: List<BlockThreadEntity>): Flow<Boolean> = flow {
-        val isUnblock = repository.unblockNumbers(blockThreads)
-        emit(isUnblock) // Emits the result
+        //repository.blockNumbers(numbers)
+        val isBlocked = repository.blockConversations(blockThreads)
+        emit(isBlocked) // Emits the result
     }.flowOn(Dispatchers.IO)
 }

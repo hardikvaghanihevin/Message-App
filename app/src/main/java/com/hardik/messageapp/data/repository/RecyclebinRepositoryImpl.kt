@@ -8,7 +8,7 @@ import com.hardik.messageapp.data.local.dao.BlockThreadDao
 import com.hardik.messageapp.data.local.dao.RecycleBinThreadDao
 import com.hardik.messageapp.data.local.entity.RecycleBinThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
-import com.hardik.messageapp.domain.repository.ConversationThreadRepository
+import com.hardik.messageapp.domain.repository.ConversationRepository
 import com.hardik.messageapp.domain.repository.RecyclebinRepository
 import com.hardik.messageapp.presentation.util.AppDataSingleton
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +26,7 @@ class RecyclebinRepositoryImpl @Inject constructor(
     private val recycleBinThreadDao: RecycleBinThreadDao,// for soft deletes list
     private val blockThreadDao: BlockThreadDao,
 
-    private val conversationThreadRepository: ConversationThreadRepository,
+    private val conversationRepository: ConversationRepository,
 ) : RecyclebinRepository {
 
     //region Fetch deleted ConversationThread list
@@ -35,10 +35,11 @@ class RecyclebinRepositoryImpl @Inject constructor(
         //val systemSmsFlow: Flow<List<ConversationThread>> = conversationThreadRepository.getConversationThreads() // Get all SMS messages
         val systemSmsFlow: Flow<List<ConversationThread>> = AppDataSingleton.conversationThreads // Get all SMS messages
         val recyclebinIdsFlow: Flow<List<Long>> = recycleBinThreadDao.getRecycleBinThreadIds() // Get recycle bin IDs
-        val blockIdsFlow: Flow<List<Long>> = blockThreadDao.getBlockThreadIds() // Get recycle bin IDs
+        //val blockIdsFlow: Flow<List<Long>> = blockThreadDao.getBlockThreadIds() // Get recycle bin IDs
 
-        combine(systemSmsFlow, recyclebinIdsFlow, blockIdsFlow) { smsList, recyclebinIds, blockIds ->
-            smsList.filter { it.threadId in recyclebinIds && it.threadId !in blockIds} // Filter only recyclebin messages
+        combine(systemSmsFlow, recyclebinIdsFlow) { smsList, recyclebinIds ->
+            //smsList.filter { it.threadId in recyclebinIds && it.threadId in blockIds} // Filter only recyclebin/block messages
+            smsList.filter { it.threadId in recyclebinIds} // Filter only recyclebin/block messages
         }.collect { emit(it) }
     }.flowOn(Dispatchers.IO)
     //endregion

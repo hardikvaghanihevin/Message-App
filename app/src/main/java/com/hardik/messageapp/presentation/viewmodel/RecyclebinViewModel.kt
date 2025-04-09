@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
-import com.hardik.messageapp.domain.usecase.block.BlockNumbersUseCase
+import com.hardik.messageapp.domain.usecase.block.BlockConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.recyclebin.DeleteFromRecyclebinConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.recyclebin.GetRecyclebinConversationThreadUseCase
@@ -26,7 +26,7 @@ class RecyclebinViewModel @Inject constructor(
     private val getRecyclebinConversationThreadUseCase: GetRecyclebinConversationThreadUseCase, // get list
     private val moveToRecyclebinConversationThreadUseCase: MoveToRecyclebinConversationThreadUseCase,
     private val removeFromRecyclebinConversationThreadUseCase: RemoveFromRecyclebinConversationThreadUseCase, // restore from recyclebin
-    private val blockNumbersUseCase: BlockNumbersUseCase, // do block numbers from recyclebin
+    private val blockConversationThreadsUseCase: BlockConversationThreadsUseCase, // do block numbers from recyclebin
     private val deleteFromRecyclebinConversationThreadUseCase: DeleteFromRecyclebinConversationThreadUseCase, // delete permanently from recyclebin
 
     private val deleteConversationThreadUseCase: DeleteConversationThreadUseCase,
@@ -56,7 +56,7 @@ class RecyclebinViewModel @Inject constructor(
     private val _isRestoreConversationThread = MutableStateFlow<Boolean>(false)
     val isRestoreConversationThread: StateFlow<Boolean> = _isRestoreConversationThread.asStateFlow()
 
-    fun restoreConversation(threadIds: List<Long>) {
+    fun restoreConversations(threadIds: List<Long>) {
         viewModelScope.launch {
             removeFromRecyclebinConversationThreadUseCase(threadIds = threadIds)
                 .collectLatest { isUnblocked -> _isRestoreConversationThread.value = isUnblocked
@@ -65,14 +65,14 @@ class RecyclebinViewModel @Inject constructor(
                 }
         }
     }
-    //endregion
+    //endregion Add and Remove RecycleBin ConversationThread
 
     //region Block Conversation Thread
     private val _isBlockRecyclebinConversationThread = MutableStateFlow<Boolean>(false)
     val isBlockRecyclebinConversationThread: StateFlow<Boolean> = _isBlockRecyclebinConversationThread.asStateFlow()
     fun blockRecyclebinConversationByThreadIds(blockThreads: List<BlockThreadEntity>) {
         viewModelScope.launch {
-            blockNumbersUseCase(blockThreads = blockThreads)
+            blockConversationThreadsUseCase(blockThreads = blockThreads)
                .collectLatest { isBlocked -> _isBlockRecyclebinConversationThread.value = isBlocked
 
                     if (isBlocked) fetchRecycleBinConversationThreads() // refresh data list
@@ -99,7 +99,7 @@ class RecyclebinViewModel @Inject constructor(
 
     //region Count for selected conversationThreads
     /**
-     * Used in [ArchiveActivity.kt]
+     * Used in [RecyclebinActivity.kt]
      */
     private val _countSelectedConversationThreads = MutableStateFlow<List<ConversationThread>>(emptyList())
     val countSelectedConversationThreads: StateFlow<List<ConversationThread>> = _countSelectedConversationThreads.asStateFlow()

@@ -1,4 +1,5 @@
 package com.hardik.messageapp.domain.repository
+/*
 
 import com.hardik.messageapp.domain.model.ConversationThread
 import kotlinx.coroutines.flow.Flow
@@ -11,4 +12,4 @@ interface ConversationThreadRepository {
     fun getConversationThreads(threadIds: List<Long>): Flow<List<ConversationThread>>
 
     //endregion
-}
+}*/

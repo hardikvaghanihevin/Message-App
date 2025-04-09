@@ -112,7 +112,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:padding="12dp"
-                        android:src="@drawable/dummy_ic_search" />
+                        android:src="@drawable/real_ic_search" />
 
                     <ImageView
                         android:id="@+id/toolbar_more"

@@ -46,7 +46,7 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
     //private val messageViewModel: MessageViewModel by activityViewModels()
     private lateinit var conversationViewmodel: ConversationThreadViewModel
     private lateinit var messageViewModel: MessageViewModel
-    private lateinit var conversationAdapter: ConversationAdapter
+    lateinit var conversationAdapter: ConversationAdapter
 
     private lateinit var toolbarStateManager: CollapsingToolbarStateManager
     private lateinit var toolbarStateChangeListener: CollapsingToolbarStateManager.OnStateChangeListener
@@ -82,7 +82,7 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
             swipeLeftBtn = { item -> swipeLeft(item) },
             swipeRightBtn = { item -> swipeRight(item) },
             onItemClick = { conversation ->
-                Log.e(TAG, "onViewCreated: clicked number:${conversation.normalizeNumber}")
+                //Log.e(TAG, "onViewCreated: clicked number:${conversation.normalizeNumber}")
 
                 //messageViewModel.getMessagesByThreadId(conversation.threadId) //call before to to chat screen
                 val intent = Intent(requireContext(), ChatActivity::class.java)
@@ -201,10 +201,10 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
         }}
         //endregion
 
-        lifecycleScope.launch { messageViewModel.countMessages.collectLatest { messages ->
-            Log.i(TAG, "$TAG -onViewCreated: ${messages.size}", )
+        lifecycleScope.launch { messageViewModel.unreadMessageCount.collectLatest { messages ->
+            //Log.i(TAG, "$TAG -onViewCreated: ${messages.size}", )
             binding.unreadMessages.apply {
-                text = "${messages.size} ${getString(R.string.unread_messages)}"
+                text = "$messages ${getString(R.string.unread_messages)}"
             }
         } }
 

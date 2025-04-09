@@ -7,7 +7,7 @@ import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.usecase.archive.ArchiveConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.archive.GetArchivedConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.archive.UnarchiveConversationThreadUseCase
-import com.hardik.messageapp.domain.usecase.block.BlockNumbersUseCase
+import com.hardik.messageapp.domain.usecase.block.BlockConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +26,7 @@ class ArchiveViewModel @Inject constructor(
     private val archiveConversationThreadUseCase: ArchiveConversationThreadUseCase,
     private val unarchiveConversationThreadUseCase: UnarchiveConversationThreadUseCase,
 
-    private val blockNumbersUseCase: BlockNumbersUseCase,
+    private val blockConversationThreadsUseCase: BlockConversationThreadsUseCase,
     private val deleteConversationThreadUseCase: DeleteConversationThreadUseCase,
 ) : ViewModel() {
     init { fetchArchiveConversationThread() }
@@ -44,7 +44,7 @@ class ArchiveViewModel @Inject constructor(
     // endregion
 
     //region Add and Remove Archive ConversationThread //
-/*    private val _isArchivedConversationThread = MutableStateFlow<Boolean>(false)
+    /*private val _isArchivedConversationThread = MutableStateFlow<Boolean>(false)
     val isArchivedConversationThread: StateFlow<Boolean> = _isArchivedConversationThread.asStateFlow()
     fun archiveConversationThread(threadIds: List<Long>) {
         viewModelScope.launch {
@@ -88,9 +88,9 @@ class ArchiveViewModel @Inject constructor(
     private val _isBlockArchiveConversationThread = MutableStateFlow<Boolean>(false)
     val isBlockArchiveConversationThread: StateFlow<Boolean> = _isBlockArchiveConversationThread.asStateFlow()
 
-    fun blockArchiveConversationByThreadIds(blockThreads: List<BlockThreadEntity>) {
+    fun blockArchiveConversationByThreads(blockThreads: List<BlockThreadEntity>) {
         viewModelScope.launch {
-            blockNumbersUseCase(blockThreads = blockThreads)
+            blockConversationThreadsUseCase(blockThreads = blockThreads)
                 .collectLatest { isBlocked -> _isBlockArchiveConversationThread.value = isBlocked
 
                     if (isBlocked) fetchArchiveConversationThread() // refresh data list

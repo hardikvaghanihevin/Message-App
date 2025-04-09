@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hardik.messageapp.R
 import com.hardik.messageapp.data.local.entity.BlockThreadEntity
-import com.hardik.messageapp.databinding.ActivityRecyclebinBinding
+import com.hardik.messageapp.databinding.ActivityBlockBinding
 import com.hardik.messageapp.helper.Constants
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
 import com.hardik.messageapp.presentation.custom_view.BottomMenu
@@ -23,10 +23,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class RecyclebinActivity : BaseActivity() {
-    private val TAG = Constants.BASE_TAG + RecyclebinActivity::class.java.simpleName
+class BlockActivity : BaseActivity() {
+    private val TAG = Constants.BASE_TAG + BlockActivity::class.java.simpleName
 
-    lateinit var binding: ActivityRecyclebinBinding
+    lateinit var binding: ActivityBlockBinding
 
     private lateinit var conversationAdapter: ConversationAdapter
     private var isAllSelected = false // Track selection state
@@ -34,7 +34,7 @@ class RecyclebinActivity : BaseActivity() {
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityRecyclebinBinding.inflate(layoutInflater)
+        binding = ActivityBlockBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         conversationAdapter = ConversationAdapter (
@@ -43,9 +43,9 @@ class RecyclebinActivity : BaseActivity() {
             onItemClick = { conversation -> Log.e(TAG, "onCreate: ${conversation}", )},
             onSelectionChanged = { selectedConversations, listSize ->
                 Log.e(TAG, "onCreate: ${selectedConversations.size} - $listSize", )
-                recyclebinViewModel.onSelectedChanged(selectedConversations)
+                blockViewModel.onSelectedChanged(selectedConversations)
 
-                showBottomMenu(BottomMenu.BOTTOM_MENU_3_RESTORE_BLOCK_DELETE).takeIf { selectedConversations.isNotEmpty() } ?: hideBottomMenu()
+                showBottomMenu(BottomMenu.BOTTOM_MENU_4_DELETE_UNBLOCK).takeIf { selectedConversations.isNotEmpty() } ?: hideBottomMenu()
                 // Automatically update selection state & drawable
                 isAllSelected = selectedConversations.size == listSize
                 binding.toolbarTvSelectAll.setCompoundDrawablesWithIntrinsicBounds(
@@ -64,11 +64,11 @@ class RecyclebinActivity : BaseActivity() {
             setPadding(0, 0, 0, marginInPx)  // Add padding programmatically
             clipToPadding = false            // Allow scrolling into padding
             overScrollMode = View.OVER_SCROLL_NEVER // Disable overscroll effect
-            addItemDecoration(CustomDividerItemDecoration(this@RecyclebinActivity, marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
+            addItemDecoration(CustomDividerItemDecoration(this@BlockActivity, marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
         }
 
         lifecycleScope.launch {
-            recyclebinViewModel.recyclebinConversations.collectLatest { binConversationList ->
+            blockViewModel.blockedConversations.collectLatest { binConversationList ->
                 //Log.e(TAG, "onCreate: ${binConversationList}", )
                 //val layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = false }
                 val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
@@ -89,7 +89,7 @@ class RecyclebinActivity : BaseActivity() {
         binding.toolbarMore.setOnClickListener { showPopupMenu(it) }  // Show custom popup menu on click of more button in toolbar
 
         //region toolbar selected item count management & Toolbar selected count management
-        lifecycleScope.launch { recyclebinViewModel.recyclebinAndToolbarCombinedState.collectLatest { (_, isShowSearch, selectedThreads) ->
+        lifecycleScope.launch { blockViewModel.blockAndToolbarCombinedState.collectLatest { (_, isShowSearch, selectedThreads) ->
 
             binding.toolbarLlSearch.apply {
                 val visible = View.VISIBLE.takeIf { isShowSearch }?: View.GONE
@@ -149,24 +149,18 @@ class RecyclebinActivity : BaseActivity() {
         //endregion Toolbar
 
         //region bottom menu
-        binding.includedNavViewBottomMenu3.navViewBottomLlRestore.setOnClickListener {
-            //Log.e(TAG, "onCreate: Unarchive",)
-            val threadIds = recyclebinViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            restoreConversations(threadIds = threadIds) // restore all selected bin threads
-
-            conversationAdapter.unselectAll()// todo: unselectAll after work is done
-        }
-        binding.includedNavViewBottomMenu3.navViewBottomLlBlock.setOnClickListener {
-            Log.e(TAG, "onCreate: Block",)
-            val blockThreads = recyclebinViewModel.countSelectedConversationThreads.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
-            blockConversation(blockThreads = blockThreads) // block all selected bin threads
-
-            conversationAdapter.unselectAll()// todo: unselectAll after work is done
-        }
-        binding.includedNavViewBottomMenu3.navViewBottomLlDelete.setOnClickListener {
+        binding.includedNavViewBottomMenu4.navViewBottomLlDelete.setOnClickListener {
             //Log.e(TAG, "onCreate: Delete",)
-            val threadIds = recyclebinViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            deleteRecyclebinConversation(threadIds) // delete (permanent) all selected bin threads
+            val threadIds = blockViewModel.countSelectedConversationThreads.value.map { it.threadId }
+            deleteBlockConversation(threadIds) // delete (permanent) all selected bin threads
+
+            conversationAdapter.unselectAll()// todo: unselectAll after work is done
+        }
+        binding.includedNavViewBottomMenu4.navViewBottomLlUnblock.setOnClickListener {
+            Log.e(TAG, "onCreate: Block",)
+            //val blockThreads: List<Long> = blockViewModel.blockedConversations.value.map { it.threadId }
+            val blockThreads: List<BlockThreadEntity> = blockViewModel.blockedConversations.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
+            unblockConversation(blockThreads = blockThreads) // block all selected bin threads
 
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
@@ -174,30 +168,22 @@ class RecyclebinActivity : BaseActivity() {
 
     }
 
-    private fun restoreConversations(threadIds: List<Long>) {
-        recyclebinViewModel.restoreConversations(threadIds)
+
+    private fun unblockConversation(blockThreads: List<BlockThreadEntity>) {//unblockConversation
+        blockViewModel.unblockConversations(blockThreads)
 
         lifecycleScope.launch {
-            recyclebinViewModel.isRestoreConversationThread.collectLatest { isRestored ->
-                conversationViewModel.fetchConversationThreads(needToUpdate = isRestored)
-            }
-        }
-    }
-    private fun blockConversation(blockThreads: List<BlockThreadEntity>) {
-        recyclebinViewModel.blockRecyclebinConversationByThreadIds(blockThreads)
-
-        lifecycleScope.launch {
-            recyclebinViewModel.isBlockRecyclebinConversationThread.collectLatest { isBlocked ->
+            blockViewModel.isUnblockConversationThread.collectLatest { isBlocked ->
                 conversationViewModel.fetchConversationThreads(needToUpdate = isBlocked)
             }
         }
 
     }
-    private fun deleteRecyclebinConversation(threadIds: List<Long>) {
-        recyclebinViewModel.deleteRecyclebinConversationByThreadIds(threadIds)
+    private fun deleteBlockConversation(threadIds: List<Long>) {//deleteBlockConversation
+        blockViewModel.deleteBlockConversationByThreadIds(threadIds)
 
         lifecycleScope.launch {
-            recyclebinViewModel.isDeleteRecyclebinConversationThread.collectLatest { isPermanentDelete ->
+            blockViewModel.isDeleteBlockConversationThread.collectLatest { isPermanentDelete ->
                 conversationViewModel.fetchConversationThreads(needToUpdate = isPermanentDelete)
             }
         }
@@ -206,10 +192,9 @@ class RecyclebinActivity : BaseActivity() {
 
     private fun showPopupMenu(view: View){
 
-        val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = PopupMenu.RECYCLE_BIN.getMenuItems(this), showUnderLine = true) { selectedItem ->
+        val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = PopupMenu.BLOCK.getMenuItems(this), showUnderLine = true) { selectedItem ->
             when (selectedItem) {
-                getString(R.string.restore_all) -> { popupMenuRestoreAll() }
-                getString(R.string.block_all) -> { popupMenuBlockAll() }
+                getString(R.string.unblock_all) -> { popupMenuUnblockAll() }
                 getString(R.string.delete_all) -> { popupMenuDeleteAll() }
             }
         }
@@ -218,25 +203,20 @@ class RecyclebinActivity : BaseActivity() {
         popupMenu.show(showAbove = false, alignStart = false)
     }
 
-    private fun popupMenuRestoreAll() {
-        val selectedThreads = recyclebinViewModel.recyclebinConversations.value
-        if (selectedThreads.isNotEmpty()) {
-            val threadIds = selectedThreads.map { it.threadId }
-            restoreConversations(threadIds = threadIds) // restore all bin threads
-        }
-    }
-    private fun popupMenuBlockAll() {
-        val blockThreads: List<BlockThreadEntity> = recyclebinViewModel.recyclebinConversations.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
+
+    private fun popupMenuUnblockAll() {
+        //val blockThreads: List<Long> = blockViewModel.blockedConversations.value.map { it.threadId }
+        val blockThreads: List<BlockThreadEntity> = blockViewModel.blockedConversations.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
         if (blockThreads.isNotEmpty()){
-            blockConversation(blockThreads = blockThreads) // block all bin threads
+            unblockConversation(blockThreads = blockThreads) // unblock all bin threads
         }
 
     }
     private fun popupMenuDeleteAll() {
-        val selectedThreads = recyclebinViewModel.recyclebinConversations.value
+        val selectedThreads = blockViewModel.blockedConversations.value
         if (selectedThreads.isNotEmpty()) {
             val threadIds = selectedThreads.map { it.threadId }
-            deleteRecyclebinConversation(threadIds = threadIds) // delete all bin threads
+            deleteBlockConversation(threadIds = threadIds) // delete all bin threads
         }
     }
 

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 /*object TimeFormatter {
 
@@ -96,27 +97,37 @@ class TimeFormatter {
 
 class TimeFormatterForConversation {
 
-    private val TIME_ONLY_FORMAT = "h:mm a"   // 6:10 PM
-    private val DATE_FORMAT = "dd MMM"        // 07 Apr
+    private val TIME_ONLY_FORMAT = "h:mm a"    // 6:10 PM
+    private val DATE_FORMAT = "dd MMM"         // 09 Mar
 
     fun formatTimestamp(timestamp: Long): String {
         val now = Calendar.getInstance()
         val target = Calendar.getInstance().apply { timeInMillis = timestamp }
 
+        val diffMillis = now.timeInMillis - target.timeInMillis
+        val diffMinutes = TimeUnit.MILLISECONDS.toMinutes(diffMillis)
+        val diffHours = TimeUnit.MILLISECONDS.toHours(diffMillis)
+
         return when {
             isSameDay(now, target) -> {
-                // Today
-                format(timestamp, TIME_ONLY_FORMAT)
+                when {
+                    diffMinutes < 1 -> "Now"
+                    diffMinutes < 60 -> "${diffMinutes} min"
+                    diffHours < 24 -> "${diffHours} hr"
+                    else -> format(timestamp, TIME_ONLY_FORMAT)
+                }
             }
 
             isYesterday(now, target) -> {
-                // Yesterday
-                "Yesterday . ${format(timestamp, TIME_ONLY_FORMAT)}"
+                "Yesterday"
+            }
+
+            isWithinLast7Days(now, target) -> {
+                format(timestamp, "EEEE") // Day name like Monday
             }
 
             else -> {
-                // Anything older
-                format(timestamp, DATE_FORMAT)
+                format(timestamp, DATE_FORMAT) // 09 Mar
             }
         }
     }
@@ -126,8 +137,8 @@ class TimeFormatterForConversation {
     }
 
     private fun isSameDay(cal1: Calendar, cal2: Calendar): Boolean {
-        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
-                && cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
+        return cal1.get(Calendar.YEAR) == cal2.get(Calendar.YEAR) &&
+                cal1.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR)
     }
 
     private fun isYesterday(today: Calendar, target: Calendar): Boolean {
@@ -136,5 +147,13 @@ class TimeFormatterForConversation {
             add(Calendar.DAY_OF_YEAR, -1)
         }
         return isSameDay(yesterday, target)
+    }
+
+    private fun isWithinLast7Days(today: Calendar, target: Calendar): Boolean {
+        val sevenDaysAgo = Calendar.getInstance().apply {
+            timeInMillis = today.timeInMillis
+            add(Calendar.DAY_OF_YEAR, -7)
+        }
+        return target.after(sevenDaysAgo) && target.before(today)
     }
 }

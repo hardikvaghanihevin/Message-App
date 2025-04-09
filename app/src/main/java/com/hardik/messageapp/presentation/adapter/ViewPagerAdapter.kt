@@ -7,19 +7,19 @@ import com.hardik.messageapp.presentation.ui.fragment.MessageFragment
 import com.hardik.messageapp.presentation.ui.fragment.PrivateFragment
 
 class ViewPagerAdapter(activity: FragmentActivity) : FragmentStateAdapter(activity) {
-    private val fragments = mutableListOf<Fragment>()
+    private val fragmentMap = mutableMapOf<Int, Fragment>()
+
     override fun getItemCount(): Int = 2
+
     override fun createFragment(position: Int): Fragment {
-        val fragment =  when (position) {
+        val fragment = when (position) {
             0 -> MessageFragment()
             1 -> PrivateFragment()
-            else -> throw IllegalStateException("Unexpected position: $position")
+            else -> throw IllegalStateException("Invalid position $position")
         }
-        fragments.add(fragment)
+        fragmentMap[position] = fragment
         return fragment
     }
 
-    fun getFragment(position: Int): Fragment? {
-        return fragments.getOrNull(position)
-    }
+    fun getFragment(position: Int): Fragment? = fragmentMap[position]
 }

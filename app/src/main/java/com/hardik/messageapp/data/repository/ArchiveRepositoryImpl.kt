@@ -6,7 +6,7 @@ import com.hardik.messageapp.data.local.dao.RecycleBinThreadDao
 import com.hardik.messageapp.data.local.entity.ArchivedThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.ArchiveRepository
-import com.hardik.messageapp.domain.repository.ConversationThreadRepository
+import com.hardik.messageapp.domain.repository.ConversationRepository
 import com.hardik.messageapp.presentation.util.AppDataSingleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +20,7 @@ class ArchiveRepositoryImpl @Inject constructor(
     private val recycleBinThreadDao: RecycleBinThreadDao,// for soft deletes list
     private val blockThreadDao: BlockThreadDao,// for block list
 
-    private val conversationThreadRepository: ConversationThreadRepository,
+    private val conversationRepository: ConversationRepository,
 ) : ArchiveRepository {
 
     //region Fetch Archive ConversationThread list
@@ -28,7 +28,7 @@ class ArchiveRepositoryImpl @Inject constructor(
         //val systemSmsFlow = conversationThreadRepository.getConversationThreads() // Get all SMS messages
         val systemSmsFlow: Flow<List<ConversationThread>> = AppDataSingleton.conversationThreads // Get all SMS messages
         val archivedIdsFlow: Flow<List<Long>> = archivedThreadDao.getArchivedThreadIds() // Get archived IDs
-        val recyclebinIdsFlow: Flow<List<Long>> = recycleBinThreadDao.getRecycleBinThreadIds() // Get archived IDs
+        val recyclebinIdsFlow: Flow<List<Long>> = recycleBinThreadDao.getRecycleBinThreadIds() // Get bin IDs
         val blockIdsFlow: Flow<List<Long>> = blockThreadDao.getBlockThreadIds() // Get archived IDs
 
         combine(systemSmsFlow, archivedIdsFlow, recyclebinIdsFlow, blockIdsFlow) { smsList, archivedIds, recyclebinIds, blockIds ->

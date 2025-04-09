@@ -14,6 +14,15 @@ android {
     namespace = "com.hardik.messageapp"
     compileSdk = 35
 
+    /*signingConfigs {
+        create("release") {
+            storeFile = file("/Users/dreamworld/Desktop/Projects/Hardik/MessageApp/app/com_hardik_messageapp.jks")
+            storePassword = "com_hardik_messageapp"
+            keyAlias = "com_hardik_messageapp"
+            keyPassword = "com_hardik_messageapp"
+        }
+    }*/
+
     defaultConfig {
         applicationId = "com.hardik.messageapp"
         minSdk = 26
@@ -32,6 +41,25 @@ android {
                 "proguard-rules.pro"
             )
         }
+/*        debug {
+            isDebuggable = true
+            isShrinkResources = true
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        release {
+            isDebuggable = false
+            isShrinkResources = true
+            isMinifyEnabled = true
+            signingConfig = signingConfigs.getByName("release")
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }*/
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

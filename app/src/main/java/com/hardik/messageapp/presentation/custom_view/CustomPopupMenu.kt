@@ -2,11 +2,13 @@ package com.hardik.messageapp.presentation.custom_view
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.Point
 import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
@@ -16,16 +18,55 @@ import com.hardik.messageapp.R
 
 
 enum class PopupMenu(val items: List<Pair<Int, Int>>) {
-    HOME(
+    HOME_ALL(
         listOf(
             R.string.delete_all to R.drawable.real_ic_delete,
             R.string.block_conversation to R.drawable.real_ic_block,
-            R.string.mark_as_read to R.drawable.real_ic_mark_as_read,
+            R.string.mark_all_as_read to R.drawable.real_ic_mark_as_read,
             R.string.archived to R.drawable.real_ic_archive,
             R.string.scheduled to R.drawable.real_ic_scheduled,
             R.string.starred_message to R.drawable.real_ic_starred,
             R.string.recycle_bin to R.drawable.real_ic_recyclebin,
             R.string.settings to R.drawable.real_ic_settings
+        )
+    ),
+    HOME_UNLESS_READ(
+        listOf(
+            R.string.delete_all to R.drawable.real_ic_delete,
+            R.string.block_conversation to R.drawable.real_ic_block,
+            R.string.archived to R.drawable.real_ic_archive,
+            R.string.scheduled to R.drawable.real_ic_scheduled,
+            R.string.starred_message to R.drawable.real_ic_starred,
+            R.string.recycle_bin to R.drawable.real_ic_recyclebin,
+            R.string.settings to R.drawable.real_ic_settings
+        )
+    ),
+    HOME_READ_PIN_BLOCK(
+        listOf(
+            R.string.mark_as_read to R.drawable.real_ic_mark_as_read,
+            R.string.pin_conversation to R.drawable.real_ic_pin,
+            R.string.block_conversation to R.drawable.real_ic_block,
+        )
+    ),
+    HOME_UNREAD_UNPIN_BLOCK(
+        listOf(
+            R.string.mark_as_unread to R.drawable.real_ic_mark_as_unread,
+            R.string.unpin_conversation to R.drawable.real_ic_unpin,
+            R.string.block_conversation to R.drawable.real_ic_block,
+        )
+    ),
+    HOME_UNREAD_PIN_BLOCK(
+        listOf(
+            R.string.mark_as_unread to R.drawable.real_ic_mark_as_unread,
+            R.string.pin_conversation to R.drawable.real_ic_pin,
+            R.string.block_conversation to R.drawable.real_ic_block,
+        )
+    ),
+    HOME_READ_UNPIN_BLOCK(
+        listOf(
+            R.string.mark_as_read to R.drawable.real_ic_mark_as_read,
+            R.string.unpin_conversation to R.drawable.real_ic_unpin,
+            R.string.block_conversation to R.drawable.real_ic_block,
         )
     ),
     VIEW_UNREAD_MESSAGE(
@@ -140,6 +181,51 @@ private val onItemClick: (String) -> Unit
 
     }
 
+    fun showNearAnchorWithMargin(
+        showAbove: Boolean,
+        alignStart: Boolean,
+        marginTopDp: Int = 16,
+        marginBottomDp: Int = 16,
+        marginStartDp: Int = 16,
+        marginEndDp: Int = 16
+    ) {
+        val location = IntArray(2)
+        anchorView.getLocationOnScreen(location)
+
+        val anchorX = location[0]
+        val anchorY = location[1]
+        val anchorWidth = anchorView.width
+        val anchorHeight = anchorView.height
+
+        val density = context.resources.displayMetrics.density
+        val marginTop = (marginTopDp * density).toInt()
+        val marginBottom = (marginBottomDp * density).toInt()
+        val marginStart = (marginStartDp * density).toInt()
+        val marginEnd = (marginEndDp * density).toInt()
+
+        popupWindow.contentView.measure(
+            View.MeasureSpec.UNSPECIFIED,
+            View.MeasureSpec.UNSPECIFIED
+        )
+        val popupWidth = popupWindow.contentView.measuredWidth
+        val popupHeight = popupWindow.contentView.measuredHeight
+
+        val x = if (alignStart) {
+            anchorX + marginStart
+        } else {
+            anchorX + anchorWidth - popupWidth - marginEnd
+        }
+
+        val y = if (showAbove) {
+            anchorY - popupHeight - marginBottom
+        } else {
+            anchorY + anchorHeight + marginTop
+        }
+
+        popupWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, x, y)
+    }
+
+
     fun show() {
         val location = IntArray(2)
         anchorView.getLocationOnScreen(location)
@@ -184,6 +270,54 @@ private val onItemClick: (String) -> Unit
 
         popupWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, xOffset, yOffset)
     }
+
+    fun showWithScreenMargin() {
+        val screenSize = Point()
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        windowManager.defaultDisplay.getSize(screenSize)
+        val screenWidth = screenSize.x
+        val screenHeight = screenSize.y
+
+        val location = IntArray(2)
+        anchorView.getLocationOnScreen(location)
+        val anchorX = location[0]
+        val anchorY = location[1]
+
+        // Convert 16dp to px
+        val marginPx = (16 * context.resources.displayMetrics.density).toInt()
+
+        // Measure popup content
+        popupWindow.contentView.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+        val popupWidth = popupWindow.contentView.measuredWidth
+        val popupHeight = popupWindow.contentView.measuredHeight
+
+        // Determine if there's more space below or above the anchor view
+        val spaceBelow = screenHeight - (anchorY + anchorView.height)
+        val spaceAbove = anchorY
+
+        val showBelow = spaceBelow >= popupHeight + marginPx || spaceBelow >= spaceAbove
+
+        // X offset: try to align to start (left), but keep within screen + margins
+        val xOffset = when {
+            anchorX + popupWidth + marginPx > screenWidth -> screenWidth - popupWidth - marginPx
+            anchorX < marginPx -> marginPx
+            else -> anchorX
+        }
+
+        // Y offset: either show below or above the anchor, with margin applied
+        val yOffset = if (showBelow) {
+            (anchorY + anchorView.height).coerceAtMost(screenHeight - popupHeight - marginPx)
+        } else {
+            (anchorY - popupHeight).coerceAtLeast(marginPx)
+        }
+
+        popupWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, xOffset, yOffset)
+    }
+
+
 
 
 }

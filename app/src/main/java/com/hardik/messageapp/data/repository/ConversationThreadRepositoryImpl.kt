@@ -1,4 +1,5 @@
 package com.hardik.messageapp.data.repository
+/*
 
 import android.content.Context
 import android.net.Uri
@@ -71,7 +72,8 @@ class ConversationThreadRepositoryImpl @Inject constructor(
                         displayName = displayName ?: "Unknown",
                     )
                 }
-                /*val contactId = getContactIdFromPhoneNumber(context, sms.sender)
+                */
+/*val contactId = getContactIdFromPhoneNumber(context, sms.sender)
 
                 threadData?.let {
                     threadMap[sms.threadId] = sms.copy(
@@ -83,7 +85,8 @@ class ConversationThreadRepositoryImpl @Inject constructor(
                         photoUri = contactId?.let { id -> contactsMap[id]?.photoUri } ?: "", //(contactId?.let { id -> (contactsMap[id]?.firstName + " " + contactsMap[id]?.lastName).trim() } ?: ""),
                         displayName = contactId?.let { id -> contactsMap[id]?.displayName } ?: sms.sender ?: ""
                     )
-                }*/
+                }*//*
+
             }
         }
 
@@ -346,4 +349,4 @@ class ConversationThreadRepositoryImpl @Inject constructor(
         return threadList
     }
 
-}
+}*/

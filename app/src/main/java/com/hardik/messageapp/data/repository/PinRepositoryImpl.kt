@@ -2,8 +2,7 @@ package com.hardik.messageapp.data.repository
 
 import com.hardik.messageapp.data.local.dao.PinThreadDao
 import com.hardik.messageapp.data.local.entity.PinThreadEntity
-import com.hardik.messageapp.domain.model.ConversationThread
-import com.hardik.messageapp.domain.repository.ConversationThreadRepository
+import com.hardik.messageapp.domain.repository.ConversationRepository
 import com.hardik.messageapp.domain.repository.PinRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -14,7 +13,7 @@ import javax.inject.Inject
 class PinRepositoryImpl @Inject constructor(
     private val pinThreadDao: PinThreadDao,
 
-    private val conversationThreadRepository: ConversationThreadRepository
+    private val conversationRepository: ConversationRepository
 ) : PinRepository {
 
 
@@ -22,12 +21,12 @@ class PinRepositoryImpl @Inject constructor(
     //region Fetch PinnedConversationThread list
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getPinnedConversations(): Flow<List<ConversationThread>> {
+    override fun getPinnedConversations(): Flow<List<Long>> {
         return pinThreadDao.getPinnedConversations().flatMapLatest { threadIds ->
             if (threadIds.isEmpty()) {
                 flowOf(emptyList()) // Return an empty list if no thread IDs exist
             } else {
-                conversationThreadRepository.getConversationThreads(threadIds)
+                pinThreadDao.getPinnedConversations()
             }
         }
     }

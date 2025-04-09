@@ -154,7 +154,7 @@
                         android:clickable="true"
                         android:focusable="true"
                         android:padding="12dp"
-                        android:src="@drawable/dummy_ic_search"
+                        android:src="@drawable/real_ic_search"
                         app:tint="@color/text_color_1" />
 
                     <ImageView

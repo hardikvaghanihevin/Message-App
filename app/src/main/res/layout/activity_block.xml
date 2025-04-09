@@ -7,7 +7,7 @@
     android:background="@color/color_01"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
-    tools:context=".presentation.ui.activity.RecyclebinActivity">
+    tools:context=".presentation.ui.activity.BlockActivity">
 
 
     <!--Custom toolbar-->
@@ -67,7 +67,7 @@
                     android:layout_centerVertical="true"
                     android:layout_alignParentStart="true"
                     android:layout_marginStart="16dp"
-                    android:text="@string/recycle_bin"
+                    android:text="@string/block_conversation"
                     android:textColor="@color/text_color_1"
                     android:textSize="20sp"
                     android:textStyle="bold"
@@ -175,14 +175,14 @@
             android:overScrollMode="never"
             android:visibility="visible"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@id/included_navViewBottomMenu3"
+            app:layout_constraintBottom_toTopOf="@id/included_navViewBottomMenu4"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_weight="1"
             tools:listitem="@layout/item_conversation" />
 
         <include
-            android:id="@+id/included_navViewBottomMenu3"
-            layout="@layout/nav_view_bottom_menu_3"
+            android:id="@+id/included_navViewBottomMenu4"
+            layout="@layout/nav_view_bottom_menu_4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"

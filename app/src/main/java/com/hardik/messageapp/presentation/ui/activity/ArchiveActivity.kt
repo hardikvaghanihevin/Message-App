@@ -173,7 +173,7 @@ class ArchiveActivity: BaseActivity() {
         }
         binding.includedNavViewBottomMenu2.navViewBottomLlBlock.setOnClickListener {
             Log.e(TAG, "onCreate: Block",)
-            val blockThreads = archiveViewModel.countSelectedConversationThreads.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber) }
+            val blockThreads = archiveViewModel.countSelectedConversationThreads.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
 
             blockArchiveConversation(blockThreads) // block all selected bin threads
 
@@ -221,7 +221,7 @@ class ArchiveActivity: BaseActivity() {
     }
 
     private fun blockArchiveConversation(blockThreads: List<BlockThreadEntity>){
-        archiveViewModel.blockArchiveConversationByThreadIds(blockThreads)
+        archiveViewModel.blockArchiveConversationByThreads(blockThreads)
 
         lifecycleScope.launch {
             archiveViewModel.isBlockArchiveConversationThread.collectLatest { isBlocked: Boolean ->

@@ -1,4 +1,5 @@
 package com.hardik.messageapp.data.repository
+/*
 
 import android.content.Context
 import android.database.Cursor
@@ -84,4 +85,4 @@ class ConversationThread1RepositoryImpl @Inject constructor(
         if (columnIndex != -1) getLong(columnIndex) else null
     //endregion
 
-}
+}*/

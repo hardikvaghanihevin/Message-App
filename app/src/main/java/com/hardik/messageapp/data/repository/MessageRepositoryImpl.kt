@@ -137,7 +137,7 @@ class MessageRepositoryImpl @Inject constructor(
         selection: String? = null,
         selectionArgs: Array<String>? = null
     ): List<Message> {
-        Log.e(TAG, "$TAG - queryMessage: ", )
+        //Log.e(TAG, "$TAG - queryMessage: ", )
         val uri = Telephony.Sms.CONTENT_URI
 
 
@@ -201,7 +201,7 @@ class MessageRepositoryImpl @Inject constructor(
     private var startTime by Delegates.notNull<Long>() // Start time
     private var endTime by Delegates.notNull<Long>() // End time
     override fun getMessages(): Flow<List<Message>> = flow {
-        Log.e(TAG, "$TAG - getMessages: ", )
+        //Log.e(TAG, "$TAG - getMessages: ", )
         val messages = queryMessage()
         emit(messages)
 
@@ -214,7 +214,7 @@ class MessageRepositoryImpl @Inject constructor(
         }
 
     override fun getMessages(messageId: Long): Flow<Message?> = callbackFlow {
-        Log.e(TAG, "$TAG - getMessages: by id", )
+        //Log.e(TAG, "$TAG - getMessages: by id", )
         val selection = "${Telephony.Sms._ID} = ?"
         val selectionArgs = arrayOf(messageId.toString())
 
@@ -227,7 +227,7 @@ class MessageRepositoryImpl @Inject constructor(
     }.flowOn(Dispatchers.IO)
 
     override fun getMessages(messageIds: List<Long>): Flow<List<Message>> = callbackFlow {
-        Log.e(TAG, "$TAG - getMessages: by ids", )
+        //Log.e(TAG, "$TAG - getMessages: by ids", )
         val selection = "${Telephony.Sms._ID} IN (${messageIds.joinToString(",")})"
 
         val messages = queryMessage(selection)

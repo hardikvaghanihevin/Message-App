@@ -13,6 +13,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.hardik.messageapp.R
+import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.databinding.ActivityMainBinding
 import com.hardik.messageapp.databinding.NavViewBottomBinding
 import com.hardik.messageapp.domain.model.Message
@@ -23,6 +24,9 @@ import com.hardik.messageapp.presentation.adapter.ViewPagerAdapter
 import com.hardik.messageapp.presentation.custom_view.BottomNavManager
 import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
+import com.hardik.messageapp.presentation.ui.fragment.MessageFragment
+import com.hardik.messageapp.presentation.ui.fragment.PrivateFragment
+import com.hardik.messageapp.presentation.util.evaluateSelectionGetHomeToolbarMenu
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -48,6 +52,7 @@ class MainActivity : BaseActivity() {
 
     private lateinit var fabNewConversation: ImageView
     lateinit var navBinding: NavViewBottomBinding
+    lateinit var viewPagerAdapter: ViewPagerAdapter
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,8 +70,8 @@ class MainActivity : BaseActivity() {
         if (isDefaultSmsApp(this)) {
 
             // ViewPager Adapter
-            val adapter = ViewPagerAdapter(this)
-            viewPager.adapter = adapter
+            viewPagerAdapter = ViewPagerAdapter(this)
+            viewPager.adapter = viewPagerAdapter
             viewPager.isUserInputEnabled = false  // Disable swipe navigation
 
 
@@ -97,7 +102,7 @@ class MainActivity : BaseActivity() {
             }
 
             val isGranted = (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED)
-            Log.e(TAG, "onCreate: $isGranted", )
+            Log.e(TAG, "onCreate: $isGranted")
                 //ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.READ_CONTACTS), REQUEST_CONTACTS_PERMISSION)
 
 
@@ -121,12 +126,14 @@ class MainActivity : BaseActivity() {
     }
 
     fun showPopupMenu(view: View){
+        val unReadThreads = conversationViewModel.filteredConversationThreads.value.filter { !it.read }.map { it }
+        val resultMenu = evaluateSelectionGetHomeToolbarMenu(conversationViewModel.filteredConversationThreads.value)
 
-        val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = PopupMenu.HOME.getMenuItems(this), showUnderLine = true) { selectedItem ->
+        val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = resultMenu.getMenuItems(this), showUnderLine = true) { selectedItem ->
             when (selectedItem) {
                 getString(R.string.delete_all) -> { popupMenuDeleteAll() }
                 getString(R.string.block_conversation) -> { popupMenuBlockConversation() }
-                getString(R.string.mark_as_read) -> { popupMenuMarkAsRead() }
+                getString(R.string.mark_all_as_read) -> { popupMenuMarkAsRead() }
                 getString(R.string.archived) -> { popupMenuArchived() }
                 getString(R.string.scheduled) -> { popupMenuSchedule() }
                 getString(R.string.starred_message) -> { popupMenuStarredMessage()}
@@ -135,26 +142,31 @@ class MainActivity : BaseActivity() {
             }
         }
 
-        //popupMenu.show() // Show the custom popup
-        // Show below and align to start
-        popupMenu.show(showAbove = false, alignStart = false)
+        // Show below and align to End Show the custom popup
+        popupMenu.showNearAnchorWithMargin(showAbove = false, alignStart = false,
+            marginTopDp = 0,
+            marginBottomDp = 0,
+            marginStartDp = 0,
+            marginEndDp = 17
+        )
     }
+
 
     private fun popupMenuDeleteAll() {
-        Toast.makeText(this, "delete", Toast.LENGTH_SHORT).show()
-//        val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
-//        conversationViewModel.deleteConversationByThreads(threads)
+        //Toast.makeText(this, "delete", Toast.LENGTH_SHORT).show()
+        val threadsGeneral: List<Long> = conversationViewModel.filteredConversationThreads.value.map { it.threadId }
+        //val threadsPrivate: List<Long> = conversationViewModel.conversationThreadsPrivate.value.map { it.threadId }
+        deleteConversation(threadsGeneral)// delete all conversation
     }
-    private fun popupMenuBlockConversation() {
-        Toast.makeText(this, "conversation ", Toast.LENGTH_SHORT).show()
-        Log.e(TAG, "popupMenuBlockConversation: ${blockViewModel.blockedNumbers.value}", )
-
-
-    }
+    private fun popupMenuBlockConversation() { startActivity(Intent(this, BlockActivity::class.java)) }
     private fun popupMenuMarkAsRead() {
-        Toast.makeText(this, "mark as read", Toast.LENGTH_SHORT).show()
-//        val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
-//        archiveConversation(threads)
+        val threadIds: List<Long> = conversationViewModel.filteredConversationThreads.value.filter { !it.read }.map { it.threadId }
+        conversationViewModel.markAsReadConversationByThreadIds(threadIds = threadIds) // popupMenuToolbar
+        lifecycleScope.launch {
+            conversationViewModel.isMarkAsReadConversationThread.collectLatest { isRead ->
+                super.fetchSmsMessages(needToUpdate = isRead) // Mark as read
+            }
+        }
     }
     private fun popupMenuArchived() { startActivity(Intent(this, ArchiveActivity::class.java)) }
     private fun popupMenuSchedule() { /*startActivity(Intent(this, ArchiveActivity::class.java))*/ }
@@ -162,7 +174,27 @@ class MainActivity : BaseActivity() {
     private fun popupMenuRecycleBin() { startActivity(Intent(this, RecyclebinActivity::class.java)) }
     private fun popupMenuSettings() { /*startActivity(Intent(this, ArchiveActivity::class.java))*/ }
 
+    fun showPopupMenuBottom(view: View, selectedMenu: PopupMenu){
 
+        val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = selectedMenu.getMenuItems(this), showUnderLine = true) { selectedItem ->
+            when (selectedItem) {
+                getString(R.string.mark_as_read) -> { popupMenuMarkAsReadBottom() }
+                getString(R.string.mark_as_unread) -> { popupMenuMarkAsUnreadBottom() }
+                getString(R.string.pin_conversation) -> { popupMenuPinConversationBottom() }
+                getString(R.string.unpin_conversation) -> { popupMenuUnpinConversationBottom() }
+                getString(R.string.block_conversation) -> { popupMenuBlockConversationBottom() }
+            }
+        }
+
+        // Show above and align to End Show the custom popup
+        popupMenu.showNearAnchorWithMargin(showAbove = true, alignStart = false,
+            marginTopDp = 0,
+            marginBottomDp = 24,
+            marginStartDp = 0,
+            marginEndDp = 9
+        )
+
+    }
 
     // ✅ Handle SMS Event (Auto Updates UI)
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -191,6 +223,96 @@ class MainActivity : BaseActivity() {
     fun deleteConversation(threadIds: List<Long>){
         //val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
         conversationViewModel.deleteConversationByThreads(threadIds)
+    }
+
+    private fun popupMenuMarkAsReadBottom() {
+        val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+        conversationViewModel.markAsReadConversationByThreadIds(threadIds = threadIds)
+        lifecycleScope.launch {
+            conversationViewModel.isMarkAsReadConversationThread.collectLatest { isRead ->
+                Log.e(TAG, "popupMenuMarkAsReadBottom: $isRead", )
+                super.fetchSmsMessages(needToUpdate = isRead) // Mark as read
+            }
+        }
+        val currentPosition = viewPager.currentItem
+        val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+
+        if (currentFragment is MessageFragment) {
+            currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
+        }
+        if (currentFragment is PrivateFragment) {
+            currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
+        }
+    }
+
+    private fun popupMenuMarkAsUnreadBottom() {
+        val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+        conversationViewModel.markAsUnreadConversationByThreadIds(threadIds = threadIds)
+        lifecycleScope.launch {
+            conversationViewModel.isMarkAsUnreadConversationThread.collectLatest { isUnread ->
+                super.fetchSmsMessages(needToUpdate = isUnread) // Mark as unread
+            }
+        }
+        val currentPosition = viewPager.currentItem
+        val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+
+        if (currentFragment is MessageFragment) {
+            currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
+        }
+        if (currentFragment is PrivateFragment) {
+            currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
+        }
+    }
+    private fun popupMenuPinConversationBottom() {
+        lifecycleScope.launch {
+            val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+            conversationViewModel.pinConversationsByThreadIds(threadIds = threadIds)
+
+            val currentPosition = viewPager.currentItem
+            val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+
+            if (currentFragment is MessageFragment) {
+                currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
+            }
+            if (currentFragment is PrivateFragment) {
+                currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
+            }
+
+        }
+    }
+
+    private fun popupMenuUnpinConversationBottom() {
+        lifecycleScope.launch {
+            val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+            conversationViewModel.unpinConversationsByThreadIds(threadIds = threadIds)
+
+            val currentPosition = viewPager.currentItem
+            val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+
+            if (currentFragment is MessageFragment) {
+                currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
+            }
+            if (currentFragment is PrivateFragment) {
+                currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
+            }
+
+        }
+    }
+    private fun popupMenuBlockConversationBottom() {
+        lifecycleScope.launch {
+            val blockThreads = conversationViewModel.countSelectedConversationThreads.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
+            conversationViewModel.blockConversationByThreads(blockThreads = blockThreads)
+
+            val currentPosition = viewPager.currentItem
+            val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+
+            if (currentFragment is MessageFragment) {
+                currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
+            }
+            if (currentFragment is PrivateFragment) {
+                currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
+            }
+        }
     }
 
     override fun handleOnSoftBackPress(): Boolean {

@@ -68,6 +68,7 @@ data class ConversationThread(
     val photoUri: String,       // (From CommonDataKinds.Photo) Contact photo(URI) retrieved (if available)
     val displayName: String,    // (From CommonDataKinds.Phone) Display name set byu Contact name retrieved from the phone number (if available)
     val unSeenCount: Int = 0,       // (From CommonDataKinds.)
+    val isPin: Boolean = false,
 ) {
     companion object {
         /**
@@ -115,7 +116,8 @@ data class ConversationThread(
                         oldItem.normalizeNumber == newItem.normalizeNumber &&
                         oldItem.photoUri == newItem.photoUri &&
                         oldItem.displayName == newItem.displayName &&
-                        oldItem.unSeenCount == newItem.unSeenCount
+                        oldItem.unSeenCount == newItem.unSeenCount &&
+                        oldItem.isPin == newItem.isPin
             }
         }
 

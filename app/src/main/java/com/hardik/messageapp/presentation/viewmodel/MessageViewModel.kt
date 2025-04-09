@@ -25,7 +25,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,9 +48,13 @@ class MessageViewModel @Inject constructor(
     val messages: StateFlow<List<Message>> = _messages.asStateFlow()
 
     //region Cont for unread message
-    val countMessages: StateFlow<List<Message>> = messages
-        .map { messages -> messages.filter { !it.read } }  // Filter unread messages
-        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    val unreadMessageCount: StateFlow<Int> = messages
+        .onEach { list -> Log.d("A_Debug", "messages updated: ${list.map { it.read }}") }
+        .map { list -> list.count { !it.read } }
+        .distinctUntilChanged()
+        .onEach { count -> Log.d("A_Debug", "unreadMessageCount: $count") }
+        .filter { it > 0 } // Ignore 0s if not needed
+        .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
     //endregion
     init { fetchSmsMessages() }
 
@@ -58,7 +65,7 @@ class MessageViewModel @Inject constructor(
 
         viewModelScope.launch {
             AppDataSingleton.messages.collect {
-                Log.e(TAG, "$TAG - fetchSmsMessages: ${it.size}", )
+                //Log.e(TAG, "$TAG - fetchSmsMessages: ${it.size}", )
                 if (it.isEmpty()) { getMessagesUseCase() }
                 else { _messages.emit(it) }// Update the state with the fetched messages
             }
@@ -150,7 +157,7 @@ class MessageViewModel @Inject constructor(
     private fun refreshData() {
         Log.e(TAG, "refreshData: ", )
         viewModelScope.launch {
-            getConversationUseCase()
+            getConversationUseCase(TAG)
         }
     }
 
