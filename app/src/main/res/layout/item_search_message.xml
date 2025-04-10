@@ -71,7 +71,7 @@
                 android:layout_width="15dp"
                 android:layout_height="15dp"
                 android:layout_gravity="end"
-                android:src="@drawable/dummy_ic_pin"
+                android:src="@drawable/real_ic_pin_show"
                 android:visibility="invisible"
                 tools:visibility="visible" />
         </LinearLayout>

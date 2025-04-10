@@ -9,24 +9,24 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hardik.messageapp.R
-import com.hardik.messageapp.data.local.entity.BlockThreadEntity
-import com.hardik.messageapp.databinding.ActivityBlockBinding
-import com.hardik.messageapp.helper.Constants
+import com.hardik.messageapp.databinding.ActivityUnreadMessageBinding
+import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
 import com.hardik.messageapp.presentation.custom_view.BottomMenu
 import com.hardik.messageapp.presentation.custom_view.CustomDividerItemDecoration
 import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
 import com.hardik.messageapp.presentation.util.AnimationViewHelper
+import com.hardik.messageapp.presentation.util.firstUppercase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class BlockActivity : BaseActivity() {
-    private val TAG = Constants.BASE_TAG + BlockActivity::class.java.simpleName
+class UnreadMessageActivity: BaseActivity() {
+    private val TAG = BASE_TAG + UnreadMessageActivity::class.java.simpleName
 
-    lateinit var binding: ActivityBlockBinding
+    lateinit var binding: ActivityUnreadMessageBinding
 
     private lateinit var conversationAdapter: ConversationAdapter
     private var isAllSelected = false // Track selection state
@@ -34,8 +34,10 @@ class BlockActivity : BaseActivity() {
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityBlockBinding.inflate(layoutInflater)
+        binding = ActivityUnreadMessageBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.toolbarTitle.apply { text = text.toString().firstUppercase() }
 
         conversationAdapter = ConversationAdapter (
             swipeLeftBtn = { item ->  },
@@ -43,9 +45,9 @@ class BlockActivity : BaseActivity() {
             onItemClick = { conversation -> Log.e(TAG, "onCreate: ${conversation}", )},
             onSelectionChanged = { selectedConversations, listSize ->
                 Log.e(TAG, "onCreate: ${selectedConversations.size} - $listSize", )
-                blockViewModel.onSelectedChanged(selectedConversations)
+                unreadMessageViewModel.onSelectedChanged(selectedConversations)
 
-                showBottomMenu(BottomMenu.BOTTOM_MENU_4_DELETE_UNBLOCK).takeIf { selectedConversations.isNotEmpty() } ?: hideBottomMenu()
+                showBottomMenu(BottomMenu.BOTTOM_MENU_6_READ).takeIf { selectedConversations.isNotEmpty() } ?: hideBottomMenu()
                 // Automatically update selection state & drawable
                 isAllSelected = selectedConversations.size == listSize
                 binding.toolbarTvSelectAll.setCompoundDrawablesWithIntrinsicBounds(
@@ -61,20 +63,21 @@ class BlockActivity : BaseActivity() {
         val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 34f, resources.displayMetrics).toInt()
 
         binding.recyclerView.apply {
-            setPadding(0, 0, 0, marginInPx)  // Add padding programmatically
+            //setPadding(0, 0, 0, marginInPx)  // Add padding programmatically
             clipToPadding = false            // Allow scrolling into padding
             overScrollMode = View.OVER_SCROLL_NEVER // Disable overscroll effect
-            addItemDecoration(CustomDividerItemDecoration(this@BlockActivity, marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
+            addItemDecoration(CustomDividerItemDecoration(this@UnreadMessageActivity, marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
         }
 
         lifecycleScope.launch {
-            blockViewModel.blockedConversations.collectLatest { binConversationList ->
-                //Log.e(TAG, "onCreate: ${binConversationList}", )
+            unreadMessageViewModel.unreadConversations.collectLatest { unreadConversationList ->
+                Log.e(TAG, "onCreate: ${unreadConversationList.size}", )
                 //val layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = false }
                 val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
                 val currentPosition = layoutManager.findFirstVisibleItemPosition()
 
-                conversationAdapter.setFullList(binConversationList) {
+                //conversationAdapter.submitList(archivedConversationList) { if (currentPosition != RecyclerView.NO_POSITION) { binding.recyclerView.scrollToPosition(currentPosition) } }
+                conversationAdapter.setFullList(unreadConversationList) {
                     // After setting the new list, scroll back to the previous position
                     if (currentPosition != RecyclerView.NO_POSITION) { binding.recyclerView.scrollToPosition(currentPosition) }
                     conversationAdapter.filter.filter(binding.toolbarEdtSearch.text.toString())// todo: if any case data update/change so show on query based
@@ -89,7 +92,7 @@ class BlockActivity : BaseActivity() {
         binding.toolbarMore.setOnClickListener { showPopupMenu(it) }  // Show custom popup menu on click of more button in toolbar
 
         //region toolbar selected item count management & Toolbar selected count management
-        lifecycleScope.launch { blockViewModel.blockAndToolbarCombinedState.collectLatest { (_, isShowSearch, selectedThreads) ->
+        lifecycleScope.launch { unreadMessageViewModel.unreadAndToolbarCombinedState.collectLatest { (_, isShowSearch, selectedThreads) -> //todo->
 
             binding.toolbarLlSearch.apply {
                 val visible = View.VISIBLE.takeIf { isShowSearch }?: View.GONE
@@ -133,7 +136,6 @@ class BlockActivity : BaseActivity() {
             }
         } }
 
-
         // select all conversation
         binding.toolbarTvSelectAll.setOnClickListener {
             isAllSelected = !isAllSelected // Toggle selection state
@@ -149,42 +151,23 @@ class BlockActivity : BaseActivity() {
         //endregion Toolbar
 
         //region bottom menu
-        binding.includedNavViewBottomMenu4.navViewBottomLlDelete.setOnClickListener {
+        binding.includedNavViewBottomMenu6.navViewBottomLlRead.setOnClickListener {
             //Log.e(TAG, "onCreate: Delete",)
-            val threadIds = blockViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            deleteBlockConversation(threadIds) // delete (permanent) all selected bin threads
-
-            conversationAdapter.unselectAll()// todo: unselectAll after work is done
-        }
-        binding.includedNavViewBottomMenu4.navViewBottomLlUnblock.setOnClickListener {
-            Log.e(TAG, "onCreate: Block",)
-            //val blockThreads: List<Long> = blockViewModel.blockedConversations.value.map { it.threadId }
-            val blockThreads: List<BlockThreadEntity> = blockViewModel.blockedConversations.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
-            unblockConversation(blockThreads = blockThreads) // unblock all selected bin threads
+            val threadIds = unreadMessageViewModel.countSelectedConversationThreads.value.map { it.threadId }
+            markAsReadByThreadIds(threadIds = threadIds) // read all selected threads
 
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
         //endregion
-
     }
 
 
-    private fun unblockConversation(blockThreads: List<BlockThreadEntity>) {//unblockConversation
-        blockViewModel.unblockConversations(blockThreads)
+    private fun markAsReadByThreadIds(threadIds: List<Long>){
+        unreadMessageViewModel.markAsReadConversationByThreadIds(threadIds = threadIds)
 
         lifecycleScope.launch {
-            blockViewModel.isUnblockConversationThread.collectLatest { isBlocked ->
-                conversationViewModel.fetchConversationThreads(needToUpdate = isBlocked)
-            }
-        }
-
-    }
-    private fun deleteBlockConversation(threadIds: List<Long>) {//deleteBlockConversation
-        blockViewModel.deleteBlockConversationByThreadIds(threadIds)
-
-        lifecycleScope.launch {
-            blockViewModel.isDeleteBlockConversationThread.collectLatest { isPermanentDelete ->
-                conversationViewModel.fetchConversationThreads(needToUpdate = isPermanentDelete)
+            unreadMessageViewModel.isMarkAsReadConversationThread.collectLatest { isArchived: Boolean ->
+                conversationViewModel.fetchConversationThreads(needToUpdate = isArchived)
             }
         }
     }
@@ -192,10 +175,10 @@ class BlockActivity : BaseActivity() {
 
     private fun showPopupMenu(view: View){
 
-        val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = PopupMenu.BLOCK.getMenuItems(this), showUnderLine = true) { selectedItem ->
+        val popupMenu = CustomPopupMenu(context = this, anchorView = view, menuItems = PopupMenu.VIEW_UNREAD_MESSAGE.getMenuItems(this), showUnderLine = true) { selectedItem ->
             when (selectedItem) {
-                getString(R.string.unblock_all) -> { popupMenuUnblockAll() }
-                getString(R.string.delete_all) -> { popupMenuDeleteAll() }
+                getString(R.string.mark_all_as_read) -> { popupMenuMarkAsRead() }
+
             }
         }
 
@@ -203,24 +186,27 @@ class BlockActivity : BaseActivity() {
         popupMenu.show(showAbove = false, alignStart = false)
     }
 
-
-    private fun popupMenuUnblockAll() {
-        //val blockThreads: List<Long> = blockViewModel.blockedConversations.value.map { it.threadId }
-        val blockThreads: List<BlockThreadEntity> = blockViewModel.blockedConversations.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
-        if (blockThreads.isNotEmpty()){
-            unblockConversation(blockThreads = blockThreads) // unblock all bin threads
-        }
-
-    }
-    private fun popupMenuDeleteAll() {
-        val selectedThreads = blockViewModel.blockedConversations.value
+    private fun popupMenuMarkAsRead() {
+        val selectedThreads = unreadMessageViewModel.unreadConversations.value
         if (selectedThreads.isNotEmpty()) {
             val threadIds = selectedThreads.map { it.threadId }
-            deleteBlockConversation(threadIds = threadIds) // delete all bin threads
+            markAsReadByThreadIds(threadIds = threadIds) // read all threads
         }
     }
 
+
+
     override fun handleOnSoftBackPress(): Boolean {
-        return false
+        return if (isAllSelected || conversationAdapter.getSelectedItemCount() > 0 || isKeyboardVisible(window.decorView.rootView)) {
+            conversationAdapter.unselectAll()
+            isAllSelected = false
+            binding.toolbarTvSelectAll.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_all_unselected_item, 0, 0, 0)
+            hideBottomMenu()
+            hideKeyboard(window.decorView.rootView)
+            true // Consume back press
+        } else {
+            false // Allow normal back press
+        }
     }
+
 }

@@ -67,8 +67,8 @@ data class ConversationThread(
     val normalizeNumber: String,    // (From canonical-addresses) Phone number associated with the recipient ID
     val photoUri: String,       // (From CommonDataKinds.Photo) Contact photo(URI) retrieved (if available)
     val displayName: String,    // (From CommonDataKinds.Phone) Display name set byu Contact name retrieved from the phone number (if available)
-    val unSeenCount: Int = 0,       // (From CommonDataKinds.)
-    val isPin: Boolean = false,
+    val unSeenCount: Long,       // (From CommonDataKinds.)
+    val isPin: Boolean,
 ) {
     companion object {
         /**

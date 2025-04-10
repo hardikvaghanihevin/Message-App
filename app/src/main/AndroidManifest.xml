@@ -28,6 +28,10 @@
         android:theme="@style/Theme.MessageApp"
         tools:targetApi="31">
         <activity
+            android:name=".presentation.ui.activity.UnreadMessageActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".presentation.ui.activity.BlockActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

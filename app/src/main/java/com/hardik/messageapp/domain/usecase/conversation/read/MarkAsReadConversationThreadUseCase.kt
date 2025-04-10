@@ -14,4 +14,3 @@ class MarkAsReadConversationThreadUseCase @Inject constructor(private val readRe
         emit(isRead) // Emits the result
     }.flowOn(Dispatchers.IO) // Run on background thread
 }
-

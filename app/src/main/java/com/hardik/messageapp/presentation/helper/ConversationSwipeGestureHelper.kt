@@ -48,8 +48,8 @@ class ConversationSwipeGestureHelper(
 
         val itemWidth = mainView.width
 
-        val swipeLeftBtn = viewHolder.itemView.findViewById<TextView>(R.id.conversation_swipe_left)
-        val swipeRightBtn = viewHolder.itemView.findViewById<TextView>(R.id.conversation_swipe_right)
+        val swipeLeftBtn = viewHolder.itemView.findViewById<TextView>(R.id.conversationSwipeLeft)
+        val swipeRightBtn = viewHolder.itemView.findViewById<TextView>(R.id.conversationSwipeRight)
 
         val itemTop = llView.top + mainView.top
         val itemBottom = llView.bottom + mainView.top

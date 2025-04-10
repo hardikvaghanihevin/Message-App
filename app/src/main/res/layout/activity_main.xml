@@ -93,6 +93,14 @@
             android:visibility="gone"
             />
         <include
+            android:id="@+id/included_navViewBottomMenu6"
+            layout="@layout/nav_view_bottom_menu_6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:visibility="gone"
+            />
+        <include
             android:id="@+id/included_navViewBottomMenu7"
             layout="@layout/nav_view_bottom_menu_7"
             android:layout_width="match_parent"

@@ -78,7 +78,7 @@ class MainActivity : BaseActivity() {
             // Floating Action Button Click (New Conversation)
             fabNewConversation.setOnClickListener {
                 //startActivity(Intent(this, NewConversationActivity::class.java))
-                Toast.makeText(this, R.string.app_name, Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "${ conversationViewModel.unreadMessageCountGeneral.value }", Toast.LENGTH_SHORT).show()
                 binding.includedNavViewBottom.root.apply {
                     isFocusable = true
                 }
@@ -95,9 +95,9 @@ class MainActivity : BaseActivity() {
             )
 
             lifecycleScope.launch {
-                conversationViewModel.countUnreadGeneralAndPrivateConversationThreads.collectLatest { (generalThreads, privateThreads)->
-                    BottomNavManager.updateCount(navBinding, BottomNavManager.CountType.GENERAL, count = generalThreads.size)
-                    BottomNavManager.updateCount(navBinding, BottomNavManager.CountType.PRIVATE, count = privateThreads.size)
+                conversationViewModel.unreadGeneralAndPrivateConversationThreadsCount.collectLatest { (generalThreads, privateThreads)->
+                    BottomNavManager.updateCount(navBinding, BottomNavManager.CountType.GENERAL, count = generalThreads)
+                    BottomNavManager.updateCount(navBinding, BottomNavManager.CountType.PRIVATE, count = privateThreads)
                 }
             }
 
@@ -162,11 +162,11 @@ class MainActivity : BaseActivity() {
     private fun popupMenuMarkAsRead() {
         val threadIds: List<Long> = conversationViewModel.filteredConversationThreads.value.filter { !it.read }.map { it.threadId }
         conversationViewModel.markAsReadConversationByThreadIds(threadIds = threadIds) // popupMenuToolbar
-        lifecycleScope.launch {
-            conversationViewModel.isMarkAsReadConversationThread.collectLatest { isRead ->
-                super.fetchSmsMessages(needToUpdate = isRead) // Mark as read
-            }
-        }
+//        lifecycleScope.launch {
+//            conversationViewModel.isMarkAsReadConversationThread.collectLatest { isRead ->
+//                super.fetchSmsMessages(needToUpdate = isRead) // Mark as read
+//            }
+//        }
     }
     private fun popupMenuArchived() { startActivity(Intent(this, ArchiveActivity::class.java)) }
     private fun popupMenuSchedule() { /*startActivity(Intent(this, ArchiveActivity::class.java))*/ }
@@ -228,12 +228,12 @@ class MainActivity : BaseActivity() {
     private fun popupMenuMarkAsReadBottom() {
         val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
         conversationViewModel.markAsReadConversationByThreadIds(threadIds = threadIds)
-        lifecycleScope.launch {
-            conversationViewModel.isMarkAsReadConversationThread.collectLatest { isRead ->
-                Log.e(TAG, "popupMenuMarkAsReadBottom: $isRead", )
-                super.fetchSmsMessages(needToUpdate = isRead) // Mark as read
-            }
-        }
+//        lifecycleScope.launch {
+//            conversationViewModel.isMarkAsReadConversationThread.collectLatest { isRead ->
+//                Log.e(TAG, "popupMenuMarkAsReadBottom: $isRead", )
+//                super.fetchSmsMessages(needToUpdate = isRead) // Mark as read
+//            }
+//        }
         val currentPosition = viewPager.currentItem
         val currentFragment = viewPagerAdapter.getFragment(currentPosition)
 

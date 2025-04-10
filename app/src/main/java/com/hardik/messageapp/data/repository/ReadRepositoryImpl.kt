@@ -5,12 +5,19 @@ import android.content.Context
 import android.net.Uri
 import android.provider.Telephony
 import android.util.Log
+import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.ReadRepository
 import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.presentation.util.AppDataSingleton
 import com.hardik.messageapp.presentation.util.getOptimalChunkSize
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -20,6 +27,25 @@ class ReadRepositoryImpl @Inject constructor(
     //private val messageRepository: MessageRepository,
 ) : ReadRepository {
     private val TAG = BASE_TAG + ReadRepositoryImpl::class.java.simpleName
+    override fun getUnreadConversationThreads(isGeneral: Boolean): Flow<List<ConversationThread>> {
+        //Log.i(TAG, "getUnreadConversationThreads: ")
+        val originalList: Flow<List<ConversationThread>> = AppDataSingleton.conversationThreads
+        val unreadCountMapFlow: Flow<Map<Long, Long>> = if (isGeneral) AppDataSingleton.unreadMessageCountGeneral else AppDataSingleton.unreadMessageCountPrivate
+
+        return combine(originalList, unreadCountMapFlow) { threads, unreadMap ->
+            val unreadIds = unreadMap.keys.toSet()
+            val chunkSize = getOptimalChunkSize(unreadIds.size)
+            // ✅ Chunking for huge lists
+            threads.asSequence()
+                .chunked(chunkSize) // Adjust chunk size as needed
+                .flatMap { chunk ->
+                    chunk.filter { it.threadId in unreadIds }
+                }.toList()
+
+        }.flowOn(Dispatchers.Default) // ⚡ Offload to background thread
+            .distinctUntilChanged()     // Prevent redundant UI updates
+    }
+
     //region Mark as read/unRead ConversationThread
     override suspend fun markAsReadConversationThreads(threadIds: List<Long>): Boolean {
         if (threadIds.isEmpty()) {
@@ -126,5 +152,43 @@ class ReadRepositoryImpl @Inject constructor(
             false
         }
     }
-    //endregion
+
+    override suspend fun markAsUnreadConversationCountThreads(): Flow<Map<Long, Long>> = flow {
+        val result = mutableMapOf<Long, Long>()
+        val emitThreshold = 1000
+        var counter = 0
+        val startTime = System.currentTimeMillis()
+
+        val cursor = withContext(Dispatchers.IO) {
+            context.contentResolver.query(
+                Telephony.Sms.CONTENT_URI,
+                arrayOf(Telephony.Sms.THREAD_ID),
+                "${Telephony.Sms.READ} = 0",
+                null,
+                null
+            )
+        }
+
+        cursor?.use {
+            while (it.moveToNext()) {
+                val threadId = it.getLong(it.getColumnIndexOrThrow(Telephony.Sms.THREAD_ID))
+                result[threadId] = result.getOrDefault(threadId, 0L) + 1
+                counter++
+
+                if (counter % emitThreshold == 0) {
+                    emit(result.toMap()) // ✅ emit now in correct context
+                }
+            }
+
+            if (counter % emitThreshold != 0) {
+                emit(result.toMap())
+            }
+        }
+
+        val endTime = System.currentTimeMillis()
+        Log.i(TAG, "$TAG - Execution time: ${endTime - startTime}ms | Threads: ${result.size}")
+    }.flowOn(Dispatchers.IO) // ✅ run entire flow on IO
+
+
+//endregion
 }

@@ -26,6 +26,7 @@ import com.hardik.messageapp.presentation.helper.ConversationSwipeGestureHelper
 import com.hardik.messageapp.presentation.ui.activity.ChatActivity
 import com.hardik.messageapp.presentation.ui.activity.MainActivity
 import com.hardik.messageapp.presentation.ui.activity.SearchActivity
+import com.hardik.messageapp.presentation.ui.activity.UnreadMessageActivity
 import com.hardik.messageapp.presentation.util.AnimationViewHelper.toggleViewVisibilityWithAnimation
 import com.hardik.messageapp.presentation.util.CollapsingToolbarStateManager
 import com.hardik.messageapp.presentation.util.evaluateSelectionGetHomeBottomMenu
@@ -153,13 +154,19 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
         // Attach scroll listener separately
         binding.recyclerView.addOnScrollListener(swipeHelper.getScrollListener())
 
+        binding.viewButton.setOnClickListener { startActivity(Intent(requireContext(), UnreadMessageActivity::class.java)) }
         binding.toolbarSearch.setOnClickListener { startActivity(Intent(requireContext(), SearchActivity::class.java)) }
         binding.toolbarMore.setOnClickListener {
             (activity as MainActivity).showPopupMenu(it)
         }  // Show custom popup menu on click of more button in toolbar
 
         //region toolbar selected item count management & Toolbar selected count management countUnreadGeneralAndPrivateConversationThreads
-        lifecycleScope.launch { conversationViewModel.cvThreadAndToolbarCombinedState.collectLatest { (selectedThreads, toolbarState, unReadGeneralPrivateThreadsPair) ->
+        lifecycleScope.launch { conversationViewModel.cvThreadAndToolbarCombinedState.collectLatest { (selectedThreads, toolbarState, unreadCombined) ->
+
+            val unreadGeneralMap = unreadCombined.first.first   // Map<Long, Long>
+            val unreadGeneralCount = unreadCombined.first.second // Int
+            //val unreadPrivateMap = unreadCombined.second.first  // Map<Long, Long>
+            //val unreadPrivateCount = unreadCombined.second.second // Int
 
             val isCollapsed = toolbarState in listOf(CollapsingToolbarStateManager.STATE_COLLAPSED, )
             val isExpanded = toolbarState in listOf(CollapsingToolbarStateManager.STATE_EXPANDED, CollapsingToolbarStateManager.STATE_INTERMEDIATE)
@@ -170,7 +177,7 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
                 toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
             }
             binding.toolbarTitleIndicator.apply {
-                val visible = View.GONE.takeUnless { isCollapsed } ?: View.VISIBLE.takeIf { selectedThreads.isEmpty() && unReadGeneralPrivateThreadsPair.first.isNotEmpty() } ?: View.GONE
+                val visible = View.GONE.takeUnless { isCollapsed } ?: View.VISIBLE.takeIf { selectedThreads.isEmpty() && unreadGeneralCount > 0 } ?: View.GONE
                 val duration = if (visible == View.VISIBLE) 300L else 100L
                 toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
             }
@@ -204,17 +211,21 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
                 val duration = if (visible == View.VISIBLE) 300L else 100L
                 toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
                 text = "${selectedThreads.size} ${getString(R.string.selected)}"
-
+            }
+            val totalUnreadCount = unreadGeneralMap.values.sum()
+            binding.unreadMessages.apply {
+                text = "$totalUnreadCount ${getString(R.string.unread_messages)}"
             }
         }}
         //endregion
 
-        lifecycleScope.launch { messageViewModel.unreadMessageCount.collectLatest { messages ->
-            Log.i(TAG, "$TAG -onViewCreated: $messages", )
-            binding.unreadMessages.apply {
-                text = "$messages ${getString(R.string.unread_messages)}"
-            }
-        } }
+//        lifecycleScope.launch { conversationViewModel.unreadMessageCountGeneral.collectLatest { messageCount: Map<Long, Long> ->
+//            //Log.i(TAG, "$TAG -onViewCreated: $messageCount", )
+//            val totalUnreadCount = messageCount.values.sum()
+//            binding.unreadMessages.apply {
+//                text = "$totalUnreadCount ${getString(R.string.unread_messages)}"
+//            }
+//        } }
 
         //region toolbar management
         // Initialize the manager

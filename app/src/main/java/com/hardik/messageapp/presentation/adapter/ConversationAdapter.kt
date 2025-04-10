@@ -36,7 +36,8 @@ class ConversationAdapter (
     private var originalList: List<ConversationThread> = listOf()
     fun setFullList(fullList: List<ConversationThread>, commitCallback: () -> Unit) {
         originalList = fullList
-        submitList(fullList, commitCallback)
+        //submitList(fullList, commitCallback)
+        submitList(null) { submitList(fullList, commitCallback) }
     }
 
     private val selectedItems = mutableSetOf<ConversationThread>() // Use item content or unique ID instead of position
@@ -52,9 +53,16 @@ class ConversationAdapter (
                 val formatter = TimeFormatterForConversation()
                 val formattedTime = formatter.formatTimestamp(item.timestamp)
 
-                tvDate.text = formattedTime//longToString(item.date, DATE_FORMAT_dd_MMM)
+                tvDate.text = formattedTime.trim()//longToString(item.date, DATE_FORMAT_dd_MMM)
 
                 //region Set text style based on read status
+                llUnreadCount.visibility = View.VISIBLE.takeIf { item.unSeenCount != 0L } ?: View.GONE
+                tvUnreadCount.apply {
+                    text = "${item.unSeenCount}".takeIf { item.unSeenCount != 0L } ?: ""
+                }
+
+                imgPin.visibility = View.VISIBLE.takeIf { item.isPin } ?: View.GONE
+
                 if (item.read) {
                     // Item is read - use normal text style
                     tvTitle.setTypeface(null, Typeface.NORMAL)

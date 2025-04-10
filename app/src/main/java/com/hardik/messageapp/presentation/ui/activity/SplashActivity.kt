@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.preference.PreferenceManager
+import com.hardik.messageapp.data.local.AppDatabase
 import com.hardik.messageapp.databinding.ActivitySplashBinding
 import com.hardik.messageapp.domain.usecase.conversation.fetch.GetConversationUseCase
 import com.hardik.messageapp.helper.Constants.BASE_TAG
@@ -44,6 +45,8 @@ class SplashActivity : BaseActivity() {
         binding = ActivitySplashBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // ✅ Ensure DB tables are created
+        CoroutineScope(Dispatchers.IO).launch { AppDatabase.getDatabase(this@SplashActivity).openHelper.readableDatabase }
 
         // Launch the next screen asynchronously
         CoroutineScope(Dispatchers.Main).launch {

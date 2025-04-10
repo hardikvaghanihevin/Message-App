@@ -5,14 +5,16 @@ import com.hardik.messageapp.data.local.dao.ArchivedThreadDao
 import com.hardik.messageapp.data.local.dao.BlockThreadDao
 import com.hardik.messageapp.data.local.dao.RecycleBinThreadDao
 import com.hardik.messageapp.domain.model.Contact
-import com.hardik.messageapp.domain.model.Conversation
 import com.hardik.messageapp.domain.model.ConversationThread
-import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.repository.ConversationRepository
+import com.hardik.messageapp.domain.repository.PinRepository
+import com.hardik.messageapp.domain.repository.ReadRepository
 import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.helper.analyzeSender
 import com.hardik.messageapp.helper.removeCountryCode
 import com.hardik.messageapp.presentation.util.AppDataSingleton
+import com.hardik.messageapp.presentation.util.flattenToList
+import com.hardik.messageapp.presentation.util.flattenToMap
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -27,6 +29,8 @@ class GetConversationUseCase @Inject constructor(
     private val archivedThreadDao: ArchivedThreadDao,
     private val blockThreadDao: BlockThreadDao,
     private val conversationRepository: ConversationRepository,
+    private val readRepository: ReadRepository,
+    private val pinRepository: PinRepository,
     private val phoneNumberUtil: PhoneNumberUtil)
 {
 
@@ -38,9 +42,148 @@ class GetConversationUseCase @Inject constructor(
         Log.e(TAG, "invoke: call from :$callFromWhere")
 
         coroutineScope {
-            //val threadJob: Deferred<List<Conversation>> = async(Dispatchers.IO) { conversationRepository.fetchConversations().first() }
-            //val smsJob: Deferred<Map<Long, Message>> = async(Dispatchers.IO) { conversationRepository.fetchMessages().first() }
-            //val contactsJob: Deferred<Map<String, Contact>> = async(Dispatchers.IO) { conversationRepository.fetchContacts().first() }
+            startTime = System.currentTimeMillis()
+
+            // Launch async jobs for parallel data fetching
+            val threadJob = async(Dispatchers.IO) {
+                conversationRepository.fetchConversations().flattenToList()
+            }
+
+            val smsJob = async(Dispatchers.IO) {
+                conversationRepository.fetchMessages().flattenToMap()
+            }
+
+            val contactsJob = async(Dispatchers.IO) {
+                conversationRepository.fetchContacts().flattenToMap()
+            }
+
+            val unreadConversationJob = async(Dispatchers.IO) {
+                readRepository.markAsUnreadConversationCountThreads().flattenToMap()
+            }
+
+            val recycleBinThreadIdsJob = async(Dispatchers.IO) {
+                recycleBinThreadDao.getRecycleBinThreadIds().first()
+            }
+
+            val archiveThreadIdsJob = async(Dispatchers.IO) {
+                archivedThreadDao.getArchivedThreadIds().first()
+            }
+
+            val blockThreadIdsJob = async(Dispatchers.IO) {
+                blockThreadDao.getBlockThreadIds().first()
+            }
+
+            val pinnedThreadIdsJob = async(Dispatchers.IO) {
+                pinRepository.getPinnedConversations().first()
+            }
+
+            // Await results
+            val threadList = threadJob.await()
+            val smsMap = smsJob.await()
+            val contactsMap = contactsJob.await()
+            val unreadMap = unreadConversationJob.await()
+            val recycleBinThreadIds = recycleBinThreadIdsJob.await()
+            val archiveThreadIds = archiveThreadIdsJob.await()
+            val blockThreadIds = blockThreadIdsJob.await()
+            val pinnedThreadIds = pinnedThreadIdsJob.await().toSet()
+
+            // Build the conversation threads
+            val conversationList = threadList.mapNotNull { thread ->
+                val message = smsMap[thread.threadId] ?: return@mapNotNull null
+                val sender = message.sender?.trim().orEmpty()
+                if (sender.isEmpty()) return@mapNotNull null
+
+                val senderType = analyzeSender(sender)
+                val unSeenCount = unreadMap[thread.threadId] ?: 0L
+                val isPinned = thread.threadId in pinnedThreadIds
+
+                val contact = if (senderType == 1) {
+                    val key = sender.removeCountryCode(phoneNumberUtil)
+                    contactsMap[key]?.copy(
+                        displayName = contactsMap[key]?.displayName ?: sender
+                    ) ?: Contact(
+                        contactId = -1,
+                        displayName = key,
+                        phoneNumbers = mutableListOf(key),
+                        photoUri = null,
+                        normalizeNumber = key
+                    )
+                } else {
+                    Contact(
+                        contactId = -1,
+                        displayName = sender,
+                        phoneNumbers = mutableListOf(""),
+                        photoUri = null,
+                        normalizeNumber = ""
+                    )
+                }
+
+                ConversationThread(
+                    threadId = thread.threadId,
+                    id = message.id ?: 0L,
+                    sender = sender,
+                    messageBody = message.messageBody.orEmpty(),
+                    creator = message.creator,
+                    timestamp = message.timestamp ?: 0L,
+                    dateSent = message.dateSent ?: 0L,
+                    errorCode = message.errorCode ?: 0,
+                    locked = message.locked ?: 0,
+                    person = message.person,
+                    protocol = message.protocol,
+                    read = thread.read,
+                    replyPath = message.replyPath ?: false,
+                    seen = message.seen ?: false,
+                    serviceCenter = message.serviceCenter,
+                    status = message.status ?: 0,
+                    subject = message.subject,
+                    subscriptionId = message.subscriptionId ?: 0,
+                    type = message.type ?: 0,
+                    isArchived = message.isArchived ?: false,
+                    snippet = thread.snippet,
+                    date = thread.date,
+                    recipientIds = thread.recipientIds,
+                    contactId = contact.contactId,
+                    normalizeNumber = contact.normalizeNumber,
+                    photoUri = contact.photoUri.orEmpty(),
+                    displayName = contact.displayName,
+                    unSeenCount = unSeenCount,
+                    isPin = isPinned
+                )
+            }
+
+            // Sort: pinned first
+            val (pinned, others) = conversationList.partition { it.threadId in pinnedThreadIds }
+            val orderedList = pinned + others
+
+            // Final general list (not in RecycleBin, Archive, Block)
+            val finalFilteredGeneralList = orderedList.filterNot {
+                it.threadId in recycleBinThreadIds || it.threadId in archiveThreadIds || it.threadId in blockThreadIds
+            }
+
+            // Update AppDataSingleton
+            launch(Dispatchers.IO) { AppDataSingleton.updateConversationThreads(orderedList) }
+            launch(Dispatchers.IO) {
+                val privateList = orderedList.filter { it.normalizeNumber.isNotEmpty() }
+                AppDataSingleton.updateConversationThreadsPrivate(privateList)
+            }
+            launch(Dispatchers.IO) { AppDataSingleton.updateConversationThreadsGeneral(finalFilteredGeneralList) }
+            launch(Dispatchers.IO) { AppDataSingleton.markAsUnreadConversationCountThreads(unreadMap) }
+
+            endTime = System.currentTimeMillis()
+            Log.i(TAG, "$TAG - Total execution time Combine: ${endTime - startTime}ms")
+        }
+    }
+
+
+    //region last fastest data getting
+/*
+    suspend operator fun invoke(callFromWhere: String = "") {
+        Log.e(TAG, "invoke: call from :$callFromWhere")
+
+        //val threadJob: Deferred<List<Conversation>> = async(Dispatchers.IO) { conversationRepository.fetchConversations().first() }
+        //val smsJob: Deferred<Map<Long, Message>> = async(Dispatchers.IO) { conversationRepository.fetchMessages().first() }
+        //val contactsJob: Deferred<Map<String, Contact>> = async(Dispatchers.IO) { conversationRepository.fetchContacts().first() }
+        coroutineScope {
 
             val threadJob = async(Dispatchers.IO) {
                 val allThreads = mutableListOf<Conversation>()
@@ -58,6 +201,13 @@ class GetConversationUseCase @Inject constructor(
                 allSms
             }
 
+            val unreadConversationJob = async(Dispatchers.IO) {
+                val allUnreadConversation = mutableMapOf<Long, Long>()
+                readRepository.markAsUnreadConversationCountThreads().collectLatest { chunk ->
+                    allUnreadConversation.putAll(chunk)
+                }
+                allUnreadConversation
+            }
             val contactsJob = async(Dispatchers.IO) {
                 val allContact = mutableMapOf<String, Contact>()
                 conversationRepository.fetchContacts().collect { chunk ->
@@ -65,20 +215,30 @@ class GetConversationUseCase @Inject constructor(
                 }
                 allContact
             }
+            val startTime = System.currentTimeMillis() //TODO: HERE
 
             val recycleBinThreadIdsJob = async(Dispatchers.IO) { recycleBinThreadDao.getRecycleBinThreadIds().first() }
             val archiveThreadIdsJob = async(Dispatchers.IO) { archivedThreadDao.getArchivedThreadIds().first() }
             val blockThreadIdsJob = async(Dispatchers.IO) { blockThreadDao.getBlockThreadIds().first() }
+            val pinnedThreadIdsJob = async(Dispatchers.IO) { pinRepository.getPinnedConversations().first() }
 
             val threadList = threadJob.await()
             val smsMap = smsJob.await()
             val contactsMap = contactsJob.await()
+            val unreadConversationMap = unreadConversationJob.await()
             val recycleBinThreadIds = recycleBinThreadIdsJob.await()
             val archiveThreadIds = archiveThreadIdsJob.await()
             val blockThreadIds = blockThreadIdsJob.await()
+            val pinnedThreadIds: List<Long> = pinnedThreadIdsJob.await()
+
 
             val conversationList = threadList.mapNotNull { thread ->
                 val message = smsMap[thread.threadId]
+                val unSeenCount = unreadConversationMap[thread.threadId]
+
+                val pinnedThreadIdsSet = pinnedThreadIds.toSet()
+                val isPinned = pinnedThreadIdsSet.contains(thread.threadId)
+
                 val sender = message?.sender?.trim()
 
                 if (sender.isNullOrEmpty()) return@mapNotNull null
@@ -142,35 +302,54 @@ class GetConversationUseCase @Inject constructor(
                     normalizeNumber = contact.normalizeNumber,
                     photoUri = contact.photoUri ?: "",
                     displayName = contact.displayName,
-                    unSeenCount = message.unSeenCount
+                    unSeenCount = unSeenCount ?: 0L,
+                    isPin = isPinned
                 )
             }
 
-            val filteredList = conversationList.filterNot {
-                it.threadId in recycleBinThreadIds || it.threadId in archiveThreadIds || it.threadId in blockThreadIds
-            }
+            val pinnedThreadIdSet = pinnedThreadIds.toSet()
 
-            val startTime = System.currentTimeMillis()
+//            val filteredList = conversationList.filterNot {
+//                it.threadId in recycleBinThreadIds || it.threadId in archiveThreadIds || it.threadId in blockThreadIds
+//            }.sortedByDescending { it.threadId in pinnedThreadIdSet }
+
+            // Step 1: Partition pinned threads first — keep order pinned + others
+            val (pinned, others) = conversationList
+                .asSequence()
+                .partition { it.threadId in pinnedThreadIdSet }
+
+            val orderedList: List<ConversationThread> = pinned + others
+
+            // Step 2: Filter out RecycleBin, Archive, Block
+            val finalFilteredGeneralList = orderedList
+                .asSequence()
+                .filterNot { it.threadId in recycleBinThreadIds || it.threadId in archiveThreadIds || it.threadId in blockThreadIds }
+                .toList()
+
+
 
             launch(Dispatchers.IO) {
-                AppDataSingleton.updateConversationThreads(conversationList)
+                AppDataSingleton.updateConversationThreads(orderedList) //todo: [shorted,naturel - orderedList,conversationList]
             }
 
             launch(Dispatchers.IO) {
-                val privateList = conversationList.filter { it.normalizeNumber.isNotEmpty() }
+                val privateList = orderedList.filter { it.normalizeNumber.isNotEmpty() } //todo: todo: [shorted,naturel - orderedList,conversationList]
                 AppDataSingleton.updateConversationThreadsPrivate(privateList)
             }
 
             launch(Dispatchers.IO) {
-                AppDataSingleton.filterConversationThreads(filteredList)
+                AppDataSingleton.updateConversationThreadsGeneral(finalFilteredGeneralList)
+            }
+
+            launch(Dispatchers.IO) {
+                AppDataSingleton.markAsUnreadConversationCountThreads(unreadConversationMap)
             }
 
             val endTime = System.currentTimeMillis()
             Log.i(TAG, "$TAG - Total execution time Combine: ${endTime - startTime}ms")
         }
-    }
+    }*/
 
-    //region last fastest data getting
  /*
    suspend operator fun invoke(callFromWhere: String = "") {
         Log.e(TAG, "invoke: call from :$callFromWhere", )

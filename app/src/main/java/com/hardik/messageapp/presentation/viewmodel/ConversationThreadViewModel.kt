@@ -64,6 +64,8 @@ class ConversationThreadViewModel  @Inject constructor(
     private val _filteredConversationThreads = MutableStateFlow<List<ConversationThread>>(emptyList())
     val filteredConversationThreads: StateFlow<List<ConversationThread>> = _filteredConversationThreads.asStateFlow()
 
+    val unreadMessageCountGeneral: StateFlow<Map<Long, Long>> = AppDataSingleton.unreadMessageCountGeneral
+    val unreadMessageCountPrivate: StateFlow<Map<Long, Long>> = AppDataSingleton.unreadMessageCountPrivate
 
     init { fetchConversationThreads() }
 
@@ -82,13 +84,13 @@ class ConversationThreadViewModel  @Inject constructor(
                     } // Update the state with the fetched conversation threads
                 }
             }
-            launch {//todo: still pending
+            launch {
                     //_filteredConversationThreads.emit(it) //todo: set pin thread first
                 combine(
-                    AppDataSingleton.filteredConversationThreads,
+                    AppDataSingleton.conversationThreadsGeneral,
                     pinnedConversationsUseCase()
                 ) { threadList: List<ConversationThread>, pinnedThreadIds: List<Long> ->
-
+                    /* region spastic pin set list
                     val pinnedThreadIdSet = pinnedThreadIds.toSet()
 
                     val pinned = threadList
@@ -99,7 +101,8 @@ class ConversationThreadViewModel  @Inject constructor(
                         .filterNot { it.threadId in pinnedThreadIdSet }
                         .map { it.copy(isPin = false) }
 
-                    pinned + others
+                    pinned + others*/
+                    threadList
                 }.collectLatest { updatedList ->
                     _filteredConversationThreads.emit(updatedList)
                 }
@@ -228,6 +231,8 @@ class ConversationThreadViewModel  @Inject constructor(
     private val _countSelectedConversationThreads = MutableStateFlow<List<ConversationThread>>(emptyList())
     val countSelectedConversationThreads: StateFlow<List<ConversationThread>> = _countSelectedConversationThreads.asStateFlow()
     fun onSelectedChanged(selectedConversations: List<ConversationThread>){ _countSelectedConversationThreads.value = selectedConversations }
+
+
     //endregion
 
     //region Collapsed state
@@ -236,24 +241,48 @@ class ConversationThreadViewModel  @Inject constructor(
     private val toolbarCollapsedState: StateFlow<Int> = _toolbarCollapsedState.asStateFlow()
     fun onToolbarStateChanged(collapsedState: Int) { _toolbarCollapsedState.value = collapsedState }
     //endregion
+    // unreadMessageCountGeneral,unreadConversationThreadsCountGeneral
+    // unreadMessageCountPrivate,unreadConversationThreadsCountPrivate
 
     //region Combined State
     /** Combines selected conversations and toolbar collapse state. */
-    val cvThreadAndToolbarCombinedState: StateFlow<Triple<List<ConversationThread>, Int,Pair<List<ConversationThread>,List<ConversationThread>>>> by lazy {
-        combine(countSelectedConversationThreads, toolbarCollapsedState, countUnreadGeneralAndPrivateConversationThreads) { conversations, collapseState, unreadGeneralPrivateConverThread ->
-            Triple(conversations, collapseState, unreadGeneralPrivateConverThread)
-        }.stateIn(viewModelScope, SharingStarted.Lazily, Triple(emptyList(), CollapsingToolbarStateManager.STATE_EXPANDED, Pair(emptyList(), emptyList() )))
+    val cvThreadAndToolbarCombinedState: StateFlow<Triple<List<ConversationThread>, Int, Pair<Pair<Map<Long, Long>, Int>, Pair<Map<Long, Long>, Int>>>> by lazy {
+        combine(
+            countSelectedConversationThreads,
+            toolbarCollapsedState,
+            combine(
+                unreadMessageCountGeneral,
+                unreadConversationThreadsCountGeneral,
+                unreadMessageCountPrivate,
+                unreadConversationThreadsCountPrivate
+            ) { unreadGenMap, unreadGenCount, unreadPrivMap, unreadPrivCount ->
+                Pair(Pair(unreadGenMap, unreadGenCount), Pair(unreadPrivMap, unreadPrivCount))
+            }
+        ) { conversations, collapseState, unreadCounts ->
+            Triple(conversations, collapseState, unreadCounts)
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Lazily,
+            Triple(
+                emptyList(),
+                CollapsingToolbarStateManager.STATE_EXPANDED,
+                Pair(Pair(emptyMap(), 0), Pair(emptyMap(), 0))
+            )
+        )
     }
     //endregion
 
 
-    //region Unread conversation threads (Message)
+    //region BottomNavManager Unread count
+    /** Unread conversation threads (General) */
+    private val unreadConversationThreadsCountGeneral: StateFlow<Int> = unreadMessageCountGeneral.map { it.size }.stateIn(viewModelScope, SharingStarted.Lazily, 0)
     private val countUnreadConversationThreads: StateFlow<List<ConversationThread>> =
         conversationThreads.map { conversations -> conversations.filter { !it.read } }  // Filter unread conversations
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
 
-    // Unread conversation threads (Private)
+    /** Unread conversation threads (Private) */
+    private val unreadConversationThreadsCountPrivate: StateFlow<Int> = unreadMessageCountPrivate.map { it.size }.stateIn(viewModelScope, SharingStarted.Lazily, 0)
     private val countUnreadPrivateConversationThreads: StateFlow<List<ConversationThread>> =
         conversationThreadsPrivate.map { conversations -> conversations.filter { !it.read } }  // Filter unread conversations
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
@@ -262,11 +291,17 @@ class ConversationThreadViewModel  @Inject constructor(
 
     // Combined State
     /** Combines unread conversations count (list) 'General' and 'Private' state. */
+    val unreadGeneralAndPrivateConversationThreadsCount: StateFlow<Pair<Int, Int>> by lazy {
+        combine(unreadConversationThreadsCountGeneral, unreadConversationThreadsCountPrivate) { unreadGeneral, unreadPrivate ->
+            Pair(unreadGeneral, unreadPrivate)
+        }.stateIn(viewModelScope, SharingStarted.Lazily, Pair(0,0))
+    }
+
     val countUnreadGeneralAndPrivateConversationThreads: StateFlow<Pair<List<ConversationThread>, List<ConversationThread>>> by lazy {
         combine(countUnreadConversationThreads, countUnreadPrivateConversationThreads) { unreadGeneral, unreadPrivate ->
             Pair(unreadGeneral, unreadPrivate)
         }.stateIn(viewModelScope, SharingStarted.Lazily, Pair(emptyList(), emptyList()))
     }
-    //endregion
+    //endregion BottomNavManager Unread count
 
 }

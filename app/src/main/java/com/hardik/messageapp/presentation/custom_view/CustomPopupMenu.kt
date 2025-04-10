@@ -71,7 +71,7 @@ enum class PopupMenu(val items: List<Pair<Int, Int>>) {
     ),
     VIEW_UNREAD_MESSAGE(
         listOf(
-            R.string.mark_as_read to R.drawable.real_ic_mark_as_read
+            R.string.mark_all_as_read to R.drawable.real_ic_mark_as_read
         )
     ),
     ARCHIVE(

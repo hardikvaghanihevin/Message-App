@@ -1,142 +1,8 @@
 package com.hardik.messageapp.presentation.util
 
-import android.app.Activity
-import android.content.ContentValues
-import android.net.Uri
-import android.provider.Telephony
-import android.util.Log
 import com.hardik.messageapp.domain.model.ConversationThread
-import com.hardik.messageapp.helper.SmsDefaultAppHelper
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
-
-//region mark as read & unread
-fun Activity.markSmsAsRead(messageId: Long) {
-    if (!SmsDefaultAppHelper.isDefaultSmsApp(this)) {
-        Log.e("SmsRepository", "Cannot update SMS: App is not default SMS app!")
-        return
-    }
-
-    val values = ContentValues().apply {
-        put(Telephony.Sms.READ, 1)
-        put(Telephony.Sms.SEEN, 1)
-    }
-
-    val updateUri = Uri.parse("content://sms/inbox/$messageId")
-    val rowsUpdated = contentResolver.update(updateUri, values, null, null)
-
-    if (rowsUpdated > 0) {
-        Log.d("SmsRepository", "SMS marked as read: $messageId")
-    } else {
-        Log.e("SmsRepository", "Failed to mark SMS as read: $messageId")
-    }
-}
-
-fun Activity.markThreadAsRead(threadId: Long) {
-    if (!SmsDefaultAppHelper.isDefaultSmsApp(this)) {
-        Log.e("SmsRepository", "Cannot update SMS: App is not default SMS app!")
-        return
-    }
-
-    val values = ContentValues().apply {
-        put(Telephony.Sms.READ, 1)
-        put(Telephony.Sms.SEEN, 1)
-    }
-
-    val updateUri = Uri.parse("content://sms/")
-    val rowsUpdated = contentResolver.update(updateUri, values, "thread_id = ?", arrayOf(threadId.toString()))
-
-    if (rowsUpdated > 0) {
-        Log.d("SmsRepository", "All messages in thread $threadId marked as read.")
-    } else {
-        Log.e("SmsRepository", "Failed to mark messages in thread $threadId as read.")
-    }
-}
-
-fun Activity.markSmsAsUnread(messageId: Long) {
-    if (!SmsDefaultAppHelper.isDefaultSmsApp(this)) {
-        Log.e("SmsRepository", "Cannot update SMS: App is not default SMS app!")
-        return
-    }
-
-    val values = ContentValues().apply {
-        put(Telephony.Sms.READ, 0)  // Set unread
-        put(Telephony.Sms.SEEN, 0)  // Set unseen
-    }
-
-    val updateUri = Uri.parse("content://sms/$messageId")
-    val rowsUpdated = contentResolver.update(updateUri, values, null, null)
-
-    if (rowsUpdated > 0) {
-        Log.d("SmsRepository", "SMS marked as unread: $messageId")
-    } else {
-        Log.e("SmsRepository", "Failed to mark SMS as unread: $messageId")
-    }
-}
-
-fun Activity.markLastMessageAsUnread(threadId: Long) {
-    if (!SmsDefaultAppHelper.isDefaultSmsApp(this)) {
-        Log.e("SmsRepository", "Cannot update SMS: App is not default SMS app!")
-        return
-    }
-
-    // Query the last message in the thread
-    val cursor = contentResolver.query(
-        Uri.parse("content://sms/"),
-        arrayOf("_id"),
-        "thread_id = ?",
-        arrayOf(threadId.toString()),
-        "date DESC LIMIT 1" // Get the most recent message
-    )
-
-    cursor?.use {
-        if (it.moveToFirst()) {
-            val lastMessageId = it.getLong(it.getColumnIndexOrThrow("_id"))
-
-            // Update only the last message
-            val values = ContentValues().apply {
-                put(Telephony.Sms.READ, 0)  // Set unread
-                put(Telephony.Sms.SEEN, 0)  // Set unseen
-            }
-
-            val updateUri = Uri.parse("content://sms/$lastMessageId")
-            val rowsUpdated = contentResolver.update(updateUri, values, null, null)
-
-            if (rowsUpdated > 0) {
-                Log.d("SmsRepository", "Last message ($lastMessageId) in thread $threadId marked as unread.")
-            } else {
-                Log.e("SmsRepository", "Failed to mark last message in thread $threadId as unread.")
-            }
-        } else {
-            Log.e("SmsRepository", "No messages found in thread $threadId.")
-        }
-    }
-}
-
-
-
-fun Activity.markThreadAsUnread(threadId: Long) {
-    if (!SmsDefaultAppHelper.isDefaultSmsApp(this)) {
-        Log.e("SmsRepository", "Cannot update SMS: App is not default SMS app!")
-        return
-    }
-
-    val values = ContentValues().apply {
-        put(Telephony.Sms.READ, 0)  // Set unread
-        put(Telephony.Sms.SEEN, 0)  // Set unseen
-    }
-
-    val updateUri = Uri.parse("content://sms/")
-    val rowsUpdated = contentResolver.update(updateUri, values, "thread_id = ?", arrayOf(threadId.toString()))
-
-    if (rowsUpdated > 0) {
-        Log.d("SmsRepository", "All messages in thread $threadId marked as unread.")
-    } else {
-        Log.e("SmsRepository", "Failed to mark messages in thread $threadId as unread.")
-    }
-}
-
-//endregion
-
+import kotlinx.coroutines.flow.Flow
 
 /**
  * This function for home bottom menu show option*/
@@ -189,10 +55,29 @@ fun getOptimalChunkSize(size: Int): Int {
         size >= 10_000 -> 300     // Safe and efficient for mid-sized datasets
         size >= 1000 -> 100       // Works well for moderately sized thread sets
         size >= 500 -> 50         // Safer for smaller batches with minimal delay
-        else -> size              // For very small sets, no need to chunk
+        size > 0 -> size          // For very small sets, use the actual size,  no need to chunk
+        else -> 1                 // When size is 0 or negative, fallback to minimum safe chunk size
     }
 }
 
+suspend fun <T> Flow<List<T>>.flattenToList(): List<T> {
+    val result = mutableListOf<T>()
+    collect { chunk -> result += chunk }
+    return result
+}
+
+suspend fun <K, V> Flow<Map<K, V>>.flattenToMap(): Map<K, V> {
+    val result = mutableMapOf<K, V>()
+    collect { chunk -> result.putAll(chunk) }
+    return result
+}
+
+
+fun String.firstUppercase(): String {
+    return this.replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase() else it.toString()
+    }
+}
 
 
 

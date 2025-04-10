@@ -17,6 +17,7 @@ import com.hardik.messageapp.presentation.viewmodel.BlockViewModel
 import com.hardik.messageapp.presentation.viewmodel.ConversationThreadViewModel
 import com.hardik.messageapp.presentation.viewmodel.MessageViewModel
 import com.hardik.messageapp.presentation.viewmodel.RecyclebinViewModel
+import com.hardik.messageapp.presentation.viewmodel.UnreadMessageViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -29,6 +30,7 @@ abstract class BaseActivity() : AppCompatActivity()
     val archiveViewModel: ArchiveViewModel by viewModels()
     val recyclebinViewModel: RecyclebinViewModel by viewModels()
     val blockViewModel: BlockViewModel by viewModels()
+    val unreadMessageViewModel: UnreadMessageViewModel by viewModels()
 
     private val bottomNavMenuManager = BottomNavMenuManager()
 

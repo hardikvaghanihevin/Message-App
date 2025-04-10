@@ -44,7 +44,7 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
 
     //private val conversationViewmodel: ConversationThreadViewModel by activityViewModels()
     //private val messageViewModel: MessageViewModel by activityViewModels()
-    private lateinit var conversationViewmodel: ConversationThreadViewModel
+    private lateinit var conversationViewModel: ConversationThreadViewModel
     private lateinit var messageViewModel: MessageViewModel
     lateinit var conversationAdapter: ConversationAdapter
 
@@ -65,7 +65,7 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
         }
         //EventBus.getDefault().register(this) // ✅ Register EventBus
 
-        conversationViewmodel = (activity as MainActivity).conversationViewModel
+        conversationViewModel = (activity as MainActivity).conversationViewModel
         messageViewModel = (activity as MainActivity).messageViewModel
     }
 
@@ -113,7 +113,7 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
         }
 
         lifecycleScope.launch {
-            conversationViewmodel.conversationThreadsPrivate.collectLatest { newList ->
+            conversationViewModel.conversationThreadsPrivate.collectLatest { newList ->
                 //val layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = false }
                 val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
                 val currentPosition = layoutManager.findFirstVisibleItemPosition()
@@ -143,7 +143,12 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
         binding.toolbarMore.setOnClickListener { (activity as MainActivity).showPopupMenu(it) }  // Show custom popup menu on click of more button in toolbar
 
         //region toolbar selected item count management & Toolbar selected count management countUnreadGeneralAndPrivateConversationThreads
-        lifecycleScope.launch { conversationViewmodel.cvThreadAndToolbarCombinedState.collectLatest { (selectedThreads, toolbarState, unReadGeneralPrivateThreadsPair) ->
+        lifecycleScope.launch { conversationViewModel.cvThreadAndToolbarCombinedState.collectLatest { (selectedThreads, toolbarState, unreadCombined) ->
+
+            //val unreadGeneralMap = unreadCombined.first.first   // Map<Long, Long>
+            //val unreadGeneralCount = unreadCombined.first.second // Int
+            val unreadPrivateMap = unreadCombined.second.first  // Map<Long, Long>
+            val unreadPrivateCount = unreadCombined.second.second // Int
 
             val isCollapsed = toolbarState in listOf(CollapsingToolbarStateManager.STATE_COLLAPSED, CollapsingToolbarStateManager.STATE_INTERMEDIATE)
             val isExpanded = toolbarState in listOf(CollapsingToolbarStateManager.STATE_EXPANDED, )
@@ -157,7 +162,7 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
                 )
             }
             binding.toolbarTitleIndicator.apply {
-                val visible = View.GONE.takeUnless { isCollapsed } ?: View.VISIBLE.takeIf { selectedThreads.isEmpty() && unReadGeneralPrivateThreadsPair.second.isNotEmpty() } ?: View.GONE
+                val visible = View.GONE.takeUnless { isCollapsed } ?: View.VISIBLE.takeIf { selectedThreads.isEmpty() && unreadPrivateCount > 0 } ?: View.GONE
                 AnimationViewHelper.toggleViewVisibilityWithAnimation(
                     view = this@apply,
                     isVisible = visible,
@@ -198,22 +203,28 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
                 text = "${selectedThreads.size} ${getString(R.string.selected)}"
 
             }
+
+            val totalUnreadCount = unreadPrivateMap.values.sum()
+            binding.unreadMessages.apply {
+                text = "$totalUnreadCount ${getString(R.string.unread_messages)}"
+            }
         }}
         //endregion
 
-        lifecycleScope.launch { messageViewModel.unreadMessageCount.collectLatest { messages ->
-            //Log.i(TAG, "$TAG -onViewCreated: ${messages.size}", )
-            binding.unreadMessages.apply {
-                text = "$messages ${getString(R.string.unread_messages)}"
-            }
-        } }
+//        lifecycleScope.launch { conversationViewModel.unreadMessageCountPrivate.collectLatest { messageCount: Map<Long, Long> ->
+//            //Log.i(TAG, "$TAG -onViewCreated: $messageCount", )
+//            val totalUnreadCount = messageCount.values.sum()
+//            binding.unreadMessages.apply {
+//                text = "$totalUnreadCount ${getString(R.string.unread_messages)}"
+//            }
+//        } }
 
         //region toolbar management
         // Initialize the manager
         toolbarStateManager = CollapsingToolbarStateManager(binding.appbarLayout)
 
         // Create an anonymous implementation of the listener
-        toolbarStateChangeListener = object : CollapsingToolbarStateManager.OnStateChangeListener { override fun onStateChanged(newState: Int) { conversationViewmodel.onToolbarStateChanged(newState) } }
+        toolbarStateChangeListener = object : CollapsingToolbarStateManager.OnStateChangeListener { override fun onStateChanged(newState: Int) { conversationViewModel.onToolbarStateChanged(newState) } }
 
         // Register the anonymous listener
         toolbarStateManager.addOnStateChangeListener(toolbarStateChangeListener)
