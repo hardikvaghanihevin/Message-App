@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_01"
+    android:background="@color/app_color_01"
     android:orientation="vertical"
     tools:context=".presentation.ui.fragment.MessageFragment">
 
@@ -185,8 +185,8 @@
                         android:id="@+id/toolbar_tvSelectAll"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
                         android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
                         android:layout_marginStart="16dp"
                         android:drawablePadding="8dp"
                         android:text="@string/all"
@@ -207,8 +207,8 @@
                             android:id="@+id/toolbar_title"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
                             android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
                             android:layout_marginStart="8dp"
                             android:text="@string/messages"
                             android:textColor="@color/text_color_1"

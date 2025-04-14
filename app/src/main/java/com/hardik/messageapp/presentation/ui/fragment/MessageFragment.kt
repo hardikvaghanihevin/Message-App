@@ -14,24 +14,24 @@ import com.hardik.messageapp.R
 import com.hardik.messageapp.databinding.FragmentMessageBinding
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.ContactRepository
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.Constants.KEY_MESSAGE_ID
-import com.hardik.messageapp.helper.Constants.KEY_NORMALIZE_NUMBER
-import com.hardik.messageapp.helper.Constants.KEY_SEARCH_QUERY
-import com.hardik.messageapp.helper.Constants.KEY_THREAD_ID
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
 import com.hardik.messageapp.presentation.custom_view.BottomMenu
 import com.hardik.messageapp.presentation.custom_view.CustomDividerItemDecoration
-import com.hardik.messageapp.presentation.helper.ConversationSwipeGestureHelper
 import com.hardik.messageapp.presentation.ui.activity.ChatActivity
 import com.hardik.messageapp.presentation.ui.activity.MainActivity
 import com.hardik.messageapp.presentation.ui.activity.SearchActivity
 import com.hardik.messageapp.presentation.ui.activity.UnreadMessageActivity
-import com.hardik.messageapp.presentation.util.AnimationViewHelper.toggleViewVisibilityWithAnimation
-import com.hardik.messageapp.presentation.util.CollapsingToolbarStateManager
-import com.hardik.messageapp.presentation.util.evaluateSelectionGetHomeBottomMenu
-import com.hardik.messageapp.presentation.viewmodel.ConversationThreadViewModel
-import com.hardik.messageapp.presentation.viewmodel.MessageViewModel
+import com.hardik.messageapp.presentation.ui.viewmodel.ConversationThreadViewModel
+import com.hardik.messageapp.presentation.ui.viewmodel.MessageViewModel
+import com.hardik.messageapp.util.AnimationViewHelper.toggleViewVisibilityWithAnimation
+import com.hardik.messageapp.util.CollapsingToolbarStateManager
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.KEY_MESSAGE_ID
+import com.hardik.messageapp.util.Constants.KEY_NORMALIZE_NUMBER
+import com.hardik.messageapp.util.Constants.KEY_SEARCH_QUERY
+import com.hardik.messageapp.util.Constants.KEY_THREAD_ID
+import com.hardik.messageapp.util.ConversationSwipeGestureHelper
+import com.hardik.messageapp.util.evaluateSelectionGetHomeBottomMenu
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -121,10 +121,10 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
         val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 34f, requireContext().resources.displayMetrics).toInt()
 
         binding.recyclerView.apply {
-            setPadding(0, 0, 0, marginInPx)  // Add padding programmatically
+            setPadding(0, marginInPx/2, 0, marginInPx)  // Add padding programmatically
             clipToPadding = false            // Allow scrolling into padding
             overScrollMode = View.OVER_SCROLL_NEVER // Disable overscroll effect
-            addItemDecoration(CustomDividerItemDecoration(requireContext(), marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
+            addItemDecoration(CustomDividerItemDecoration(requireContext(), marginStartRes = R.dimen.item_recycle_decoration_dp_start, marginEndRes = R.dimen.item_recycle_decoration_dp_end, marginTop = 0, marginBottom = 0))
         }
 
         lifecycleScope.launch {

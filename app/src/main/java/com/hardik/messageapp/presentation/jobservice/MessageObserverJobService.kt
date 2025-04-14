@@ -9,7 +9,7 @@ import android.content.Context
 import android.os.Build
 import android.provider.Telephony
 import androidx.annotation.RequiresApi
-import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.BASE_TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

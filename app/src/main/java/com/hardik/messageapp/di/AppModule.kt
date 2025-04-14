@@ -118,8 +118,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideContactRepository(@ApplicationContext context: Context): ContactRepository {
-        return ContactRepositoryImpl(context)
+    fun provideContactRepository(@ApplicationContext context: Context, phoneNumberUtil: PhoneNumberUtil): ContactRepository {
+        return ContactRepositoryImpl(context, phoneNumberUtil)
     }
 
     /*@Provides

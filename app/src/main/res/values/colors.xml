@@ -14,11 +14,30 @@
     <color name="color_11">#FF570C</color> <!-- FF570C Icon -->
     <color name="color_12">#4C53EA</color> <!-- 4C53EA Icon -->
 
+    <color name="app_color_01">#FFFFFF</color> <!--#020403-->
+    <color name="app_color_02">#F7F7F7</color> <!--#0D0D0D-->
+    <color name="app_color_03">#F1F1F1</color> <!--#181818 -> #171717-->
+    <color name="app_color_04">#E9E9E9</color> <!--#2D2D2D-->
+    <color name="app_color_05">#ACACAC</color> <!--#6D6D6D-->
+    <color name="app_color_06">#9E9E9E</color> <!--#474747-->
+    <color name="app_color_07">#4E4F52</color> <!--#9D9D9D-->
+    <color name="app_color_08">#020403</color> <!--#FFFFFF-->
+    <color name="app_color_09">#3148D1</color> <!--#3148D1-->
+    <color name="app_color_10">#FF570C</color> <!--#FF570C-->
+    <color name="app_color_11">#FF0707</color> <!--#FF0707-->
+    <color name="app_color_12">#1E2D7E</color> <!--#1E2D7E-->
+    <color name="app_color_13">#D6DAF6</color> <!--#1E2D7E-->
+
+    <!--Splash bg color-->
+    <color name="splash_color_01" >@color/app_color_01</color>
+    <color name="splash_color_02" >@color/app_color_08</color>
+
+
     <!--Window color-->
-    <color name="action_bar_color" >@color/color_01</color>
-    <color name="app_bar_color" >@color/color_01</color>
-    <color name="app_navbar_color" >@color/color_01</color>
-    <color name="background_secondary" >@color/color_01</color>
+    <color name="action_bar_color" >@color/app_color_01</color>
+    <color name="app_bar_color" >@color/app_color_01</color>
+    <color name="app_navbar_color" >@color/app_color_01</color>
+    <color name="background_secondary" >@color/app_color_01</color>
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
@@ -60,9 +79,15 @@
     <color name="color_bottom_nav_underline_select">@color/color_09</color>
     <color name="color_bottom_nav_underline_unselect">@color/color_01</color>
     <color name="color_nav_item_unselect">@color/color_06</color><!--bottom nav unselect-->
-    <color name="color_nav_item_select">@color/color_09</color><!--bottom nav select-->
+    <color name="color_nav_item_select">@color/color_09</color>
 
+    <color name="divider_color_active">@color/app_color_08</color>
+    <color name="divider_color_inactive">@color/app_color_03</color>
+    <color name="color_divider_item_decoration">@color/app_color_03</color><!--recycleView divider-->
+    <color name="divider_color">@color/app_color_09</color>
 
+    <color name="color_cursor_edittext">#0084FF</color>
+    <color name="color_unread_count">#ffffff</color>
 
 
 </resources>

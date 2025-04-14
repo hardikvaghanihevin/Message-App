@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -21,8 +22,8 @@ import com.hardik.messageapp.databinding.ItemSearchHeaderBinding
 import com.hardik.messageapp.databinding.ItemSearchMessageBinding
 import com.hardik.messageapp.domain.model.SearchItem
 import com.hardik.messageapp.domain.model.SearchItem.Companion.DIFF_CALLBACK
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.presentation.util.DateUtil
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.DateUtil
 import java.util.regex.Pattern
 
 class SearchListAdapter(
@@ -56,15 +57,15 @@ class SearchListAdapter(
         RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SetTextI18n")
         fun bind(item: SearchItem.MessageItem, query: String) {
-            binding.tvTitle.text = highlightQuery(item.message.displayName, query)
-            binding.tvSnippet.text = highlightQuery(item.message.messageBody, query)
+            binding.tvTitle.text = highlightQuery(item.message.displayName, query, textColor = ContextCompat.getColor(binding.tvTitle.context, R.color.color_cursor_edittext))
+            binding.tvSnippet.text = highlightQuery(item.message.messageBody, query, textColor = ContextCompat.getColor(binding.tvSnippet.context, R.color.color_cursor_edittext))
             binding.tvMatchFoundCountOtpLayout.text = "Match found: ${item.message.matchFoundCount}"
             binding.tvDate.text = DateUtil.longToString(item.message.dateSent, DateUtil.DATE_FORMAT_dd_MMM)
 
             Glide.with(binding.ivProfile.context)
                 .load(item.message.photoUri)
-                .placeholder(R.drawable.dummy_ic_user)
-                .error(R.drawable.dummy_ic_user)
+                .placeholder(R.drawable.real_ic_user)
+                .error(R.drawable.real_ic_user)
                 .into(binding.ivProfile)
 
             itemView.setOnClickListener {
@@ -115,13 +116,13 @@ class SearchListAdapter(
     inner class ContactViewHolder(private val binding: ItemSearchContactBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(item: SearchItem.ContactItem, query: String) {
-            binding.tvContactName.text = highlightQuery(item.contact.displayName, query)
-            binding.tvContactNumber.text = highlightQuery(item.contact.phoneNumbers.joinToString(), query)
+            binding.tvContactName.text = highlightQuery(item.contact.displayName, query, textColor = ContextCompat.getColor(binding.tvContactName.context, R.color.color_cursor_edittext))
+            binding.tvContactNumber.text = highlightQuery(item.contact.phoneNumbers.joinToString(), query, textColor = ContextCompat.getColor(binding.tvContactNumber.context, R.color.color_cursor_edittext))
 
             Glide.with(binding.ivContactPhoto.context)
                 .load(item.contact.photoUri)
-                .placeholder(R.drawable.dummy_ic_user)
-                .error(R.drawable.dummy_ic_user)
+                .placeholder(R.drawable.real_ic_user)
+                .error(R.drawable.real_ic_user)
                 .into(binding.ivContactPhoto)
 
             itemView.setOnClickListener {
@@ -146,8 +147,8 @@ class SearchListAdapter(
     }
 
     private fun highlightQuery(text: String, query: String,
-        textColor: Int = Color.RED,
-        backgroundColor: Int = Color.YELLOW
+        textColor: Int = Color.BLUE,
+        backgroundColor: Int = Color.TRANSPARENT
     ): SpannableString {
         val spannable = SpannableString(text)
 

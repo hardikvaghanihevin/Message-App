@@ -1,39 +1,77 @@
 package com.hardik.messageapp.data.repository
 
-import android.Manifest
 import android.content.ContentProviderOperation
 import android.content.ContentUris
 import android.content.Context
-import android.content.pm.PackageManager
 import android.database.Cursor
-import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
-import androidx.core.content.ContextCompat
 import com.hardik.messageapp.domain.model.Contact
 import com.hardik.messageapp.domain.repository.ContactRepository
-import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.removeCountryCode
+import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
-class ContactRepositoryImpl @Inject constructor(private val context: Context) : ContactRepository {
-
-    override fun getContacts1(): Flow<List<Contact>> = flow {
-        val contactList = mutableListOf<Contact>()
-        emit(contactList)
-    }.flowOn(Dispatchers.IO)
+class ContactRepositoryImpl @Inject constructor(
+    private val context: Context,
+    private val phoneNumberUtil: PhoneNumberUtil
+) : ContactRepository {
+    private val TAG = BASE_TAG + ContactRepositoryImpl::class.java.simpleName
 
     override fun searchContact(phoneNumber: String): Flow<Contact?> = flow {
-        var contact: Contact? = null
-        emit(contact)
+        val normalizedInput = phoneNumber.removeCountryCode(phoneNumberUtil).filter { it.isDigit() }
+
+        val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+        val projection = arrayOf(
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.PHOTO_URI,
+            ContactsContract.CommonDataKinds.Phone.NUMBER
+        )
+
+        val selection = null // Optional: you can apply filtering here too
+        val selectionArgs = null
+
+        val cursor = context.contentResolver.query(
+            uri,
+            projection,
+            selection,
+            selectionArgs,
+            "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC"
+        )
+
+        var matchedContact: Contact? = null
+
+        cursor?.use {
+            while (it.moveToNext()) {
+                val contactId = it.getInt(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.CONTACT_ID))
+                val name = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)) ?: ""
+                val photoUri = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.PHOTO_URI))
+                val number = it.getString(it.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER)) ?: ""
+                val normalizedStored = number.removeCountryCode(phoneNumberUtil).filter { it.isDigit() }
+
+                if (normalizedStored == normalizedInput) {
+                    matchedContact = Contact(
+                        contactId = contactId,
+                        displayName = name,
+                        photoUri = photoUri,
+                        phoneNumbers = mutableListOf(number),
+                        normalizeNumber = normalizedStored,
+                        isHeader = false
+                    )
+                    break
+                }
+            }
+        }
+
+        emit(matchedContact)
     }.flowOn(Dispatchers.IO)
 
     override suspend fun addContact(contact: Contact) {
@@ -100,85 +138,110 @@ class ContactRepositoryImpl @Inject constructor(private val context: Context) : 
         }
     }
 
-    override fun getContacts(): Flow<List<Contact>> = flow {
-        val contactsMap = mutableMapOf<String, Contact>()
+    private var startTimeFC by Delegates.notNull<Long>()
+    private var endTimeFC by Delegates.notNull<Long>()
+    override fun getContacts(wantToNumberWiseContactList: Boolean): Flow<List<Contact>> = channelFlow {
+        val contactMap = mutableMapOf<Int, MutableList<String>>() // contactId -> phoneNumbers
+        val contactInfoMap = mutableMapOf<Int, Triple<String, String?, String>>() // contactId -> (name, photoUri, anyNumber)
 
-        emit(contactsMap.values.toList()) // Emit the list of contacts
-    }.flowOn(Dispatchers.IO) // Run on background thread
+        val emitList = mutableListOf<Contact>()
+        val emitThreshold = 100
+        var counter = 0
 
-    override fun getPhoneNumberByRecipientId(recipientId: String): Flow<String?> = flow {
-        val uri = Uri.parse("content://mms-sms/canonical-addresses")
-        val projection = arrayOf("_id", "address")
-        val selection = "_id = ?"
-        val selectionArgs = arrayOf(recipientId)
+        val contentResolver = context.contentResolver
+        val uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI
 
-        val phoneNumber = context.contentResolver.query(uri, projection, selection, selectionArgs, null)?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                cursor.getString(cursor.getColumnIndexOrThrow("address"))
-            } else null
-        }
-        Log.i(BASE_TAG, "getPhoneNumberByRecipientId: $phoneNumber")
-        emit(phoneNumber) // Emit either a phone number or null
-    }.flowOn(Dispatchers.IO)
-
-    override fun getContactNameByPhoneNumber(phoneNumber: String):  Flow<String?> = flow {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            emit(null) // Return null if permission is not granted
-            return@flow
-        }
-
-        val projection = arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
-        val selection = "${ContactsContract.CommonDataKinds.Phone.NUMBER} LIKE ?"
-        val selectionArgs = arrayOf("%$phoneNumber%") // Using LIKE to handle different formats
-
-        val contactName = context.contentResolver.query(
-            ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-            projection,
-            selection,
-            selectionArgs,
-            null
-        )?.use { cursor ->
-            if (cursor.moveToFirst()) {
-                cursor.getString(cursor.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME))
-            } else null
-        }
-
-        Log.v(BASE_TAG, "getContactNameByPhoneNumber: $contactName", )
-        emit(contactName)
-    }.flowOn(Dispatchers.IO)
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getPhoneNumberAndContactNameByRecipientId(context: Context, recipientId: String): Flow<Pair<String?, String?>> =
-        flow {
-            if (recipientId.isBlank()) {
-                emit(Pair(null, null))
-                return@flow
-            }
-            emitAll(getPhoneNumberByRecipientId(recipientId)
-                .flatMapLatest { phoneNumber ->
-                    if (phoneNumber != null) {
-                        getContactNameByPhoneNumber(phoneNumber)
-                            .map { contactName -> Pair(contactName, phoneNumber) }
-                    } else {
-                        flowOf(Pair(null, null))
-                    }
-                })
-        }.flowOn(Dispatchers.IO)
-
-    private fun getPhoneNumberFromRecipientId(recipientIds: String): String {
-        val uri = Uri.parse("content://mms-sms/canonical-addresses")
-        val projection = arrayOf("_id", "address")
-        val formattedIds = recipientIds.split(" ").joinToString(",") { it.trim() }
-        val cursor: Cursor? = context.contentResolver.query(
-            uri, projection, "_id IN ($formattedIds)", null, null
+        val projection = arrayOf(
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+            ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME,
+            ContactsContract.CommonDataKinds.Phone.PHOTO_URI,
+            ContactsContract.CommonDataKinds.Phone.NUMBER
         )
-        val phoneNumbers = mutableListOf<String>()
+
+        val cursor: Cursor? = contentResolver.query(
+            uri, projection, null, null,
+            "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} ASC"
+        )
+
+        startTimeFC = System.currentTimeMillis()
+
         cursor?.use {
+            val idIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_ID)
+            val nameIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)
+            val imageIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.PHOTO_URI)
+            val numberIndex = it.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
+
             while (it.moveToNext()) {
-                phoneNumbers.add(it.getString(it.getColumnIndexOrThrow("address")))
+                val contactId = it.getInt(idIndex)
+                val displayName = it.getString(nameIndex) ?: "Unknown"
+                val imageUri = it.getString(imageIndex)
+                val rawNumber = it.getString(numberIndex)
+                //val cleanedNumber = rawNumber.replace(" ", "").replace("-", "")
+                val cleanedNumber = rawNumber.removeCountryCode(phoneNumberUtil).trim().filter { it.isDigit() }
+
+                contactMap.getOrPut(contactId) { mutableListOf() }.apply {
+                    if (!contains(cleanedNumber)) add(cleanedNumber)
+                }
+
+                if (!contactInfoMap.containsKey(contactId)) {
+                    contactInfoMap[contactId] = Triple(displayName, imageUri, cleanedNumber)
+                }
             }
         }
-        return phoneNumbers.joinToString(", ")
-    }
+
+        // Now prepare final list based on wantToNumberWiseContactList
+        contactMap.forEach { (contactId, numbers) ->
+            val (name, photoUri, firstNumber) = contactInfoMap[contactId] ?: return@forEach
+
+            if (wantToNumberWiseContactList) {
+                numbers.forEach { number ->
+                    val normalized = number.removeCountryCode(phoneNumberUtil).trim().filter { it.isDigit() }
+
+                    emitList.add(
+                        Contact(
+                            contactId = contactId,
+                            displayName = name,
+                            phoneNumbers = numbers,
+                            photoUri = photoUri,
+                            normalizeNumber = normalized
+                        )
+                    )
+
+                    counter++
+                    if (counter % emitThreshold == 0) {
+                        send(emitList.toList())
+                        emitList.clear()
+                    }
+                }
+            } else {
+                // Just one object with all numbers and normalizeNumber of first
+                val normalized = firstNumber.removeCountryCode(phoneNumberUtil)
+                emitList.add(
+                    Contact(
+                        contactId = contactId,
+                        displayName = name,
+                        phoneNumbers = numbers,
+                        photoUri = photoUri,
+                        normalizeNumber = normalized
+                    )
+                )
+
+                counter++
+                if (counter % emitThreshold == 0) {
+                    send(emitList.toList())
+                    emitList.clear()
+                }
+            }
+        }
+
+        if (emitList.isNotEmpty()) {
+            send(emitList.toList())
+        }
+
+        endTimeFC = System.currentTimeMillis()
+        Log.i(TAG, "$TAG - Total execution time Contact: ${endTimeFC - startTimeFC}ms")
+    }.flowOn(Dispatchers.IO)
+
+
 }
 

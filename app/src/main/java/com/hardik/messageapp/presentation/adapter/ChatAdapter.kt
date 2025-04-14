@@ -15,15 +15,16 @@ import android.view.ViewGroup
 import android.widget.Space
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.hardik.messageapp.R
 import com.hardik.messageapp.databinding.ItemChatMessageBinding
 import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.model.Message.Companion.DIFF_CALLBACK
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.presentation.util.DateUtil
-import com.hardik.messageapp.presentation.util.TimeFormatter
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.DateUtil
+import com.hardik.messageapp.util.TimeFormatter
 import java.util.regex.Pattern
 
 class ChatAdapter(
@@ -79,7 +80,7 @@ class ChatAdapter(
             //region Handle Message Visibility and Time Visibility
             if (item.messageBody.isNotEmpty()) {
                 visibleContainer.visibility = View.VISIBLE
-                messageView.text = highlightQuery(item.messageBody, query = searchQuery)
+                messageView.text = highlightQuery(item.messageBody, query = searchQuery, textColor = ContextCompat.getColor(messageView.context, R.color.color_cursor_edittext))
                 messageView.visibility = View.VISIBLE
                 timeView.text = DateUtil.longToString(item.timestamp, DateUtil.TIME_FORMAT_hh_mm_a)
             }
@@ -195,8 +196,8 @@ class ChatAdapter(
     }
 
     private fun highlightQuery(text: String, query: String,
-                               textColor: Int = Color.RED,
-                               backgroundColor: Int = Color.YELLOW
+                               textColor: Int = Color.BLUE,
+                               backgroundColor: Int = Color.TRANSPARENT
     ): SpannableString {
         val spannable = SpannableString(text)
 

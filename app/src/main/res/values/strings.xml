@@ -11,6 +11,9 @@
     <string name="copy_otp">Copy OTP</string>
 
     <string name="contentDescription_new_conversation">New conversation</string>
+    <string name="contentDescription_send_message">Send message</string>
+    <string name="contentDescription_cancel_button">Cancel button</string>
+    <string name="contentDescription_back_button">Back button</string>
 
     <string name="view">View</string>
     <string name="general">General</string>
@@ -45,6 +48,13 @@
     <string name="view_details">View details</string>
     <string name="pin_conversation">Pin conversation</string>
     <string name="unpin_conversation">Unpin conversation</string>
+
+    <string name="new_conversation">New conversation</string>
+    <string name="type_a_name_or_number">Type a name or number</string>
+    <string name="block_number">Block number</string>
+    <string name="block_message">Block message</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!--<string name="copy">Copy</string>-->
 </resources>

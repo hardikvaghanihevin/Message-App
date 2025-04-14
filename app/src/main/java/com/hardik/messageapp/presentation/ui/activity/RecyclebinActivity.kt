@@ -11,13 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hardik.messageapp.R
 import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.databinding.ActivityRecyclebinBinding
-import com.hardik.messageapp.helper.Constants
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
 import com.hardik.messageapp.presentation.custom_view.BottomMenu
 import com.hardik.messageapp.presentation.custom_view.CustomDividerItemDecoration
 import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
-import com.hardik.messageapp.presentation.util.AnimationViewHelper
+import com.hardik.messageapp.util.AnimationViewHelper
+import com.hardik.messageapp.util.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -61,10 +61,12 @@ class RecyclebinActivity : BaseActivity() {
         val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 34f, resources.displayMetrics).toInt()
 
         binding.recyclerView.apply {
-            setPadding(0, 0, 0, marginInPx)  // Add padding programmatically
+            setPadding(0, marginInPx/2, 0, marginInPx)  // Add padding programmatically
             clipToPadding = false            // Allow scrolling into padding
             overScrollMode = View.OVER_SCROLL_NEVER // Disable overscroll effect
-            addItemDecoration(CustomDividerItemDecoration(this@RecyclebinActivity, marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
+            //addItemDecoration(CustomDividerItemDecoration(this@RecyclebinActivity, marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
+            addItemDecoration(CustomDividerItemDecoration(this@RecyclebinActivity, marginStartRes = R.dimen.item_recycle_decoration_dp_start, marginEndRes = R.dimen.item_recycle_decoration_dp_end, marginTop = 0, marginBottom = 0))
+
         }
 
         lifecycleScope.launch {

@@ -9,21 +9,27 @@ import android.view.inputmethod.InputMethodManager
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.hardik.messageapp.helper.Constants.BASE_TAG
 import com.hardik.messageapp.presentation.custom_view.BottomMenu
 import com.hardik.messageapp.presentation.custom_view.BottomNavMenuManager
-import com.hardik.messageapp.presentation.viewmodel.ArchiveViewModel
-import com.hardik.messageapp.presentation.viewmodel.BlockViewModel
-import com.hardik.messageapp.presentation.viewmodel.ConversationThreadViewModel
-import com.hardik.messageapp.presentation.viewmodel.MessageViewModel
-import com.hardik.messageapp.presentation.viewmodel.RecyclebinViewModel
-import com.hardik.messageapp.presentation.viewmodel.UnreadMessageViewModel
+import com.hardik.messageapp.presentation.ui.viewmodel.ArchiveViewModel
+import com.hardik.messageapp.presentation.ui.viewmodel.BlockViewModel
+import com.hardik.messageapp.presentation.ui.viewmodel.ContactViewModel
+import com.hardik.messageapp.presentation.ui.viewmodel.ConversationThreadViewModel
+import com.hardik.messageapp.presentation.ui.viewmodel.MessageViewModel
+import com.hardik.messageapp.presentation.ui.viewmodel.RecyclebinViewModel
+import com.hardik.messageapp.presentation.ui.viewmodel.UnreadMessageViewModel
+import com.hardik.messageapp.util.Constants.BASE_TAG
 import dagger.hilt.android.AndroidEntryPoint
+import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
+import javax.inject.Inject
 
 @AndroidEntryPoint
 abstract class BaseActivity() : AppCompatActivity()
 {
     private val TAG = BASE_TAG + BaseActivity::class.java.simpleName
+    @Inject
+    lateinit var phoneNumberUtil: PhoneNumberUtil
+
     val conversationViewModel: ConversationThreadViewModel by viewModels()
 
     val messageViewModel: MessageViewModel by viewModels()
@@ -31,6 +37,7 @@ abstract class BaseActivity() : AppCompatActivity()
     val recyclebinViewModel: RecyclebinViewModel by viewModels()
     val blockViewModel: BlockViewModel by viewModels()
     val unreadMessageViewModel: UnreadMessageViewModel by viewModels()
+    val contactViewModel: ContactViewModel by viewModels()
 
     private val bottomNavMenuManager = BottomNavMenuManager()
 

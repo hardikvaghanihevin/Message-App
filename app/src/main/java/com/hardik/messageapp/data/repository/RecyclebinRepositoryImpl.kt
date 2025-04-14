@@ -10,7 +10,7 @@ import com.hardik.messageapp.data.local.entity.RecycleBinThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.ConversationRepository
 import com.hardik.messageapp.domain.repository.RecyclebinRepository
-import com.hardik.messageapp.presentation.util.AppDataSingleton
+import com.hardik.messageapp.util.AppDataSingleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async

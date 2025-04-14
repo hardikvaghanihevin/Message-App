@@ -2,7 +2,7 @@ package com.hardik.messageapp.domain.usecase.message
 
 import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.repository.MessageRepository
-import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.BASE_TAG
 import javax.inject.Inject
 
 class InsertMessageUseCase @Inject constructor(

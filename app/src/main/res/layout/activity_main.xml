@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_01"
+    android:background="@color/app_color_01"
     android:gravity="bottom"
     android:orientation="vertical"
     tools:context=".presentation.ui.activity.MainActivity">
@@ -26,14 +26,14 @@
             android:layout_width="65dp"
             android:layout_height="65dp"
             android:layout_centerVertical="true"
+            android:layout_margin="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
+            android:contentDescription="@string/contentDescription_new_conversation"
             android:focusable="true"
-            android:layout_margin="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:src="@drawable/real_ic_new_conversation"
-            android:contentDescription="@string/contentDescription_new_conversation" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -47,8 +47,7 @@
             layout="@layout/nav_view_bottom"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            />
+            android:layout_gravity="bottom" />
 
         <!-- Bottom menu-->
         <include
@@ -57,8 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
 
         <!--<include
             android:id="@+id/included_navViewBottomMenu2"
@@ -82,40 +80,39 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
+
         <include
             android:id="@+id/included_navViewBottomMenu5"
             layout="@layout/nav_view_bottom_menu_5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
+
         <include
             android:id="@+id/included_navViewBottomMenu6"
             layout="@layout/nav_view_bottom_menu_6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
+
         <include
             android:id="@+id/included_navViewBottomMenu7"
             layout="@layout/nav_view_bottom_menu_7"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
+
         <include
             android:id="@+id/included_navViewBottomMenu8"
             layout="@layout/nav_view_bottom_menu_8"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

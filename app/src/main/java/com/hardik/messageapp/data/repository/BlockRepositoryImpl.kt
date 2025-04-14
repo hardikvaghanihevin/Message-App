@@ -9,8 +9,8 @@ import com.hardik.messageapp.data.local.dao.RecycleBinThreadDao
 import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.BlockRepository
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.presentation.util.AppDataSingleton
+import com.hardik.messageapp.util.AppDataSingleton
+import com.hardik.messageapp.util.Constants.BASE_TAG
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -34,7 +34,7 @@ class BlockRepositoryImpl @Inject constructor(
 ) : BlockRepository {
     private val TAG = BASE_TAG + BlockRepositoryImpl::class.simpleName
 
-    fun getSystemBlockedNumbers(context: Context): Flow<List<String>> = flow {
+    private fun getSystemBlockedNumbers(context: Context): Flow<List<String>> = flow {
         val systemBlocked = mutableListOf<String>()
         val uri = BlockedNumberContract.BlockedNumbers.CONTENT_URI
         context.contentResolver.query(uri, arrayOf(BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER), null, null, null
@@ -42,7 +42,7 @@ class BlockRepositoryImpl @Inject constructor(
             val numberIndex = cursor.getColumnIndex(BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER)
             while (cursor.moveToNext()) {
                 val number = cursor.getString(numberIndex)
-                systemBlocked.add(number.trim().lowercase())
+                systemBlocked.add(number.trim())
             }
         }
         emit(systemBlocked)
@@ -51,7 +51,7 @@ class BlockRepositoryImpl @Inject constructor(
     //region Fetch BlockConversationThread list
     private var startTime by Delegates.notNull<Long>() // Start time
     private var endTime by Delegates.notNull<Long>() // End time
-    override fun getBlockedConversations(): Flow<List<ConversationThread>> = flow {
+    override fun getBlockedConversations(): Flow<Pair<List<ConversationThread>, List<String>>> = flow {
         coroutineScope {
             val systemBlockedList: Deferred<List<String>> = async { getSystemBlockedNumbers(context).first() }
             val dbBlockList: Deferred<List<BlockThreadEntity>> = async(Dispatchers.IO) { blockThreadDao.getBlockThreadsData().first() }
@@ -62,7 +62,7 @@ class BlockRepositoryImpl @Inject constructor(
             val dbBlockedThreads = dbBlockList.await()
             val recyclebinThreadIds = recyclebinIds.await()
             val conversationThreads = conversationList.await()
-            Log.i(TAG, "getBlockedConversations: A")
+            //Log.i(TAG, "getBlockedConversations: A")
 
             combine(
                 flowOf(systemBlocked),
@@ -70,7 +70,7 @@ class BlockRepositoryImpl @Inject constructor(
                 flowOf(recyclebinThreadIds),
                 flowOf(conversationThreads)
             ) { blockedList, dbBlocked, recyclebin, threads ->
-                Log.e(TAG, "getBlockedConversations: B", )
+                //Log.e(TAG, "getBlockedConversations: B", )
                 // blocked [1,2,3,4,5] ->date class is list<String>
                 // bdBlocked [2,5,6] ->data class is List<BlockThreadEntity>
                 // threads [1,2,3,4,5,6,7,8,9..] ->data class is List<ConversationThread>
@@ -81,16 +81,17 @@ class BlockRepositoryImpl @Inject constructor(
                 // blocked [1,2,3,4,5,6] -> "6" is inserted
                 // bdBlocked [1,2,3,4,5,6] -> "1,3,4" is inserted
 
-                val normalizedBlocked: List<String> = blockedList.map { it.trim().lowercase() }
+                val normalizedBlocked: List<String> = blockedList.map { it.trim()}
+                Log.e(TAG, "getBlockedConversations: $blockedList", )
 
                 val matchedThreads: List<ConversationThread> = threads.filter { thread ->
                     normalizedBlocked.any { blocked ->
                         if (blocked.any { it.isDigit() }) {
-                            thread.normalizeNumber.trim().lowercase() == blocked ||
-                                    thread.sender.trim().lowercase() == blocked
+                            thread.normalizeNumber.trim() == blocked ||
+                                    thread.sender.trim() == blocked
                         } else {
-                            thread.sender.trim().lowercase() == blocked ||
-                                    thread.displayName.trim().lowercase() == blocked
+                            thread.sender.trim() == blocked ||
+                                    thread.displayName.trim() == blocked
                         }
                     }
                 }
@@ -114,8 +115,9 @@ class BlockRepositoryImpl @Inject constructor(
                 val blockList = toInsertInDb.map { thread -> BlockThreadEntity(threadId = thread.threadId, number = thread.normalizeNumber, sender = thread.sender) }
                 blockConversations(blockList) // suspend fun
 
-                val filteredThreads: List<ConversationThread> = threads.filter { it.threadId in mergedThreadIds && it.threadId !in recyclebin }
-                filteredThreads// final result
+                //val filteredThreads: List<ConversationThread> = threads.filter { it.threadId in mergedThreadIds && it.threadId !in recyclebin }
+                val filteredThreads: List<ConversationThread> = threads.filter { it.threadId in mergedThreadIds }
+                Pair(filteredThreads, blockedList)// final result
                 
 /*
 
@@ -156,7 +158,7 @@ class BlockRepositoryImpl @Inject constructor(
                 .collect {
                     //Log.e(TAG, "popupMenuBlockConversation: \n${it.joinToString("\n") { thread -> "threadId=${thread.threadId}, sender=${thread.sender}, normalizeNumber=${thread.normalizeNumber}" }}")
                     //LogUtil.d(TAG, "getBlockedConversations: ${it.toJson()}")
-                    emit(it)
+                    emit(Pair(it.first, it.second))
                 }
 
         }
@@ -216,7 +218,7 @@ class BlockRepositoryImpl @Inject constructor(
             // Launch both operations in parallel using async
             val systemBlockJob = async {
 //                val numbers = blockThreads.map { it.number }
-                val numbers = blockThreads.mapNotNull { it.number.takeIf { num -> num.isNotBlank() } }
+                val numbers = blockThreads.mapNotNull { it.sender.takeIf { num -> num.isNotBlank() } }
                 for (number in numbers) {
                     val values = ContentValues().apply {
                         put(BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER, number)
@@ -242,7 +244,7 @@ class BlockRepositoryImpl @Inject constructor(
     override suspend fun unblockConversations(blockThreads: List<BlockThreadEntity>): Boolean = coroutineScope {
         try {
             val threadIds = blockThreads.map { it.threadId }
-            val numbers = blockThreads.map { it.number }
+            val numbers = blockThreads.map { it.sender }
 
             // Parallel job to unblock system numbers
             val systemUnblockJob = async {
@@ -259,6 +261,36 @@ class BlockRepositoryImpl @Inject constructor(
             val dbUnblockJob = async {
                 val deletedCount = blockThreadDao.unblockThread(threadIds)
                 deletedCount == threadIds.size
+            }
+
+            // Await both and return combined result
+            systemUnblockJob.await() && dbUnblockJob.await()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    override suspend fun unblockNumbers(numbers: List<String>): Boolean = coroutineScope {
+        try {
+
+            // Parallel job to unblock system numbers
+            val systemUnblockJob = async {
+                val uri = BlockedNumberContract.BlockedNumbers.CONTENT_URI
+                for (number in numbers) {
+                    val selection = "${BlockedNumberContract.BlockedNumbers.COLUMN_ORIGINAL_NUMBER} = ?"
+                    val selectionArgs = arrayOf(number)
+                    context.contentResolver.delete(uri, selection, selectionArgs)
+                }
+                true
+            }
+
+            // Parallel job to delete from DB
+            val dbUnblockJob = async {
+                val deletedCount = blockThreadDao.unblockNumbers(senders = numbers)
+                //deletedCount == threadIds.size
+                true
             }
 
             // Await both and return combined result

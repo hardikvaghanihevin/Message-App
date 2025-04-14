@@ -18,10 +18,10 @@ import com.hardik.messageapp.R
 import com.hardik.messageapp.databinding.ItemConversationBinding
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.model.ConversationThread.Companion.DIFF_CALLBACK
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.analyzeSender
-import com.hardik.messageapp.presentation.util.IcPlaceholderHelper
-import com.hardik.messageapp.presentation.util.TimeFormatterForConversation
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.IcPlaceholderHelper
+import com.hardik.messageapp.util.TimeFormatterForConversation
+import com.hardik.messageapp.util.analyzeSender
 import java.util.regex.Pattern
 
 class ConversationAdapter (
@@ -45,7 +45,7 @@ class ConversationAdapter (
 
     inner class ConversationViewHolder(val binding: ItemConversationBinding) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: ConversationThread, previousItem: ConversationThread? ,position: Int) {
+        fun bind(item: ConversationThread, position: Int) {
             binding.apply {
                 tvTitle.text = item.displayName
                 tvSnippet.text = item.snippet
@@ -74,7 +74,7 @@ class ConversationAdapter (
                 }
                 //endregion
 
-                setProfileImageAndText(item) //set Image if available
+                setProfileImageAndTextChar(item) //set Image if available
                 setupSwipeActions(item) // swipe action and there clicks
                 updateSelectionUI(item) // select/unselect
                 setupClickListeners(item) // click listeners
@@ -85,7 +85,7 @@ class ConversationAdapter (
             }
         }
 
-        private fun setProfileImageAndText(item: ConversationThread, isSelected: Boolean = false) {
+        private fun setProfileImageAndTextChar(item: ConversationThread, isSelected: Boolean = false) {
             val senderType = analyzeSender(item.sender)
 
             var imgUri: Pair<Char, Any> = if (senderType == 1) {
@@ -105,7 +105,7 @@ class ConversationAdapter (
                         placeholder
                     }
                 } else {
-                    Pair('?', R.drawable.ic_user)
+                    Pair('?', R.drawable.real_ic_user)
                 }
             } else {
                 // From company message
@@ -121,8 +121,8 @@ class ConversationAdapter (
             // Load profile image using Glide
             Glide.with(binding.ivProfile.context)
                 .load(imgUri.second)
-                .placeholder(R.drawable.ic_user)
-                .error(R.drawable.ic_user)
+                .placeholder(R.drawable.real_ic_user)
+                .error(R.drawable.real_ic_user)
                 .into(binding.ivProfile)
         }
 
@@ -143,7 +143,7 @@ class ConversationAdapter (
 
             binding.rootLayout.background = ContextCompat.getDrawable(context, if (isSelected) R.drawable.bg_conversation_select else R.drawable.bg_conversation_unselect)
 
-            setProfileImageAndText(item, isSelected = isSelected) // Call function separately to set profile
+            setProfileImageAndTextChar(item, isSelected = isSelected) // Call function separately to set profile
 
         }
 
@@ -229,13 +229,13 @@ class ConversationAdapter (
     }
 
     override fun onBindViewHolder(holder: ConversationViewHolder, position: Int) {
-        if(position in currentList.indices) {
-            val previousItem = if (position > 0) currentList[position - 1] else null
-            holder.bind(getItem(position), previousItem, position)
-        }
+        //if(position in currentList.indices) { val previousItem = if (position > 0) currentList[position - 1] else null }
+        holder.bind(getItem(position), position)
     }
 
-    // Select all items
+
+    // region Selection item
+    /** Select all items */
     fun selectAll() {
         if (currentList.isEmpty()) return
 
@@ -246,7 +246,7 @@ class ConversationAdapter (
         onSelectionChanged(selectedItems.toList(), currentList.size) // Send selected list
     }
 
-    // Unselect all items
+    /** Unselect all items */
     fun unselectAll() {
         if (selectedItems.isEmpty()) return
 
@@ -264,10 +264,10 @@ class ConversationAdapter (
         onSelectionChanged(emptyList(), currentList.size)
     }
 
-
-
-    // Get live selected count
+    /** Get live selected count */
     fun getSelectedItemCount(): Int = selectedItems.size
+    // endregion Selection item
+
     override fun getFilter(): Filter {
         return object : Filter() {
             override fun performFiltering(constraint: CharSequence?): FilterResults {

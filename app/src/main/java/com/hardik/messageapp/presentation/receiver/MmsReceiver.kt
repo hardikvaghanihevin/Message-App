@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.BASE_TAG
 
 class MmsReceiver : BroadcastReceiver() {
 

@@ -5,7 +5,7 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import com.hardik.messageapp.R
-import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.BASE_TAG
 
 enum class BottomMenu(val menuId: Int) {
     BOTTOM_MENU_1_ARCHIVE_DELETE_MORE(R.id.included_navViewBottomMenu1), // Main Activity (General, Private)

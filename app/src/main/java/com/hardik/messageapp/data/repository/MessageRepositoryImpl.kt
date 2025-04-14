@@ -13,7 +13,7 @@ import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.repository.MessageRepository
-import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.BASE_TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow

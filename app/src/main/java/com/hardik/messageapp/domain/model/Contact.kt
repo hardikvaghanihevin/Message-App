@@ -8,7 +8,8 @@ data class Contact(
     var displayName: String = "",
     var phoneNumbers: MutableList<String> = mutableListOf(),
     var photoUri: String? = null,
-    var normalizeNumber: String
+    var normalizeNumber: String,
+    val isHeader: Boolean = false
 ) {
     companion object {
         val DIFF_CALLBACK = object : DiffUtil.ItemCallback<Contact>() {
@@ -21,7 +22,8 @@ data class Contact(
                         oldItem.displayName == newItem.displayName &&
                         oldItem.phoneNumbers == newItem.phoneNumbers &&
                         oldItem.photoUri == newItem.photoUri &&
-                        oldItem.normalizeNumber == newItem.normalizeNumber
+                        oldItem.normalizeNumber == newItem.normalizeNumber &&
+                        oldItem.isHeader == newItem.isHeader
             }
         }
         fun List<Contact>.toJson(): String {

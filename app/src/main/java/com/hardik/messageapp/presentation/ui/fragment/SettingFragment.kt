@@ -4,13 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import com.hardik.messageapp.databinding.FragmentSettingBinding
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.presentation.viewmodel.ContactViewModel
+import com.hardik.messageapp.util.Constants.BASE_TAG
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -22,7 +18,6 @@ class SettingFragment : BaseFragment() {
     private var _binding: FragmentSettingBinding? = null
     private val binding get() = _binding!!
 
-    private val contactViewModel: ContactViewModel by activityViewModels()
 
     private var param1: String? = null
     private var param2: String? = null
@@ -46,15 +41,6 @@ class SettingFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        contactViewModel.fetchContacts()
-        lifecycleScope.launch {
-//            contactViewModel.contacts.collectLatest {
-//                it.forEach{ Log.i(TAG, "onViewCreated: $it") }
-//                Log.v(TAG, "onViewCreated: ${it.size}")
-//            }
-
-        }
 
     }
 

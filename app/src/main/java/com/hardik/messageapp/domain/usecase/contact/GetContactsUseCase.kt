@@ -6,5 +6,5 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class GetContactsUseCase @Inject constructor(private val repository: ContactRepository) {
-    fun execute(): Flow<List<Contact>> = repository.getContacts()
+    fun execute(wantToNumberWiseContactList: Boolean): Flow<List<Contact>> = repository.getContacts(wantToNumberWiseContactList = wantToNumberWiseContactList)
 }

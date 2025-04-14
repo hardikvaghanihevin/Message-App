@@ -4,10 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.preference.PreferenceManager
 import com.hardik.messageapp.databinding.ActivitySetAsDefaultBinding
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.Constants.KEY_IS_APP_SET_AS_DEFAULT_SHOW_SET_AS_DEFAULT_ACTIVITY
-import com.hardik.messageapp.helper.SmsDefaultAppHelper.registerResultLauncher
-import com.hardik.messageapp.helper.SmsDefaultAppHelper.requestDefaultSmsApp
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.KEY_IS_APP_SET_AS_DEFAULT_SHOW_SET_AS_DEFAULT_ACTIVITY
+import com.hardik.messageapp.util.SmsDefaultAppHelper.registerResultLauncher
+import com.hardik.messageapp.util.SmsDefaultAppHelper.requestDefaultSmsApp
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -146,6 +146,8 @@ dependencies {
     //implementation ("de.hdodenhof:circleimageview:3.1.0")
 
     //implementation("io.realm.kotlin:library-base:1.13.0")
+
+    implementation("io.github.l4digital:fastscroll:2.1.0")
 }
 
 //ksp {

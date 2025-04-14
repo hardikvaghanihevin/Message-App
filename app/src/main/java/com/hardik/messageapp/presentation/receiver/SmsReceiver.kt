@@ -16,7 +16,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.hardik.messageapp.R
 import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.usecase.message.InsertMessageUseCase
-import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.BASE_TAG
 import com.hardik.messageapp.presentation.ui.activity.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope

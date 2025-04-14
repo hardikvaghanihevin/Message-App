@@ -11,15 +11,15 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hardik.messageapp.databinding.ActivitySearchBinding
 import com.hardik.messageapp.domain.model.SearchItem
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.Constants.KEY_MESSAGE_ID
-import com.hardik.messageapp.helper.Constants.KEY_NORMALIZE_NUMBER
-import com.hardik.messageapp.helper.Constants.KEY_SEARCH_QUERY
-import com.hardik.messageapp.helper.Constants.KEY_THREAD_ID
-import com.hardik.messageapp.helper.SmsDefaultAppHelper
-import com.hardik.messageapp.helper.SmsDefaultAppHelper.navigateToSetAsDefaultScreen
 import com.hardik.messageapp.presentation.adapter.SearchListAdapter
-import com.hardik.messageapp.presentation.viewmodel.SearchViewModel
+import com.hardik.messageapp.presentation.ui.viewmodel.SearchViewModel
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.KEY_MESSAGE_ID
+import com.hardik.messageapp.util.Constants.KEY_NORMALIZE_NUMBER
+import com.hardik.messageapp.util.Constants.KEY_SEARCH_QUERY
+import com.hardik.messageapp.util.Constants.KEY_THREAD_ID
+import com.hardik.messageapp.util.SmsDefaultAppHelper
+import com.hardik.messageapp.util.SmsDefaultAppHelper.navigateToSetAsDefaultScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -56,8 +56,8 @@ class SearchActivity : BaseActivity() {
             if (searchItem is SearchItem.MessageItem) {
                 intent.putExtra(KEY_THREAD_ID, searchItem.message.threadId) // as Int
                 intent.putExtra(KEY_MESSAGE_ID, searchItem.message.id) // as Int
-                intent.putExtra(KEY_SEARCH_QUERY, viewModel.searchQuery.value) // as String
                 intent.putExtra(KEY_NORMALIZE_NUMBER, searchItem.message.normalizeNumber) // as String
+                intent.putExtra(KEY_SEARCH_QUERY, viewModel.searchQuery.value) // as String
 
                 Log.e(TAG, "setupRecyclerView: MatchFund:${searchItem.message.matchFoundCount} - ThreadId:${searchItem.message.threadId} - MessageId:${searchItem.message.id} - ContactNumber:${searchItem.message.normalizeNumber} - SearchQuery:${viewModel.searchQuery.value}")
 

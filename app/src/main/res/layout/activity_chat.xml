@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_color_01"
     tools:context=".presentation.ui.activity.ChatActivity">
 
     <RelativeLayout
@@ -99,14 +100,13 @@
             android:textSize="16sp" />
 
         <!-- Send Button -->
-        <ImageButton
+        <ImageView
             android:id="@+id/btnSend"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Send"
-            android:src="@drawable/dummy_ic_send"
-            app:tint="@color/btnSendColor" />
+            android:contentDescription="@string/contentDescription_send_message"
+            app:srcCompat="@drawable/real_ic_send" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

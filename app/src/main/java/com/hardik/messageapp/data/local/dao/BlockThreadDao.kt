@@ -20,4 +20,6 @@ interface BlockThreadDao {
 
     @Query("DELETE FROM block_threads WHERE threadId IN (:threadIds)") // for single item [threadId = :threadId]
     suspend fun unblockThread(threadIds: List<Long>): Int
+    @Query("DELETE FROM block_threads WHERE sender IN (:senders)")
+    fun unblockNumbers(senders: List<String>): Int
 }

@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -17,16 +16,16 @@ import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.databinding.ActivityMainBinding
 import com.hardik.messageapp.databinding.NavViewBottomBinding
 import com.hardik.messageapp.domain.model.Message
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.SmsDefaultAppHelper.isDefaultSmsApp
-import com.hardik.messageapp.helper.SmsDefaultAppHelper.navigateToSetAsDefaultScreen
-import com.hardik.messageapp.presentation.adapter.ViewPagerAdapter
+import com.hardik.messageapp.presentation.adapter.ViewPagerHomeAdapter
 import com.hardik.messageapp.presentation.custom_view.BottomNavManager
 import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
 import com.hardik.messageapp.presentation.ui.fragment.MessageFragment
 import com.hardik.messageapp.presentation.ui.fragment.PrivateFragment
-import com.hardik.messageapp.presentation.util.evaluateSelectionGetHomeToolbarMenu
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.SmsDefaultAppHelper.isDefaultSmsApp
+import com.hardik.messageapp.util.SmsDefaultAppHelper.navigateToSetAsDefaultScreen
+import com.hardik.messageapp.util.evaluateSelectionGetHomeToolbarMenu
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -52,7 +51,7 @@ class MainActivity : BaseActivity() {
 
     private lateinit var fabNewConversation: ImageView
     lateinit var navBinding: NavViewBottomBinding
-    lateinit var viewPagerAdapter: ViewPagerAdapter
+    lateinit var viewPagerHomeAdapter: ViewPagerHomeAdapter
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,18 +69,18 @@ class MainActivity : BaseActivity() {
         if (isDefaultSmsApp(this)) {
 
             // ViewPager Adapter
-            viewPagerAdapter = ViewPagerAdapter(this)
-            viewPager.adapter = viewPagerAdapter
+            viewPagerHomeAdapter = ViewPagerHomeAdapter(this)
+            viewPager.adapter = viewPagerHomeAdapter
             viewPager.isUserInputEnabled = false  // Disable swipe navigation
 
 
             // Floating Action Button Click (New Conversation)
             fabNewConversation.setOnClickListener {
+                //listOf<Float>(80f,75f,72f,55f,50f,46f,45f,42f,40f,38f,36f,35f,32f,30f).forEach { Log.e(TAG, "onCreate: $it - ${convertPxToDpSp(this,it)}", ) }
                 //startActivity(Intent(this, NewConversationActivity::class.java))
-                Toast.makeText(this, "${ conversationViewModel.unreadMessageCountGeneral.value }", Toast.LENGTH_SHORT).show()
-                binding.includedNavViewBottom.root.apply {
-                    isFocusable = true
-                }
+//                Toast.makeText(this, "${ conversationViewModel.unreadMessageCountGeneral.value }", Toast.LENGTH_SHORT).show()
+//                binding.includedNavViewBottom.root.apply { isFocusable = true }
+                startActivity(Intent(this, NewConversationActivity::class.java))
             }
 
             // Bind custom bottom navigation view
@@ -235,7 +234,7 @@ class MainActivity : BaseActivity() {
 //            }
 //        }
         val currentPosition = viewPager.currentItem
-        val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+        val currentFragment = viewPagerHomeAdapter.getFragment(currentPosition)
 
         if (currentFragment is MessageFragment) {
             currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
@@ -254,7 +253,7 @@ class MainActivity : BaseActivity() {
             }
         }
         val currentPosition = viewPager.currentItem
-        val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+        val currentFragment = viewPagerHomeAdapter.getFragment(currentPosition)
 
         if (currentFragment is MessageFragment) {
             currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
@@ -269,7 +268,7 @@ class MainActivity : BaseActivity() {
             conversationViewModel.pinConversationsByThreadIds(threadIds = threadIds)
 
             val currentPosition = viewPager.currentItem
-            val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+            val currentFragment = viewPagerHomeAdapter.getFragment(currentPosition)
 
             if (currentFragment is MessageFragment) {
                 currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
@@ -287,7 +286,7 @@ class MainActivity : BaseActivity() {
             conversationViewModel.unpinConversationsByThreadIds(threadIds = threadIds)
 
             val currentPosition = viewPager.currentItem
-            val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+            val currentFragment = viewPagerHomeAdapter.getFragment(currentPosition)
 
             if (currentFragment is MessageFragment) {
                 currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done
@@ -304,7 +303,7 @@ class MainActivity : BaseActivity() {
             conversationViewModel.blockConversationByThreads(blockThreads = blockThreads)
 
             val currentPosition = viewPager.currentItem
-            val currentFragment = viewPagerAdapter.getFragment(currentPosition)
+            val currentFragment = viewPagerHomeAdapter.getFragment(currentPosition)
 
             if (currentFragment is MessageFragment) {
                 currentFragment.conversationAdapter.unselectAll() //todo: unselectAll after work is done

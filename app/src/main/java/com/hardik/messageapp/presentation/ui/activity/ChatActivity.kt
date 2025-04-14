@@ -13,15 +13,15 @@ import androidx.lifecycle.lifecycleScope
 import com.hardik.messageapp.databinding.ActivityChatBinding
 import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.repository.FindThreadIdByNormalizeNumber
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.Constants.KEY_MESSAGE_ID
-import com.hardik.messageapp.helper.Constants.KEY_NORMALIZE_NUMBER
-import com.hardik.messageapp.helper.Constants.KEY_SEARCH_QUERY
-import com.hardik.messageapp.helper.Constants.KEY_THREAD_ID
-import com.hardik.messageapp.helper.SmsDefaultAppHelper
-import com.hardik.messageapp.helper.SmsDefaultAppHelper.navigateToSetAsDefaultScreen
 import com.hardik.messageapp.presentation.adapter.ChatAdapter
 import com.hardik.messageapp.presentation.custom_view.LastItemBottomPaddingDecoration
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.KEY_MESSAGE_ID
+import com.hardik.messageapp.util.Constants.KEY_NORMALIZE_NUMBER
+import com.hardik.messageapp.util.Constants.KEY_SEARCH_QUERY
+import com.hardik.messageapp.util.Constants.KEY_THREAD_ID
+import com.hardik.messageapp.util.SmsDefaultAppHelper
+import com.hardik.messageapp.util.SmsDefaultAppHelper.navigateToSetAsDefaultScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -86,8 +86,17 @@ class ChatActivity : BaseActivity() {
 
         binding.recyclerViewMessages.addItemDecoration(LastItemBottomPaddingDecoration(bottomPaddingInPx))
 
-        val conversation = conversationViewModel.conversationThreads.value.filter { it.threadId == threadId }.first()
-        binding.toolbarTitle.text = conversation.displayName
+//        val conversation: ConversationThread = conversationViewModel.conversationThreads.value.filter { it.threadId == threadId }.first()
+//        binding.toolbarTitle.text = conversation.displayName
+        normalizeNumber?.let { contactViewModel.searchContact(it) }
+        lifecycleScope.launch {
+            contactViewModel.searchedContact.collectLatest {
+                Log.i(TAG, "onCreate: ->>$it")
+                if (it != null) {
+                    binding.toolbarTitle.text = it.displayName
+                }
+            }
+        }
 
         lifecycleScope.launch {
             messageViewModel.messagesOfThread.collectLatest { messages ->

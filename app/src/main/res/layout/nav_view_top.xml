@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_view_top"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/app_color_01"
+    android:elevation="0dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_01"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <!-- Left Side (Block Number Tab) -->
+        <LinearLayout
+            android:id="@+id/navViewTop_ll_number"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/navViewTop_txt_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginVertical="6dp"
+                android:text="@string/block_number"
+                android:textColor="@color/color_nav_item_select"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/number_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/badge_background"
+                android:maxEms="5"
+                android:maxLines="1"
+                android:minEms="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:singleLine="true"
+                android:textColor="@color/color_bottom_nav_badge_item"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="12" />
+        </LinearLayout>
+
+        <!-- Right Side (Block Message Tab) -->
+        <LinearLayout
+            android:id="@+id/navViewTop_ll_message"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/navViewTop_txt_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginVertical="6dp"
+                android:text="@string/block_message"
+                android:textColor="@color/color_nav_item_unselect"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/message_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/badge_background_gray"
+                android:maxEms="5"
+                android:minEms="1"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="4dp"
+                android:text=""
+                android:textColor="@color/color_bottom_nav_badge_item_darker_gray"
+                android:textSize="12sp"
+                android:visibility="gone"
+                tools:text="15" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Underline Indicator -->
+    <View
+        android:id="@+id/navViewBottom_underline"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_marginHorizontal="@dimen/space_dp_01"
+        android:background="@drawable/bg_bottom_nav_underline_left"
+        android:visibility="visible" />
+
+</LinearLayout>

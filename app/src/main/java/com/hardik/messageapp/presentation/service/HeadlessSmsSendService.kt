@@ -5,7 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.IBinder
 import android.util.Log
-import com.hardik.messageapp.helper.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.BASE_TAG
 
 class HeadlessSmsSendService : Service() {
 

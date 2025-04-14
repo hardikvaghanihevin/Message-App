@@ -2,8 +2,8 @@ package com.hardik.messageapp.domain.usecase.message.fetch
 
 import android.util.Log
 import com.hardik.messageapp.domain.repository.MessageRepository
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.presentation.util.AppDataSingleton
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.AppDataSingleton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject

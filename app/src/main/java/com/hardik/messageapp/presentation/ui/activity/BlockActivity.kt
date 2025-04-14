@@ -2,22 +2,21 @@ package com.hardik.messageapp.presentation.ui.activity
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
-import android.util.TypedValue
 import android.view.View
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.ViewPager2
 import com.hardik.messageapp.R
 import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.databinding.ActivityBlockBinding
-import com.hardik.messageapp.helper.Constants
+import com.hardik.messageapp.databinding.NavViewTopBinding
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
-import com.hardik.messageapp.presentation.custom_view.BottomMenu
-import com.hardik.messageapp.presentation.custom_view.CustomDividerItemDecoration
+import com.hardik.messageapp.presentation.adapter.ViewPagerBlockAdapter
 import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
-import com.hardik.messageapp.presentation.util.AnimationViewHelper
+import com.hardik.messageapp.presentation.custom_view.TopNavManager
+import com.hardik.messageapp.util.AnimationViewHelper
+import com.hardik.messageapp.util.CollapsingToolbarStateManager
+import com.hardik.messageapp.util.Constants
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -28,7 +27,14 @@ class BlockActivity : BaseActivity() {
 
     lateinit var binding: ActivityBlockBinding
 
-    private lateinit var conversationAdapter: ConversationAdapter
+    private lateinit var viewPager: ViewPager2
+    lateinit var navBinding: NavViewTopBinding
+    lateinit var viewPagerBlockAdapter: ViewPagerBlockAdapter
+
+    lateinit var conversationAdapter: ConversationAdapter// use in blockMessageFragment
+
+    private lateinit var toolbarStateManager: CollapsingToolbarStateManager
+    private lateinit var toolbarStateChangeListener: CollapsingToolbarStateManager.OnStateChangeListener
     private var isAllSelected = false // Track selection state
 
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
@@ -37,50 +43,19 @@ class BlockActivity : BaseActivity() {
         binding = ActivityBlockBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        conversationAdapter = ConversationAdapter (
-            swipeLeftBtn = { item ->  },
-            swipeRightBtn = { item ->  },
-            onItemClick = { conversation -> Log.e(TAG, "onCreate: ${conversation}", )},
-            onSelectionChanged = { selectedConversations, listSize ->
-                Log.e(TAG, "onCreate: ${selectedConversations.size} - $listSize", )
-                blockViewModel.onSelectedChanged(selectedConversations)
+        viewPager = binding.viewPager
+        viewPagerBlockAdapter = ViewPagerBlockAdapter(this)
+        viewPager.adapter = viewPagerBlockAdapter
+        viewPager.isUserInputEnabled = false // Disable swipe navigation
 
-                showBottomMenu(BottomMenu.BOTTOM_MENU_4_DELETE_UNBLOCK).takeIf { selectedConversations.isNotEmpty() } ?: hideBottomMenu()
-                // Automatically update selection state & drawable
-                isAllSelected = selectedConversations.size == listSize
-                binding.toolbarTvSelectAll.setCompoundDrawablesWithIntrinsicBounds(
-                    if (isAllSelected) R.drawable.ic_all_selected_item else R.drawable.ic_all_unselected_item,
-                    0, 0, 0
-                )
-            }
+        // Bind custom top navigation view
+        navBinding = NavViewTopBinding.bind(binding.includedNavViewTop.root)
+
+        TopNavManager.setup(
+            binding = navBinding,
+            onBlockNumberClick = { viewPager.setCurrentItem(0, false) },// Load BlockNumber Fragment
+            onBlockMessageClick = { viewPager.setCurrentItem(1, false) }// Load BlockMessage Fragment
         )
-
-        binding.recyclerView.adapter = conversationAdapter
-
-        // Add divider
-        val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 34f, resources.displayMetrics).toInt()
-
-        binding.recyclerView.apply {
-            setPadding(0, 0, 0, marginInPx)  // Add padding programmatically
-            clipToPadding = false            // Allow scrolling into padding
-            overScrollMode = View.OVER_SCROLL_NEVER // Disable overscroll effect
-            addItemDecoration(CustomDividerItemDecoration(this@BlockActivity, marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
-        }
-
-        lifecycleScope.launch {
-            blockViewModel.blockedConversations.collectLatest { binConversationList ->
-                //Log.e(TAG, "onCreate: ${binConversationList}", )
-                //val layoutManager = LinearLayoutManager(requireContext()).apply { stackFromEnd = false }
-                val layoutManager = binding.recyclerView.layoutManager as LinearLayoutManager
-                val currentPosition = layoutManager.findFirstVisibleItemPosition()
-
-                conversationAdapter.setFullList(binConversationList) {
-                    // After setting the new list, scroll back to the previous position
-                    if (currentPosition != RecyclerView.NO_POSITION) { binding.recyclerView.scrollToPosition(currentPosition) }
-                    conversationAdapter.filter.filter(binding.toolbarEdtSearch.text.toString())// todo: if any case data update/change so show on query based
-                }
-            }
-        }
 
         //region Toolbar
         // show toolbarRLOptions & hide toolbarLLSearch
@@ -133,6 +108,15 @@ class BlockActivity : BaseActivity() {
             }
         } }
 
+        //region toolbar management
+        // Initialize the manager
+        toolbarStateManager = CollapsingToolbarStateManager(binding.appbarLayout)
+
+        // Create an anonymous implementation of the listener
+        toolbarStateChangeListener = object : CollapsingToolbarStateManager.OnStateChangeListener { override fun onStateChanged(newState: Int) { conversationViewModel.onToolbarStateChanged(newState) } }
+
+        // Register the anonymous listener
+        toolbarStateManager.addOnStateChangeListener(toolbarStateChangeListener)
 
         // select all conversation
         binding.toolbarTvSelectAll.setOnClickListener {
@@ -148,38 +132,20 @@ class BlockActivity : BaseActivity() {
 
         //endregion Toolbar
 
-        //region bottom menu
-        binding.includedNavViewBottomMenu4.navViewBottomLlDelete.setOnClickListener {
-            //Log.e(TAG, "onCreate: Delete",)
-            val threadIds = blockViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            deleteBlockConversation(threadIds) // delete (permanent) all selected bin threads
-
-            conversationAdapter.unselectAll()// todo: unselectAll after work is done
-        }
-        binding.includedNavViewBottomMenu4.navViewBottomLlUnblock.setOnClickListener {
-            Log.e(TAG, "onCreate: Block",)
-            //val blockThreads: List<Long> = blockViewModel.blockedConversations.value.map { it.threadId }
-            val blockThreads: List<BlockThreadEntity> = blockViewModel.blockedConversations.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
-            unblockConversation(blockThreads = blockThreads) // unblock all selected bin threads
-
-            conversationAdapter.unselectAll()// todo: unselectAll after work is done
-        }
-        //endregion
-
     }
 
 
-    private fun unblockConversation(blockThreads: List<BlockThreadEntity>) {//unblockConversation
+    fun unblockConversation(blockThreads: List<BlockThreadEntity>) {//unblockConversation
         blockViewModel.unblockConversations(blockThreads)
 
         lifecycleScope.launch {
-            blockViewModel.isUnblockConversationThread.collectLatest { isBlocked ->
-                conversationViewModel.fetchConversationThreads(needToUpdate = isBlocked)
+            blockViewModel.isUnblockConversationThread.collectLatest { isUnblocked ->
+                conversationViewModel.fetchConversationThreads(needToUpdate = isUnblocked)
             }
         }
 
     }
-    private fun deleteBlockConversation(threadIds: List<Long>) {//deleteBlockConversation
+    fun deleteBlockConversation(threadIds: List<Long>) {//deleteBlockConversation
         blockViewModel.deleteBlockConversationByThreadIds(threadIds)
 
         lifecycleScope.launch {
@@ -204,7 +170,7 @@ class BlockActivity : BaseActivity() {
     }
 
 
-    private fun popupMenuUnblockAll() {
+    fun popupMenuUnblockAll() {
         //val blockThreads: List<Long> = blockViewModel.blockedConversations.value.map { it.threadId }
         val blockThreads: List<BlockThreadEntity> = blockViewModel.blockedConversations.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
         if (blockThreads.isNotEmpty()){
@@ -212,7 +178,7 @@ class BlockActivity : BaseActivity() {
         }
 
     }
-    private fun popupMenuDeleteAll() {
+    fun popupMenuDeleteAll() {
         val selectedThreads = blockViewModel.blockedConversations.value
         if (selectedThreads.isNotEmpty()) {
             val threadIds = selectedThreads.map { it.threadId }

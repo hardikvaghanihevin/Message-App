@@ -10,8 +10,8 @@ import com.hardik.messageapp.domain.model.Contact
 import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.model.SearchItem
 import com.hardik.messageapp.domain.repository.SearchRepository
-import com.hardik.messageapp.helper.analyzeSender
-import com.hardik.messageapp.helper.removeCountryCode
+import com.hardik.messageapp.util.analyzeSender
+import com.hardik.messageapp.util.removeCountryCode
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

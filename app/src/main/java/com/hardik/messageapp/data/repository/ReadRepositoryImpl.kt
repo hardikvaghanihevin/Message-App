@@ -7,9 +7,9 @@ import android.provider.Telephony
 import android.util.Log
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.ReadRepository
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.presentation.util.AppDataSingleton
-import com.hardik.messageapp.presentation.util.getOptimalChunkSize
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.AppDataSingleton
+import com.hardik.messageapp.util.getOptimalChunkSize
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope

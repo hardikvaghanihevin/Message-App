@@ -10,10 +10,10 @@ import androidx.preference.PreferenceManager
 import com.hardik.messageapp.data.local.AppDatabase
 import com.hardik.messageapp.databinding.ActivitySplashBinding
 import com.hardik.messageapp.domain.usecase.conversation.fetch.GetConversationUseCase
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.Constants.KEY_IS_APP_SET_AS_DEFAULT_SHOW_SET_AS_DEFAULT_ACTIVITY
-import com.hardik.messageapp.helper.Constants.KEY_IS_FIRST_TIME_LAUNCH_SHOW_LANGUAGE_ACTIVITY
-import com.hardik.messageapp.helper.SmsDefaultAppHelper
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.KEY_IS_APP_SET_AS_DEFAULT_SHOW_SET_AS_DEFAULT_ACTIVITY
+import com.hardik.messageapp.util.Constants.KEY_IS_FIRST_TIME_LAUNCH_SHOW_LANGUAGE_ACTIVITY
+import com.hardik.messageapp.util.SmsDefaultAppHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

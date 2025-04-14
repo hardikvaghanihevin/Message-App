@@ -5,8 +5,8 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.preference.PreferenceManager
 import com.hardik.messageapp.databinding.ActivityLanguageBinding
-import com.hardik.messageapp.helper.Constants.BASE_TAG
-import com.hardik.messageapp.helper.Constants.KEY_IS_FIRST_TIME_LAUNCH_SHOW_LANGUAGE_ACTIVITY
+import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.Constants.KEY_IS_FIRST_TIME_LAUNCH_SHOW_LANGUAGE_ACTIVITY
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
