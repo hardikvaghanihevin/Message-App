@@ -73,7 +73,7 @@ class BlockMessageFragment : BaseFragment(R.layout.fragment_block_message) {
         val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 34f, resources.displayMetrics).toInt()
 
         binding.recyclerView.apply {
-            setPadding(0, marginInPx/2, 0, marginInPx)  // Add padding programmatically
+            setPadding(0, marginInPx/2, 0, marginInPx*2)  // Add padding programmatically
             clipToPadding = false            // Allow scrolling into padding
             overScrollMode = View.OVER_SCROLL_NEVER // Disable overscroll effect
             //addItemDecoration(CustomDividerItemDecoration(requireContext(), marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
@@ -91,7 +91,7 @@ class BlockMessageFragment : BaseFragment(R.layout.fragment_block_message) {
                 (activity as? BlockActivity)?.conversationAdapter?.setFullList(blockConversationList) {
                     // After setting the new list, scroll back to the previous position
                     if (currentPosition != RecyclerView.NO_POSITION) { binding.recyclerView.scrollToPosition(currentPosition) }
-                    (activity as BlockActivity).conversationAdapter.filter.filter(blockBinding.toolbarEdtSearch.text.toString())// todo: if any case data update/change so show on query based
+                    //(activity as BlockActivity).conversationAdapter.filter.filter(blockBinding.toolbarEdtSearch.text.toString())// todo: if any case data update/change so show on query based
                 }
             }
         }
@@ -107,9 +107,7 @@ class BlockMessageFragment : BaseFragment(R.layout.fragment_block_message) {
             (activity as BlockActivity).conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
         binding.includedNavViewBottomMenu4.navViewBottomLlUnblock.setOnClickListener {
-            Log.e(TAG, "onCreate: Block",)
-            //val blockThreads: List<Long> = blockViewModel.blockedConversations.value.map { it.threadId }
-            val blockThreads: List<BlockThreadEntity> = blockViewModel.blockedConversations.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
+            val blockThreads: List<BlockThreadEntity> = blockViewModel.countSelectedConversationThreads.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
             (activity as BlockActivity).unblockConversation(blockThreads = blockThreads) // unblock all selected bin threads
 
             (activity as BlockActivity).conversationAdapter.unselectAll()// todo: unselectAll after work is done

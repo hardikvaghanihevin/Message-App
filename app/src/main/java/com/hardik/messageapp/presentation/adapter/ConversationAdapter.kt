@@ -109,7 +109,7 @@ class ConversationAdapter (
                 }
             } else {
                 // From company message
-                Pair('?', R.drawable.ic_massage)
+                Pair('?', R.drawable.real_ic_massage)
             }
 
             // If selected, use a different drawable for profile

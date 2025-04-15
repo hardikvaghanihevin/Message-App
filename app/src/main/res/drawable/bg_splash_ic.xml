@@ -6,9 +6,9 @@
   <path
       android:pathData="M110,55L280,55A55,55 0,0 1,335 110L335,280A55,55 0,0 1,280 335L110,335A55,55 0,0 1,55 280L55,110A55,55 0,0 1,110 55z"
       android:strokeAlpha="0.65"
-      android:fillColor="#3148D1"
+      android:fillColor="@color/app_color_09"
       android:fillAlpha="0.65"/>
   <path
       android:pathData="M110,15L280,15A75,75 0,0 1,355 90L355,260A75,75 0,0 1,280 335L110,335A75,75 0,0 1,35 260L35,90A75,75 0,0 1,110 15z"
-      android:fillColor="#3148D1"/>
+      android:fillColor="@color/app_color_09"/>
 </vector>

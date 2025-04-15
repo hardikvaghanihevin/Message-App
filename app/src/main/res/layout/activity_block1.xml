@@ -15,7 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:layout_gravity="bottom"
-        android:background="?attr/colorPrimary"
+        android:background="@color/app_color_01"
         app:layout_anchor="@+id/collapsingToolbar"
         app:layout_collapseMode="pin">
 
@@ -23,7 +23,7 @@
             android:id="@+id/custom_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/app_color_01"
             android:elevation="4dp"
             app:layout_constraintTop_toTopOf="parent">
 

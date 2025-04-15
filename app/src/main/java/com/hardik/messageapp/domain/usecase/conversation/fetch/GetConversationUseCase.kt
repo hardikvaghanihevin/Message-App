@@ -163,7 +163,8 @@ class GetConversationUseCase @Inject constructor(
             // Update AppDataSingleton
             launch(Dispatchers.IO) { AppDataSingleton.updateConversationThreads(orderedList) }
             launch(Dispatchers.IO) {
-                val privateList = orderedList.filter { it.normalizeNumber.isNotEmpty() }
+                //val privateList = orderedList.filter { it.normalizeNumber.isNotEmpty() }
+                val privateList = finalFilteredGeneralList.filter { it.normalizeNumber.isNotEmpty() }
                 AppDataSingleton.updateConversationThreadsPrivate(privateList)
             }
             launch(Dispatchers.IO) { AppDataSingleton.updateConversationThreadsGeneral(finalFilteredGeneralList) }

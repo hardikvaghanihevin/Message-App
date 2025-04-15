@@ -155,7 +155,8 @@ class MainActivity : BaseActivity() {
         //Toast.makeText(this, "delete", Toast.LENGTH_SHORT).show()
         val threadsGeneral: List<Long> = conversationViewModel.filteredConversationThreads.value.map { it.threadId }
         //val threadsPrivate: List<Long> = conversationViewModel.conversationThreadsPrivate.value.map { it.threadId }
-        deleteConversation(threadsGeneral)// delete all conversation
+        deleteConversation(threadsGeneral) { }// delete all conversation
+
     }
     private fun popupMenuBlockConversation() { startActivity(Intent(this, BlockActivity::class.java)) }
     private fun popupMenuMarkAsRead() {
@@ -209,19 +210,21 @@ class MainActivity : BaseActivity() {
     }
 
 
-    fun archiveConversation(threadIds: List<Long>){
+    fun archiveConversation(threadIds: List<Long>, callback: () -> Unit){
         conversationViewModel.archiveConversationThread(threadIds)
 
         lifecycleScope.launch {
             conversationViewModel.isArchivedConversationThread.collectLatest { isArchived: Boolean ->
                 conversationViewModel.fetchConversationThreads(needToUpdate = isArchived)
+                callback() // Callback after work is done
             }
         }
     }
 
-    fun deleteConversation(threadIds: List<Long>){
+    fun deleteConversation(threadIds: List<Long>, callback: () -> Unit){
         //val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
         conversationViewModel.deleteConversationByThreads(threadIds)
+        callback() // Callback after work is done
     }
 
     private fun popupMenuMarkAsReadBottom() {

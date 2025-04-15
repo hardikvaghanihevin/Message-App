@@ -94,4 +94,9 @@ object AnimationViewHelper {
             )
         }
     }
+    fun View.toggleIfNeeded(targetVisibility: Int, duration: Long) {
+        if (visibility != targetVisibility) {
+            toggleViewVisibilityWithAnimation(this, targetVisibility, duration)
+        }
+    }
 }

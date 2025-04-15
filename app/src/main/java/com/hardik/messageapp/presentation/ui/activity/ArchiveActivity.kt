@@ -18,6 +18,7 @@ import com.hardik.messageapp.presentation.custom_view.CustomDividerItemDecoratio
 import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
 import com.hardik.messageapp.util.AnimationViewHelper
+import com.hardik.messageapp.util.CollapsingToolbarStateManager
 import com.hardik.messageapp.util.Constants.BASE_TAG
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -30,6 +31,8 @@ class ArchiveActivity: BaseActivity() {
     lateinit var binding: ActivityArchiveBinding
 
     private lateinit var conversationAdapter: ConversationAdapter
+    private lateinit var toolbarStateManager: CollapsingToolbarStateManager
+    private lateinit var toolbarStateChangeListener: CollapsingToolbarStateManager.OnStateChangeListener
     private var isAllSelected = false // Track selection state
 
     @SuppressLint("ClickableViewAccessibility", "SetTextI18n")
@@ -62,7 +65,7 @@ class ArchiveActivity: BaseActivity() {
         val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 34f, resources.displayMetrics).toInt()
 
         binding.recyclerView.apply {
-            setPadding(0, marginInPx/2, 0, marginInPx)  // Add padding programmatically
+            setPadding(0, marginInPx/2, 0, marginInPx*2)  // Add padding programmatically
             clipToPadding = false            // Allow scrolling into padding
             overScrollMode = View.OVER_SCROLL_NEVER // Disable overscroll effect
             //addItemDecoration(CustomDividerItemDecoration(this@ArchiveActivity, marginStart = marginInPx * 2, marginEnd = marginInPx /2, marginTop = 0, marginBottom = 0))
@@ -96,7 +99,8 @@ class ArchiveActivity: BaseActivity() {
         }
 
         //show toolbarLLSearch & hide toolbarRLOptions
-        binding.toolbarSearch.setOnClickListener { archiveViewModel.onToolbarStateChanged(true)
+        binding.toolbarSearch.setOnClickListener {
+            archiveViewModel.onToolbarStateChanged(true)
             activeSearchBar()
         }
         binding.toolbarMore.setOnClickListener { showPopupMenu(it) }  // Show custom popup menu on click of more button in toolbar
@@ -107,7 +111,16 @@ class ArchiveActivity: BaseActivity() {
         }
 
         //region toolbar selected item count management & Toolbar selected count management
-        lifecycleScope.launch { archiveViewModel.archiveAndToolbarCombinedState.collectLatest { (_, isShowSearch, selectedThreads) ->
+        lifecycleScope.launch { archiveViewModel.archiveAndToolbarCombinedState.collectLatest { (_, toolbarState, selectedThreads) ->
+            val isCollapsed = toolbarState.second in listOf(CollapsingToolbarStateManager.STATE_COLLAPSED, )
+            val isExpanded = toolbarState.second in listOf(CollapsingToolbarStateManager.STATE_EXPANDED, CollapsingToolbarStateManager.STATE_INTERMEDIATE)
+
+            val isShowSearch = toolbarState.first
+
+            if (selectedThreads.isEmpty()) {
+                archiveViewModel.onToolbarStateChanged(false)
+                deactivateSearchBar()
+            }// todo: When no item is select from list after selection
 
             binding.toolbarLlSearch.apply {
                 val visible = View.VISIBLE.takeIf { isShowSearch }?: View.GONE
@@ -120,38 +133,68 @@ class ArchiveActivity: BaseActivity() {
             }
 
             binding.toolbarTitle.apply {
-                val visible = View.VISIBLE.takeIf { selectedThreads.isEmpty() } ?: View.GONE
-                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = 0L)
+                val visible = View.VISIBLE.takeIf { isCollapsed && selectedThreads.isEmpty() } ?: View.GONE
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
+
             }
 
             binding.toolbarSearch.apply {// todo: show always
-                //val visible = View.VISIBLE.takeIf { selectedThreads.isEmpty() } ?: View.GONE
-                //AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = 0L)
+                val visible = View.VISIBLE.takeUnless { selectedThreads.isEmpty() } ?: View.GONE
+                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = 0L)
             }
 
             binding.toolbarMore.apply {
                 val visible = View.VISIBLE.takeIf { selectedThreads.isEmpty() } ?: View.GONE
-                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = 0L)
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
             }
 
             binding.toolbarTvSelectAll.apply {
-                val visible = View.VISIBLE.takeUnless { selectedThreads.isEmpty() || isShowSearch} ?: View.GONE
-                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible)
+                //val visible = View.VISIBLE.takeUnless { selectedThreads.isEmpty() || isShowSearch} ?: View.GONE
+                val visible = View.VISIBLE.takeUnless { selectedThreads.isEmpty() } ?: View.GONE
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
             }
 
-            binding.tvSelectedCountMessages1.apply {
-                val visible = View.VISIBLE.takeUnless { selectedThreads.isEmpty() } ?: View.GONE
-                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible)
+            binding.expandedContent.apply {
+                val visible = View.VISIBLE.takeIf { isExpanded && selectedThreads.isEmpty() } ?: View.GONE
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
+            }
+
+            binding.tvSelectedCountMessages.apply {// todo: for collapsed count
+                val visible = View.VISIBLE.takeIf { selectedThreads.isNotEmpty() && isExpanded } ?: View.GONE
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
+                text = "${selectedThreads.size} ${getString(R.string.selected)}"
+            }
+
+            binding.tvSelectedCountMessages1.apply {// todo: for toolbar count
+                val visible = View.VISIBLE.takeIf { selectedThreads.isNotEmpty() && isCollapsed } ?: View.GONE
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
                 text = "${selectedThreads.size} ${getString(R.string.selected)}"
             }
 
             binding.toolbarBack.apply {
-                val visible = View.VISIBLE.takeIf { selectedThreads.isEmpty() || isShowSearch } ?: View.GONE
-                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = 0L)
+                val visible = View.VISIBLE.takeIf { selectedThreads.isEmpty() } ?: View.GONE
+                val duration = if (visible == View.VISIBLE) 300L else 100L
+                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
             }
         } }
 
-        // select all conversation
+        //region toolbar management
+        /** Initialize the manager */
+        toolbarStateManager = CollapsingToolbarStateManager(binding.appbarLayout)
+
+        /** Create an anonymous implementation of the listener */
+        toolbarStateChangeListener = object : CollapsingToolbarStateManager.OnStateChangeListener { override fun onStateChanged(newState: Int) { archiveViewModel.onToolbarStateChanged(newState) } }
+
+        /** Register the anonymous listener */
+        toolbarStateManager.addOnStateChangeListener(toolbarStateChangeListener)
+
+        /** select all conversation */
         binding.toolbarTvSelectAll.setOnClickListener {
             isAllSelected = !isAllSelected // Toggle selection state
 
@@ -161,7 +204,7 @@ class ArchiveActivity: BaseActivity() {
             // Update drawable based on selection state
             binding.toolbarTvSelectAll.setCompoundDrawablesWithIntrinsicBounds(if (isAllSelected) R.drawable.ic_all_selected_item else R.drawable.ic_all_unselected_item, 0, 0, 0)
         }
-        //endregion
+        //endregion toolbar management
 
         //endregion Toolbar
 
@@ -188,7 +231,8 @@ class ArchiveActivity: BaseActivity() {
 
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
-        //endregion
+        //endregion bottom menu
+
     }
 
     private fun activeSearchBar() {

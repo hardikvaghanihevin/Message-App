@@ -9,6 +9,7 @@ import com.hardik.messageapp.domain.usecase.conversation.archive.GetArchivedConv
 import com.hardik.messageapp.domain.usecase.conversation.archive.UnarchiveConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.conversation.block.BlockConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
+import com.hardik.messageapp.util.CollapsingToolbarStateManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -110,15 +111,39 @@ class ArchiveViewModel @Inject constructor(
 
     //region Toolbar state
     private val _toolbarState = MutableStateFlow<Boolean>(false)// Track Show search todo: managing between 'search' & 'toolbar menus'.
-    val toolbarState: StateFlow<Boolean> = _toolbarState.asStateFlow()
-    fun onToolbarStateChanged(collapsedState: Boolean) { _toolbarState.value = collapsedState }
+    private val toolbarState: StateFlow<Boolean> = _toolbarState.asStateFlow()
+    fun onToolbarStateChanged(toolbarState: Boolean) { _toolbarState.value = toolbarState }
+    //endregion
+
+    //region Collapsed state
+    /** Toolbar collapse state: EXPANDED, COLLAPSED, or INTERMEDIATE. */
+    private val _toolbarCollapsedState = MutableStateFlow<Int>(CollapsingToolbarStateManager.STATE_EXPANDED)
+    private val toolbarCollapsedState: StateFlow<Int> = _toolbarCollapsedState.asStateFlow()
+    fun onToolbarStateChanged(collapsedState: Int) { _toolbarCollapsedState.value = collapsedState }
     //endregion
 
     // region Combined state
-    val archiveAndToolbarCombinedState: StateFlow<Triple<List<ConversationThread>, Boolean, List<ConversationThread>>> by lazy {
-        combine(archivedConversations, toolbarState, countSelectedConversationThreads) { archivedList, collapseState, selectedConversations ->
-            Triple(archivedList, collapseState, selectedConversations)
-        }.stateIn(viewModelScope, SharingStarted.Lazily, Triple(emptyList(),false, emptyList() ))
+    val archiveAndToolbarCombinedState: StateFlow<Triple<List<ConversationThread>, Pair<Boolean, Int>, List<ConversationThread>>> by lazy {
+        combine(
+            archivedConversations,
+            toolbarState,
+            toolbarCollapsedState,
+            countSelectedConversationThreads
+        ) { archivedList, isToolbarVisible, collapsedState, selectedConversations ->
+            Triple(
+                archivedList,
+                Pair(isToolbarVisible, collapsedState),
+                selectedConversations
+            )
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Lazily,
+            Triple(
+                emptyList(),
+                Pair(false, CollapsingToolbarStateManager.STATE_EXPANDED),
+                emptyList()
+            )
+        )
     }
     //endregion
 }

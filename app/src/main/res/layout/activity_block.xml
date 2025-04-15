@@ -9,6 +9,7 @@
     android:orientation="vertical"
     tools:context=".presentation.ui.activity.BlockActivity">
 
+    <!--Collapsing toolbar-->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/collapsingToolbar"
         android:layout_width="match_parent"
@@ -18,7 +19,7 @@
             android:id="@+id/appbarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
+            android:background="@color/app_color_01"
             android:fitsSystemWindows="true"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
@@ -49,15 +50,17 @@
 
                         <TextView
                             android:id="@+id/toolbar_expanded_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/block_conversation"
-                            android:textColor="@color/color_08"
-                            android:textSize="@dimen/app_px_80_to_sp"
-                            android:fontFamily="@font/instrument_sans_semi_bold"
-                             />
+                            style="@style/ToolbarExpandedTitle"
+                            android:text="@string/block_conversation" />
 
                     </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_selected_count_messages"
+                        style="@style/ToolbarExpandedSelectedCountText"
+                        android:visibility="gone"
+                        tools:text="1 Selected"
+                        tools:visibility="visible" />
 
                 </RelativeLayout>
             </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -67,157 +70,118 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_gravity="bottom"
-                android:background="?attr/colorPrimary"
+                android:background="@color/app_color_01"
                 app:layout_anchor="@+id/collapsingToolbar"
                 app:layout_collapseMode="pin">
 
                 <RelativeLayout
                     android:id="@+id/custom_toolbar"
                     android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:background="?attr/colorPrimary"
-                    android:elevation="4dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/app_color_01"
                     app:layout_constraintTop_toTopOf="parent">
+
+                    <!--start option of toolbar-->
+                    <RelativeLayout
+                    android:id="@+id/custom_toolbar_start"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
 
                     <TextView
                         android:id="@+id/toolbar_tvSelectAll"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginStart="16dp"
-                        android:drawablePadding="8dp"
+                        style="@style/ToolbarSelectAllText"
                         android:text="@string/all"
-                        android:textColor="@color/text_color_1"
-                        android:textSize="16sp"
                         android:visibility="gone"
                         app:drawableStartCompat="@drawable/ic_all_unselected_item"
                         tools:visibility="visible" />
 
-                    <ImageView
+                    <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/toolbar_back"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:padding="12dp"
+                        style="@style/ToolbarBackIcon"
                         android:src="@drawable/real_ic_back" />
-
+                </RelativeLayout>
 
                     <!-- Toolbar option-->
                     <RelativeLayout
                         android:id="@+id/toolbar_rl_option"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_toEndOf="@id/toolbar_back">
+                        android:layout_toEndOf="@id/custom_toolbar_start">
 
                         <TextView
                             android:id="@+id/toolbar_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginStart="16dp"
+                            style="@style/ToolbarTitleText"
                             android:text="@string/block_conversation"
-                            android:textColor="@color/text_color_1"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:visibility="visible"
+                            android:visibility="gone"
                             tools:visibility="visible" />
 
                         <View
                             android:id="@+id/toolbar_title_indicator"
-                            android:layout_width="4dp"
-                            android:layout_height="4dp"
-                            android:layout_alignTop="@id/toolbar_title"
-                            android:layout_marginStart="3dp"
-                            android:layout_marginTop="5dp"
-                            android:layout_toEndOf="@id/toolbar_title"
-                            android:background="@drawable/badge_background"
+                            style="@style/ToolbarTitleIndicator"
                             android:visibility="gone" />
 
-                        <TextView
-                            android:id="@+id/tv_selected_count_messages1"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
-                            android:text="1 Selected"
-                            android:textColor="@color/black"
-                            android:textSize="20sp"
-                            android:textStyle="bold"
-                            android:visibility="gone" />
-
-                        <LinearLayout
+                        <!--end option of toolbar-->
+                        <RelativeLayout
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"
                             android:layout_alignParentEnd="true"
                             android:gravity="center_vertical"
                             android:orientation="horizontal">
 
-                            <ImageView
+                            <!--<com.google.android.material.imageview.ShapeableImageView
                                 android:id="@+id/toolbar_search"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:padding="12dp"
+                                style="@style/ToolbarSearchIcon"
                                 android:src="@drawable/real_ic_search"
-                                android:visibility="gone" />
+                                android:visibility="gone" />-->
 
-                            <ImageView
+                            <com.google.android.material.imageview.ShapeableImageView
                                 android:id="@+id/toolbar_more"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:clickable="true"
-                                android:focusable="true"
-                                android:padding="12dp"
+                                style="@style/ToolbarMoreIcon"
                                 android:src="@drawable/real_ic_more" />
 
-                        </LinearLayout>
+                        </RelativeLayout>
                     </RelativeLayout>
 
-                    <!-- Search ll -->
-                    <LinearLayout
-                        android:id="@+id/toolbar_ll_search"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_toEndOf="@id/toolbar_back"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
+                    <TextView
+                        android:id="@+id/tv_selected_count_messages1"
+                        style="@style/ToolbarSelectedCountTextMedium"
                         android:visibility="gone"
-                        tools:visibility="visible">
+                        tools:text="1 Selected" />
 
-                        <EditText
-                            android:id="@+id/toolbar_edt_search"
-                            android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1"
-                            android:background="@android:color/transparent"
-                            android:hint="Search"
-                            android:paddingStart="0dp"
-                            android:paddingEnd="12dp"
-                            android:textSize="16sp" />
+                    <!-- Search ll -->
+                    <!-- <LinearLayout
+                         android:id="@+id/toolbar_ll_search"
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         android:layout_toEndOf="@id/toolbar_back"
+                         android:gravity="center_vertical"
+                         android:orientation="horizontal"
+                         android:visibility="gone"
+                         tools:visibility="visible">
 
-                        <ImageView
-                            android:id="@+id/toolbar_cancel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:padding="12dp"
-                            android:src="@drawable/real_ic_cancel" />
-                    </LinearLayout>
+                         <EditText
+                             android:id="@+id/toolbar_edt_search"
+                             android:layout_width="0dp"
+                             android:layout_height="match_parent"
+                             android:layout_weight="1"
+                             android:background="@android:color/transparent"
+                             android:hint="Search"
+                             android:paddingStart="0dp"
+                             android:paddingEnd="12dp"
+                             android:textSize="16sp" />
+
+                         <com.google.android.material.imageview.ShapeableImageView
+                             android:id="@+id/toolbar_cancel"
+                             style="@style/ToolbarCancelIcon"
+                             android:src="@drawable/real_ic_cancel" />
+                     </LinearLayout>-->
 
                 </RelativeLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </com.google.android.material.appbar.AppBarLayout>
 
+        <!--main content-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -239,4 +203,5 @@
         </LinearLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 </LinearLayout>

@@ -1,5 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="ToolbarExpandedTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:textSize">@dimen/app_px_80_to_sp</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+    </style>
+
+    <style name="ToolbarExpandedUnreadMessages">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:textSize">@dimen/app_px_75_to_sp</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+    </style>
+
+    <style name="ToolbarExpandedUnreadMessagesView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:background">@drawable/bg_view_unread</item>
+        <item name="android:layout_marginTop">@dimen/app_px_60_to_dp</item>
+        <item name="android:textSize">@dimen/app_px_45_to_sp</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+    </style>
+
+    <style name="ToolbarExpandedSelectedCountText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:textSize">@dimen/app_px_75_to_sp</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+    </style>
+
+    <style name="ToolbarSelectAllText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_marginStart">16dp</item>
+        <item name="android:drawablePadding">8dp</item>
+        <item name="android:fontFamily">@font/instrument_sans_medium</item>
+        <item name="android:textColor">@color/app_color_06</item>
+        <item name="android:textSize">@dimen/app_px_45_to_sp</item>
+    </style>
+
+    <style name="ToolbarBackIcon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Material3.Corner.Full</item>
+    </style>
+
+    <style name="ToolbarTitleText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_centerVertical">true</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+        <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:textSize">@dimen/app_px_55_to_sp</item>
+    </style>
+
+    <style name="ToolbarTitleIndicator">
+        <item name="android:layout_width">4dp</item>
+        <item name="android:layout_height">4dp</item>
+        <item name="android:layout_alignTop">@id/toolbar_title</item>
+        <item name="android:layout_marginStart">3dp</item>
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_toEndOf">@id/toolbar_title</item>
+        <item name="android:background">@drawable/badge_background</item>
+    </style>
+
+    <style name="ToolbarSelectedCountTextMedium">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_centerInParent">true</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+        <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:textSize">@dimen/app_px_55_to_sp</item>
+    </style>
+
+    <style name="ToolbarSearchIcon" parent="ToolbarBackIcon" />
+
+    <style name="ToolbarCancelIcon" parent="ToolbarBackIcon" />
+
+    <style name="ToolbarMoreIcon" parent="ToolbarBackIcon" />
+
+    <style name="ToolbarSearchEditText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:autofillHints">name,phone</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+        <item name="android:hint">@string/type_a_name_or_number</item>
+        <item name="android:inputType">textCapSentences</item>
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:textColorHint">@color/app_color_06</item>
+        <item name="android:textCursorDrawable">@drawable/cursor_edittext</item>
+        <item name="android:textSize">@dimen/app_px_55_to_sp</item>
+        <item name="android:importantForAutofill">no</item>
+    </style>
 
 </resources>

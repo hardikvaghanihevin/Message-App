@@ -8,6 +8,7 @@ import com.hardik.messageapp.domain.usecase.conversation.block.BlockConversation
 import com.hardik.messageapp.domain.usecase.conversation.block.GetBlockedConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.block.UnblockConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
+import com.hardik.messageapp.util.CollapsingToolbarStateManager
 import com.hardik.messageapp.util.Constants.BASE_TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -104,6 +105,11 @@ class BlockViewModel @Inject constructor(
     }
     //endregion Delete ConversationThread
 
+    /** Tab bar state: Block number & Block message */
+    private val _tabState = MutableStateFlow<Int>(0)
+    private val tabState: StateFlow<Int> = _tabState.asStateFlow()
+    fun onTabStateChanged(tabPosition: Int) { _tabState.value = tabPosition }
+
     //region Count for selected conversationThreads
     /**
      * Used in [BlockActivity.kt]
@@ -113,18 +119,33 @@ class BlockViewModel @Inject constructor(
     fun onSelectedChanged(selectedConversations: List<ConversationThread>){ _countSelectedConversationThreads.value = selectedConversations }
     //endregion
 
-    //region Toolbar state
-    private val _toolbarState = MutableStateFlow<Boolean>(false)// Track Show search todo: managing between 'search' & 'toolbar menus'.
-    val toolbarState: StateFlow<Boolean> = _toolbarState.asStateFlow()
-    fun onToolbarStateChanged(collapsedState: Boolean) { _toolbarState.value = collapsedState }
+    //region Collapsed state
+    /** Toolbar collapse state: EXPANDED, COLLAPSED, or INTERMEDIATE. */
+    private val _toolbarCollapsedState = MutableStateFlow<Int>(CollapsingToolbarStateManager.STATE_EXPANDED)
+    private val toolbarCollapsedState: StateFlow<Int> = _toolbarCollapsedState.asStateFlow()
+    fun onToolbarStateChanged(collapsedState: Int) { _toolbarCollapsedState.value = collapsedState }
     //endregion
 
     // region Combined state
-    val blockAndToolbarCombinedState: StateFlow<Triple<List<ConversationThread>, Boolean, List<ConversationThread>>> by lazy {
-        combine(blockedConversations, toolbarState, countSelectedConversationThreads) { blockList, collapseState, selectedConversations ->
-            Triple(blockList, collapseState, selectedConversations)
-        }.stateIn(viewModelScope, SharingStarted.Lazily, Triple(emptyList(),false, emptyList() ))
+    val blockAndToolbarCombinedState: StateFlow<Triple<Int, Int, Pair<List<ConversationThread>, List<ConversationThread>>>> by lazy {
+        combine(
+            tabState,
+            toolbarCollapsedState,
+            blockedConversations,
+            countSelectedConversationThreads
+        ) { tabPosition, collapseState, blockedList, selectedList ->
+            Triple(tabPosition, collapseState, Pair(blockedList, selectedList))
+        }.stateIn(
+            viewModelScope,
+            SharingStarted.Lazily,
+            Triple(
+                0,
+                CollapsingToolbarStateManager.STATE_EXPANDED,
+                Pair(emptyList(), emptyList())
+            )
+        )
     }
+
 
     //endregion Count for selected conversationThreads
 }

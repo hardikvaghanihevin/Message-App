@@ -9,14 +9,14 @@ import com.hardik.messageapp.domain.usecase.conversation.archive.ArchiveConversa
 import com.hardik.messageapp.domain.usecase.conversation.block.BlockConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.conversation.fetch.GetConversationUseCase
-import com.hardik.messageapp.domain.usecase.conversation.read.MarkAsReadConversationThreadUseCase
-import com.hardik.messageapp.domain.usecase.conversation.read.MarkAsUnreadConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.conversation.pin.GetPinnedConversationsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.pin.PinConversationsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.pin.UnpinConversationsUseCase
-import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.domain.usecase.conversation.read.MarkAsReadConversationThreadUseCase
+import com.hardik.messageapp.domain.usecase.conversation.read.MarkAsUnreadConversationThreadUseCase
 import com.hardik.messageapp.util.AppDataSingleton
 import com.hardik.messageapp.util.CollapsingToolbarStateManager
+import com.hardik.messageapp.util.Constants.BASE_TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -115,11 +115,11 @@ class ConversationThreadViewModel  @Inject constructor(
     //region Fetch ConversationThread (Message list) Private
     private fun fetchConversationThreadsPrivate(needToUpdate: Boolean = false) {
 
-        if (needToUpdate){ viewModelScope.launch { getConversationUseCase(TAG) } }
+        //if (needToUpdate){ viewModelScope.launch { getConversationUseCase(TAG) } }
 
         viewModelScope.launch {
             AppDataSingleton.conversationThreadsPrivate.collectLatest {
-                if (it.isEmpty()){ getConversationUseCase(TAG) }
+                //if (it.isEmpty()){ getConversationUseCase(TAG) }
                 _conversationThreadsPrivate.value = it  // Update the state with the fetched conversation threads
             }
         }
@@ -134,7 +134,7 @@ class ConversationThreadViewModel  @Inject constructor(
             archiveConversationThreadUseCase(threadIds = threadIds)
                 .collectLatest{ isArchived -> _isArchivedConversationThread.value = isArchived
 
-                    if (isArchived) fetchConversationThreadsPrivate(needToUpdate = true)
+                    if (isArchived) fetchConversationThreads(needToUpdate = true)
                 }
         }
     }
@@ -241,8 +241,6 @@ class ConversationThreadViewModel  @Inject constructor(
     private val toolbarCollapsedState: StateFlow<Int> = _toolbarCollapsedState.asStateFlow()
     fun onToolbarStateChanged(collapsedState: Int) { _toolbarCollapsedState.value = collapsedState }
     //endregion
-    // unreadMessageCountGeneral,unreadConversationThreadsCountGeneral
-    // unreadMessageCountPrivate,unreadConversationThreadsCountPrivate
 
     //region Combined State
     /** Combines selected conversations and toolbar collapse state. */

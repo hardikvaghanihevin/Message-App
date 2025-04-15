@@ -49,8 +49,6 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
 
     private val mainBinding get() = (activity as? MainActivity)?.binding
 
-    //private val conversationViewmodel: ConversationThreadViewModel by activityViewModels()
-    //private val messageViewModel: MessageViewModel by activityViewModels()
     private lateinit var conversationViewModel: ConversationThreadViewModel
     private lateinit var messageViewModel: MessageViewModel
     lateinit var conversationAdapter: ConversationAdapter
@@ -62,13 +60,9 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
     @Inject
     lateinit var contactRepository: ContactRepository
 
-    private var param1: String? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-        }
+        arguments?.let { }
         //EventBus.getDefault().register(this) // ✅ Register EventBus
 
         conversationViewModel = (activity as MainActivity).conversationViewModel
@@ -103,7 +97,8 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
                 requireActivity().startActivity(intent)
 
                           },
-            onSelectionChanged = { selectedConversations, listSize -> conversationViewModel.onSelectedChanged(selectedConversations)
+            onSelectionChanged = { selectedConversations, listSize ->
+                conversationViewModel.onSelectedChanged(selectedConversations)
 
                 (activity as MainActivity).showBottomMenu(BottomMenu.BOTTOM_MENU_1_ARCHIVE_DELETE_MORE).takeIf { selectedConversations.isNotEmpty() } ?: (activity as MainActivity).hideBottomMenu()
                 // Automatically update selection state & drawable
@@ -121,7 +116,7 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
         val marginInPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 34f, requireContext().resources.displayMetrics).toInt()
 
         binding.recyclerView.apply {
-            setPadding(0, marginInPx/2, 0, marginInPx)  // Add padding programmatically
+            setPadding(0, marginInPx/2, 0, marginInPx*2)  // Add padding programmatically
             clipToPadding = false            // Allow scrolling into padding
             overScrollMode = View.OVER_SCROLL_NEVER // Disable overscroll effect
             addItemDecoration(CustomDividerItemDecoration(requireContext(), marginStartRes = R.dimen.item_recycle_decoration_dp_start, marginEndRes = R.dimen.item_recycle_decoration_dp_end, marginTop = 0, marginBottom = 0))
@@ -156,9 +151,7 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
 
         binding.viewButton.setOnClickListener { startActivity(Intent(requireContext(), UnreadMessageActivity::class.java)) }
         binding.toolbarSearch.setOnClickListener { startActivity(Intent(requireContext(), SearchActivity::class.java)) }
-        binding.toolbarMore.setOnClickListener {
-            (activity as MainActivity).showPopupMenu(it)
-        }  // Show custom popup menu on click of more button in toolbar
+        binding.toolbarMore.setOnClickListener { (activity as MainActivity).showPopupMenu(it) }  // Show custom popup menu on click of more button in toolbar
 
         //region toolbar selected item count management & Toolbar selected count management countUnreadGeneralAndPrivateConversationThreads
         lifecycleScope.launch { conversationViewModel.cvThreadAndToolbarCombinedState.collectLatest { (selectedThreads, toolbarState, unreadCombined) ->
@@ -171,10 +164,25 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
             val isCollapsed = toolbarState in listOf(CollapsingToolbarStateManager.STATE_COLLAPSED, )
             val isExpanded = toolbarState in listOf(CollapsingToolbarStateManager.STATE_EXPANDED, CollapsingToolbarStateManager.STATE_INTERMEDIATE)
 
+            val totalUnreadCount = unreadGeneralMap.values.sum()
+
+            binding.toolbarExpandedTitle.apply {
+                val visible = View.VISIBLE.takeIf { selectedThreads.isEmpty() && isExpanded && totalUnreadCount == 0L } ?: View.GONE
+                val duration = if (visible == View.VISIBLE) 300L else 10L
+                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
+            }
+            binding.toolbarExpandedTvUnreadMessages.apply {
+                val visible = View.VISIBLE.takeIf { selectedThreads.isEmpty() && isExpanded && totalUnreadCount != 0L } ?: View.GONE
+                val duration = if (visible == View.VISIBLE) 300L else 10L
+                toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
+                text = "$totalUnreadCount ${getString(R.string.unread_messages)}"
+            }
+
             binding.toolbarTitle.apply {
                 val visible = View.GONE.takeUnless { isCollapsed } ?: View.VISIBLE.takeIf { selectedThreads.isEmpty() } ?: View.GONE
                 val duration = if (visible == View.VISIBLE) 300L else 100L
                 toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
+
             }
             binding.toolbarTitleIndicator.apply {
                 val visible = View.GONE.takeUnless { isCollapsed } ?: View.VISIBLE.takeIf { selectedThreads.isEmpty() && unreadGeneralCount > 0 } ?: View.GONE
@@ -201,31 +209,22 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
             }
 
             binding.tvSelectedCountMessages.apply {// todo: for collapsed count
-                val visible = View.GONE.takeIf { selectedThreads.isEmpty() } ?: View.VISIBLE.takeIf { isExpanded } ?: View.GONE
+                //val visible = View.GONE.takeIf { selectedThreads.isEmpty() } ?: View.VISIBLE.takeIf { isExpanded } ?: View.GONE
+                val visible = View.VISIBLE.takeIf { selectedThreads.isNotEmpty() && isExpanded } ?: View.GONE
                 val duration = if (visible == View.VISIBLE) 300L else 100L
                 toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
                 text = "${selectedThreads.size} ${getString(R.string.selected)}"
             }
+
             binding.tvSelectedCountMessages1.apply {// todo: for toolbar count
-                val visible = View.GONE.takeIf { selectedThreads.isEmpty() } ?: View.VISIBLE.takeIf { isCollapsed } ?: View.GONE
+                //val visible = View.GONE.takeIf { selectedThreads.isEmpty() } ?: View.VISIBLE.takeIf { isCollapsed } ?: View.GONE
+                val visible = View.VISIBLE.takeIf { selectedThreads.isNotEmpty() && isCollapsed } ?: View.GONE
                 val duration = if (visible == View.VISIBLE) 300L else 100L
                 toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
                 text = "${selectedThreads.size} ${getString(R.string.selected)}"
-            }
-            val totalUnreadCount = unreadGeneralMap.values.sum()
-            binding.unreadMessages.apply {
-                text = "$totalUnreadCount ${getString(R.string.unread_messages)}"
             }
         }}
-        //endregion
-
-//        lifecycleScope.launch { conversationViewModel.unreadMessageCountGeneral.collectLatest { messageCount: Map<Long, Long> ->
-//            //Log.i(TAG, "$TAG -onViewCreated: $messageCount", )
-//            val totalUnreadCount = messageCount.values.sum()
-//            binding.unreadMessages.apply {
-//                text = "$totalUnreadCount ${getString(R.string.unread_messages)}"
-//            }
-//        } }
+        //endregion toolbar selected item count management & Toolbar selected count management countUnreadGeneralAndPrivateConversationThreads
 
         //region toolbar management
         // Initialize the manager
@@ -247,28 +246,26 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
             // Update drawable based on selection state
             binding.toolbarTvSelectAll.setCompoundDrawablesWithIntrinsicBounds(if (isAllSelected) R.drawable.ic_all_selected_item else R.drawable.ic_all_unselected_item, 0, 0, 0)
         }
-        //endregion
+        //endregion toolbar management
 
         //region bottom menu
-        mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlArchive?.setOnClickListener { Log.e(TAG, "onViewCreated: archive",)
+        mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlArchive?.setOnClickListener {
             val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            (activity as MainActivity).archiveConversation(threadIds)
-            conversationAdapter.unselectAll()// todo: unselectAll after work is done
-
+            (activity as MainActivity).archiveConversation(threadIds) {
+                conversationAdapter.unselectAll()// todo: unselectAll after work is done
+            }
         }
-        mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlDelete?.setOnClickListener { Log.e(TAG, "onViewCreated: delete",)
+        mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlDelete?.setOnClickListener {
             val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            (activity as MainActivity).deleteConversation(threadIds)
-            conversationAdapter.unselectAll()// todo: unselectAll after work is done
+            (activity as MainActivity).deleteConversation(threadIds) {
+                conversationAdapter.unselectAll()// todo: unselectAll after work is done
+            }
         }
         mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlMore?.setOnClickListener {
-
             val resultMenu = evaluateSelectionGetHomeBottomMenu(conversationViewModel.countSelectedConversationThreads.value)
-
             (activity as MainActivity).showPopupMenuBottom(it, selectedMenu = resultMenu)
-
         }
-        //endregion
+        //endregion bottom menu
 
     }
 

@@ -5,6 +5,7 @@
     <dimen name="app_px_80_to_dp">30.671171dp</dimen>
     <dimen name="app_px_75_to_dp">28.754223dp</dimen>
     <dimen name="app_px_72_to_dp">27.604055dp</dimen>
+    <dimen name="app_px_60_to_dp">23.003378dp</dimen>
     <dimen name="app_px_55_to_dp">21.08643dp</dimen>
     <dimen name="app_px_50_to_dp">19.169481dp</dimen>
     <dimen name="app_px_46_to_dp">17.635923dp</dimen>
@@ -21,6 +22,7 @@
     <dimen name="app_px_80_to_sp">26.410812sp</dimen>
     <dimen name="app_px_75_to_sp">24.760136sp</dimen>
     <dimen name="app_px_72_to_sp">23.769732sp</dimen>
+    <dimen name="app_px_60_to_sp">19.80811sp</dimen>
     <dimen name="app_px_55_to_sp">18.157434sp</dimen>
     <dimen name="app_px_50_to_sp">16.506758sp</dimen>
     <dimen name="app_px_46_to_sp">15.186216sp</dimen>

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!--Main all color-->
-    <color name="color_01">#FFFFFF</color> <!-- FFFFFF Background Primary -->
-    <color name="color_02">#F7F7F7</color> <!-- F7F7F7 Background Secondary -->
-    <color name="color_03">#F1F1F1</color> <!-- F1F1F1 Surface Primary -->
-    <color name="color_04">#E9E9E9</color> <!-- E9E9E9 Surface Secondary -->
-    <color name="color_05">#ACACAC</color> <!-- ACACAC Border Light -->
-    <color name="color_06">#9E9E9E</color> <!-- 9E9E9E Border Dark -->
-    <color name="color_07">#4E4F52</color> <!-- 4E4F52 Text Primary -->
-    <color name="color_08">#020403</color> <!-- 020403 Text Secondary -->
-    <color name="color_09">#3148D1</color> <!-- 3148D1 Primary -->
-    <color name="color_10">#FF570C</color> <!-- FF570C Accent -->
-    <color name="color_11">#FF570C</color> <!-- FF570C Icon -->
-    <color name="color_12">#4C53EA</color> <!-- 4C53EA Icon -->
+    <!--<color name="color_01">#FFFFFF</color>--> <!-- FFFFFF Background Primary -->
+    <!--<color name="color_02">#F7F7F7</color>--> <!-- F7F7F7 Background Secondary -->
+    <!--<color name="color_03">#F1F1F1</color>--> <!-- F1F1F1 Surface Primary -->
+    <!--<color name="color_04">#E9E9E9</color>--> <!-- E9E9E9 Surface Secondary -->
+    <!--<color name="color_05">#ACACAC</color>--> <!-- ACACAC Border Light -->
+    <!--<color name="color_06">#9E9E9E</color>--> <!-- 9E9E9E Border Dark -->
+    <!--<color name="color_07">#4E4F52</color>--> <!-- 4E4F52 Text Primary -->
+    <!--<color name="color_08">#020403</color>--> <!-- 020403 Text Secondary -->
+    <!--<color name="color_09">#3148D1</color>--> <!-- 3148D1 Primary -->
+    <!--<color name="color_10">#FF570C</color>--> <!-- FF570C Accent -->
+    <!--<color name="color_11">#FF570C</color>--> <!-- FF570C Icon -->
+    <!--<color name="color_12">#4C53EA</color>--> <!-- 4C53EA Icon -->
 
     <color name="app_color_01">#FFFFFF</color> <!--#020403-->
     <color name="app_color_02">#F7F7F7</color> <!--#0D0D0D-->
@@ -48,8 +48,8 @@
     <color name="text_color_4">#FFB3B3B3</color>
 
     <!--Conversation list select/unselect action color-->
-    <color name="conversation_select">@color/color_02</color>
-    <color name="conversation_unselect">@color/color_01</color>
+    <color name="conversation_select">@color/app_color_02</color>
+    <color name="conversation_unselect">@color/app_color_01</color>
 
     <!--Conversation list swipe action color-->
     <color name="swipe_action_left">#5C753E</color>
@@ -63,23 +63,23 @@
     <color name="message_select">#C7DAE3</color>
 
     <!--Radio button & Text color-->
-    <color name="color_rb_select">@color/color_09</color>
-    <color name="color_rb_unselect">@color/color_06</color>
+    <color name="color_rb_select">@color/app_color_09</color>
+    <color name="color_rb_unselect">@color/app_color_06</color>
 
     <!--Badge-->
-    <color name="bg_color_badge">@color/color_10</color>
-    <color name="bg_color_badge_darker_gray">@color/color_03</color>
+    <color name="bg_color_badge">@color/app_color_10</color>
+    <color name="bg_color_badge_darker_gray">@color/app_color_03</color>
 
     <!-- Bottom nav-->
     <color name="color_bottom_nav_elevation">#BF4C53EA</color>
     <color name="color_bottom_nav_badge">@color/bg_color_badge</color>
-    <color name="color_bottom_nav_badge_item">@color/color_01</color>
+    <color name="color_bottom_nav_badge_item">@color/app_color_01</color>
     <color name="color_bottom_nav_badge_darker_gray">@color/bg_color_badge_darker_gray</color>
-    <color name="color_bottom_nav_badge_item_darker_gray">@color/color_08</color>
-    <color name="color_bottom_nav_underline_select">@color/color_09</color>
-    <color name="color_bottom_nav_underline_unselect">@color/color_01</color>
-    <color name="color_nav_item_unselect">@color/color_06</color><!--bottom nav unselect-->
-    <color name="color_nav_item_select">@color/color_09</color>
+    <color name="color_bottom_nav_badge_item_darker_gray">@color/app_color_08</color>
+    <color name="color_bottom_nav_underline_select">@color/app_color_09</color>
+    <color name="color_bottom_nav_underline_unselect">@color/app_color_01</color>
+    <color name="color_nav_item_unselect">@color/app_color_06</color><!--bottom nav unselect-->
+    <color name="color_nav_item_select">@color/app_color_09</color>
 
     <color name="divider_color_active">@color/app_color_08</color>
     <color name="divider_color_inactive">@color/app_color_03</color>
@@ -89,5 +89,5 @@
     <color name="color_cursor_edittext">#0084FF</color>
     <color name="color_unread_count">#ffffff</color>
 
-
+    <!--light-->
 </resources>
