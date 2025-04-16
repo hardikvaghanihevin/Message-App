@@ -3,6 +3,7 @@ package com.hardik.messageapp.util
 import android.content.Context
 import com.hardik.messageapp.domain.model.Contact
 import com.hardik.messageapp.domain.model.ConversationThread
+import com.hardik.messageapp.domain.repository.FindThreadIdByNormalizeNumber
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import kotlinx.coroutines.flow.Flow
@@ -212,6 +213,18 @@ fun getBestMatchedNumber(phoneNumbers: List<String>?, query: String): String? {
 
 fun extractNumber(contact: Contact?, query: String, phoneNumberUtil: PhoneNumberUtil): String {
     return (getBestMatchedNumber(contact?.phoneNumbers, query)?.removeCountryCode(phoneNumberUtil)) ?: contact?.normalizeNumber.takeUnless { it.isNullOrEmpty() } ?: query
+}
+
+fun resolveThreadId(
+    context: Context,
+    normalizeNumber: String?
+): Long {
+    return if (!normalizeNumber.isNullOrEmpty()) {
+        val findThreadId = object : FindThreadIdByNormalizeNumber {}.findThreadIdByNormalizeNumber(context, normalizeNumber)
+        findThreadId
+    } else {
+        0
+    }
 }
 
 

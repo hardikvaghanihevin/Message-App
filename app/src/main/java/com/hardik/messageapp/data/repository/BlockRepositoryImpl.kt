@@ -56,20 +56,21 @@ class BlockRepositoryImpl @Inject constructor(
             val systemBlockedList: Deferred<List<String>> = async { getSystemBlockedNumbers(context).first() }
             val dbBlockList: Deferred<List<BlockThreadEntity>> = async(Dispatchers.IO) { blockThreadDao.getBlockThreadsData().first() }
             val conversationList: Deferred<List<ConversationThread>> = async (Dispatchers.IO) { AppDataSingleton.conversationThreads.first() }
-            val recyclebinIds: Deferred<List<Long>> = async (Dispatchers.IO) { recycleBinThreadDao.getRecycleBinThreadIds().first() }// Get bin Ids
+            //val recyclebinIds: Deferred<List<Long>> = async (Dispatchers.IO) { recycleBinThreadDao.getRecycleBinThreadIds().first() }// Get bin Ids
 
             val systemBlocked = systemBlockedList.await()
             val dbBlockedThreads = dbBlockList.await()
-            val recyclebinThreadIds = recyclebinIds.await()
+            //val recyclebinThreadIds = recyclebinIds.await()
             val conversationThreads = conversationList.await()
             //Log.i(TAG, "getBlockedConversations: A")
 
             combine(
                 flowOf(systemBlocked),
                 flowOf(dbBlockedThreads),
-                flowOf(recyclebinThreadIds),
+                //flowOf(recyclebinThreadIds),
                 flowOf(conversationThreads)
-            ) { blockedList, dbBlocked, recyclebin, threads ->
+            ) { blockedList, dbBlocked, //recyclebin,
+                threads ->
                 //Log.e(TAG, "getBlockedConversations: B", )
                 // blocked [1,2,3,4,5] ->date class is list<String>
                 // bdBlocked [2,5,6] ->data class is List<BlockThreadEntity>

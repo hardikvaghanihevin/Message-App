@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface ContactRepository {
     fun getContacts(wantToNumberWiseContactList: Boolean): Flow<List<Contact>>
     fun searchContact(phoneNumber: String): Flow<Contact?>
+    suspend fun getContactByNumber(inputNumber: String): Contact?
     suspend fun addContact(contact: Contact)
     suspend fun editContact(contact: Contact)
     suspend fun deleteContact(contactId: String)

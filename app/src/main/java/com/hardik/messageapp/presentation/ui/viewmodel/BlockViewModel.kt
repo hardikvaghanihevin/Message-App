@@ -1,5 +1,6 @@
 package com.hardik.messageapp.presentation.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hardik.messageapp.data.local.entity.BlockThreadEntity
@@ -41,7 +42,7 @@ class BlockViewModel @Inject constructor(
     val blockedNumbers = _blockedNumbers.asStateFlow()// todo: use for number(block) list
 
     fun fetchBlockedConversationThread() {
-        //Log.i(TAG, "fetchBlockedConversationThread: ", )
+        Log.i(TAG, "fetchBlockedConversationThread: ", )
         viewModelScope.launch {
             getBlockedConversationThreadsUseCase().collect { blockThread ->
                 _blockedConversations.value = blockThread.first // todo: here message block

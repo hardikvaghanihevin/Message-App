@@ -28,12 +28,17 @@ class ArchiveRepositoryImpl @Inject constructor(
         //val systemSmsFlow = conversationThreadRepository.getConversationThreads() // Get all SMS messages
         val systemSmsFlow: Flow<List<ConversationThread>> = AppDataSingleton.conversationThreads // Get all SMS messages
         val archivedIdsFlow: Flow<List<Long>> = archivedThreadDao.getArchivedThreadIds() // Get archived IDs
-        val recyclebinIdsFlow: Flow<List<Long>> = recycleBinThreadDao.getRecycleBinThreadIds() // Get bin IDs
+        //val recyclebinIdsFlow: Flow<List<Long>> = recycleBinThreadDao.getRecycleBinThreadIds() // Get bin IDs
         val blockIdsFlow: Flow<List<Long>> = blockThreadDao.getBlockThreadIds() // Get archived IDs
 
-        combine(systemSmsFlow, archivedIdsFlow, recyclebinIdsFlow, blockIdsFlow) { smsList, archivedIds, recyclebinIds, blockIds ->
+        combine(systemSmsFlow, archivedIdsFlow,
+            //recyclebinIdsFlow,
+            blockIdsFlow) { smsList, archivedIds, //recyclebinIds,
+                            blockIds ->
             //smsList.filter { it.threadId in archivedIds } // Filter only archived messages
-            smsList.filter { it.threadId in archivedIds && it.threadId !in recyclebinIds && it.threadId !in blockIds} // Keep only those which are archived but NOT in recycle bin
+            smsList.filter { it.threadId in archivedIds
+                    //&& it.threadId !in recyclebinIds
+                    && it.threadId !in blockIds} // Keep only those which are archived but NOT in recycle bin
         }.collect { emit(it) }
     }.flowOn(Dispatchers.IO)
     //endregion

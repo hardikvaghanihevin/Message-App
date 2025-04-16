@@ -2,6 +2,7 @@ package com.hardik.messageapp.domain.model
 
 import androidx.recyclerview.widget.DiffUtil
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 data class Message(
     val id: Long,
@@ -66,9 +67,14 @@ data class Message(
             }
         }
 
+        val gson = Gson()
         fun List<Message>.toJson(): String {
-            val gson = Gson()
             return gson.toJson(this)
+        }
+
+        fun listFromJson(json: String): List<Message> {
+            val type = object : TypeToken<List<Message>>() {}.type
+            return Message.gson.fromJson(json, type)
         }
     }
 }

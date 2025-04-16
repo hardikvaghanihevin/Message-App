@@ -6,3 +6,9 @@
     backup-20250322180921.json -> message.json
 
     app link - https://play.google.com/store/apps/details?id=sms.app.messages.app.message.box.message.me
+
+
+    *main_3_backup:-
+    1) toolbarCollapsing (Message,Private,Block(number,message),Archive,Recyclebin)
+    2) older delete flow in here (note: permanent delete from bin)
+    3) conversation (pin,block,archive,delete,read,contact,sms,thread) merge in at one list.

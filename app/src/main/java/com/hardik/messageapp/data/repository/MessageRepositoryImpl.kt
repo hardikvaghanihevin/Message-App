@@ -14,15 +14,23 @@ import androidx.core.database.getStringOrNull
 import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.repository.MessageRepository
 import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.getOptimalChunkSize
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -129,6 +137,64 @@ class MessageRepositoryImpl @Inject constructor(
 
         awaitClose { context.contentResolver.unregisterContentObserver(observer) }
     }.distinctUntilChanged().flowOn(Dispatchers.IO) // Prevent duplicate emissions
+
+ /*   override fun getMessagesByThreadIds(threadIds: List<Long>): Flow<Map<Long, List<Message>>> = channelFlow {
+        val dispatcher = Dispatchers.IO
+        val chunkSize = getOptimalChunkSize(threadIds.size) // Avoid launching 1 lakh coroutines at once
+
+        threadIds.chunked(chunkSize).forEach { chunk ->
+            launch(dispatcher) {
+                val resultMap = mutableMapOf<Long, List<Message>>()
+
+                coroutineScope {
+                    val deferredResults = chunk.map { threadId ->
+                        async(dispatcher) {
+                            threadId to queryMessageByThreadId(threadId)
+                        }
+                    }
+
+                    deferredResults.awaitAll().forEach { (threadId, messages) ->
+                        resultMap[threadId] = messages
+                    }
+
+                    send(resultMap)
+                }
+            }
+        }
+    }
+        .buffer(Channel.UNLIMITED)
+        .flowOn(Dispatchers.IO)*/
+
+    override fun getMessagesByThreadIds(threadIds: List<Long>): Flow<Map<String, List<Message>>> = channelFlow {
+        val dispatcher = Dispatchers.IO
+        val chunkSize = getOptimalChunkSize(threadIds.size)
+
+        threadIds.chunked(chunkSize).forEach { chunk ->
+            launch(dispatcher) {
+                val resultMap = mutableMapOf<String, MutableList<Message>>()
+
+                coroutineScope {
+                    val deferredResults = chunk.map { threadId ->
+                        async(dispatcher) {
+                            queryMessageByThreadId(threadId)
+                        }
+                    }
+
+                    // Combine and group messages by sender
+                    deferredResults.awaitAll()
+                        .flatten() // all messages from all threads
+                        .forEach { message ->
+                            val sender = message.sender.ifBlank { "Unknown" }
+                            resultMap.getOrPut(sender) { mutableListOf() }.add(message)
+                        }
+
+                    send(resultMap)
+                }
+            }
+        }
+    }
+        .buffer(Channel.UNLIMITED)
+        .flowOn(Dispatchers.IO)
     //endregion
 
 

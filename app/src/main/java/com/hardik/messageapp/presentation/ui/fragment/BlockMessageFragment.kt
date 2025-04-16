@@ -99,14 +99,14 @@ class BlockMessageFragment : BaseFragment(R.layout.fragment_block_message) {
 
 
         //region bottom menu
-        binding.includedNavViewBottomMenu4.navViewBottomLlDelete.setOnClickListener {
+        blockBinding.includedNavViewBottomMenu4.navViewBottomLlDelete.setOnClickListener {
             //Log.e(TAG, "onCreate: Delete",)
             val threadIds = blockViewModel.countSelectedConversationThreads.value.map { it.threadId }
             (activity as BlockActivity).deleteBlockConversation(threadIds) // delete (permanent) all selected bin threads
 
             (activity as BlockActivity).conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
-        binding.includedNavViewBottomMenu4.navViewBottomLlUnblock.setOnClickListener {
+        blockBinding.includedNavViewBottomMenu4.navViewBottomLlUnblock.setOnClickListener {
             val blockThreads: List<BlockThreadEntity> = blockViewModel.countSelectedConversationThreads.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
             (activity as BlockActivity).unblockConversation(blockThreads = blockThreads) // unblock all selected bin threads
 

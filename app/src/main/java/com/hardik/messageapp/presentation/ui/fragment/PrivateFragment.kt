@@ -251,16 +251,16 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
         //region bottom menu
         mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlArchive?.setOnClickListener { Log.e(TAG, "onViewCreated: archive",)
             val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            (activity as MainActivity).archiveConversation(threadIds) {
-                conversationAdapter.unselectAll()// todo: unselectAll after work is done
-            }
+            (activity as MainActivity).archiveConversation(threadIds) // from bottom
+            conversationAdapter.unselectAll()// todo: unselectAll after work is done
+
 
         }
         mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlDelete?.setOnClickListener { Log.e(TAG, "onViewCreated: delete",)
             val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            (activity as MainActivity).deleteConversation(threadIds) {
-                conversationAdapter.unselectAll()// todo: unselectAll after work is done
-            }
+            (activity as MainActivity).deleteConversation(threadIds) // from bottom
+            conversationAdapter.unselectAll()// todo: unselectAll after work is done
+
         }
         mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlMore?.setOnClickListener {
             val resultMenu = evaluateSelectionGetHomeBottomMenu(conversationViewModel.countSelectedConversationThreads.value)

@@ -38,13 +38,6 @@ import org.greenrobot.eventbus.ThreadMode
 class MainActivity : BaseActivity() {
     private val TAG = BASE_TAG + MainActivity::class.java.simpleName
 
-//    private val conversationThreadViewModel: ConversationThreadViewModel by viewModels()
-//    private val contactViewModel: ContactViewModel by viewModels()
-//    private val blockViewModel: BlockViewModel by viewModels()
-//    private val pinViewModel: PinViewModel by viewModels()
-//    private val archiveViewModel: ArchiveViewModel by viewModels()
-
-
     lateinit var binding: ActivityMainBinding
 
     private lateinit var viewPager: ViewPager2
@@ -155,7 +148,7 @@ class MainActivity : BaseActivity() {
         //Toast.makeText(this, "delete", Toast.LENGTH_SHORT).show()
         val threadsGeneral: List<Long> = conversationViewModel.filteredConversationThreads.value.map { it.threadId }
         //val threadsPrivate: List<Long> = conversationViewModel.conversationThreadsPrivate.value.map { it.threadId }
-        deleteConversation(threadsGeneral) { }// delete all conversation
+        deleteConversation(threadsGeneral) // delete all conversation
 
     }
     private fun popupMenuBlockConversation() { startActivity(Intent(this, BlockActivity::class.java)) }
@@ -210,21 +203,24 @@ class MainActivity : BaseActivity() {
     }
 
 
-    fun archiveConversation(threadIds: List<Long>, callback: () -> Unit){
+    fun archiveConversation(threadIds: List<Long>){
         conversationViewModel.archiveConversationThread(threadIds)
 
         lifecycleScope.launch {
             conversationViewModel.isArchivedConversationThread.collectLatest { isArchived: Boolean ->
                 conversationViewModel.fetchConversationThreads(needToUpdate = isArchived)
-                callback() // Callback after work is done
             }
         }
     }
 
-    fun deleteConversation(threadIds: List<Long>, callback: () -> Unit){
-        //val threads: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+    fun deleteConversation(threadIds: List<Long>){
         conversationViewModel.deleteConversationByThreads(threadIds)
-        callback() // Callback after work is done
+
+        lifecycleScope.launch {
+            conversationViewModel.isDeleteConversationThread.collectLatest { isDelete ->
+                conversationViewModel.fetchConversationThreads(needToUpdate = isDelete)
+            }
+        }
     }
 
     private fun popupMenuMarkAsReadBottom() {

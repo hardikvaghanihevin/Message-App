@@ -171,9 +171,12 @@ object AppModule {
     fun provideRecycleBinRepository(@ApplicationContext context: Context,
                                     recycleBinThreadDao: RecycleBinThreadDao,
                                     blockThreadDao: BlockThreadDao,
-                                    conversationRepository: ConversationRepository
+                                    conversationRepository: ConversationRepository,
+                                    messageRepository: MessageRepository,
+                                    contactRepository: ContactRepository,
+                                    phoneNumberUtil: PhoneNumberUtil
     ): RecyclebinRepository {
-        return RecyclebinRepositoryImpl(context, recycleBinThreadDao, blockThreadDao, conversationRepository)
+        return RecyclebinRepositoryImpl(context, recycleBinThreadDao, blockThreadDao, conversationRepository, messageRepository, contactRepository, phoneNumberUtil)
     }
 
     @Provides

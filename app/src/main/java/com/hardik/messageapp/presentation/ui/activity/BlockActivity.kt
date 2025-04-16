@@ -2,6 +2,7 @@ package com.hardik.messageapp.presentation.ui.activity
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
@@ -164,6 +165,7 @@ class BlockActivity : BaseActivity() {
 
         lifecycleScope.launch {
             blockViewModel.isDeleteBlockConversationThread.collectLatest { isPermanentDelete ->
+                Log.e(TAG, "deleteBlockConversation: $isPermanentDelete", )
                 conversationViewModel.fetchConversationThreads(needToUpdate = isPermanentDelete)
             }
         }

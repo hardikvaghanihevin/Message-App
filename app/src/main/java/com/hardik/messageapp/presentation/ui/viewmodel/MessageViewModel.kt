@@ -116,9 +116,9 @@ class MessageViewModel @Inject constructor(
                 insertMessageUseCase(message.copy(type = 2)) // Type 2: Sent Message
 
                 _smsSent.emit(Unit)  // Notify UI that the message was sent
-                Log.d(TAG,"$TAG - SMS sent successfully to ${message.sender}")
+                //Log.d(TAG,"$TAG - SMS sent successfully to ${message.sender}")
             } catch (e: Exception) {
-                Log.e(TAG, "$TAG - Failed to send SMS", e)
+                //Log.e(TAG, "$TAG - Failed to send SMS", e)
             }
         }
     }

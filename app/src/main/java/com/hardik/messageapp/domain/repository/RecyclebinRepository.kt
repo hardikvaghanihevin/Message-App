@@ -11,9 +11,9 @@ interface RecyclebinRepository {
     //endregion
 
     //region Add and Remove RecycleBin ConversationThread
-    suspend fun moveToRecycleBinConversationThread(recycleBinThreads: List<RecycleBinThreadEntity>): Boolean
+    suspend fun moveToRecycleBinConversationThread(recycleBinThreadEntities: List<RecycleBinThreadEntity>): Boolean
 
-    suspend fun restoreConversationThreads(threadIds: List<Long>): Boolean
+    suspend fun restoreConversationThreads(senders: List<String>): Boolean
     //endregion
 
 

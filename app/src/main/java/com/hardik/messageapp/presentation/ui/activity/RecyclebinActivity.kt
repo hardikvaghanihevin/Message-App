@@ -187,8 +187,8 @@ class RecyclebinActivity : BaseActivity() {
         //region bottom menu
         binding.includedNavViewBottomMenu3.navViewBottomLlRestore.setOnClickListener {
             //Log.e(TAG, "onCreate: Unarchive",)
-            val threadIds = recyclebinViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            restoreConversations(threadIds = threadIds) // restore all selected bin threads
+            val senders = recyclebinViewModel.countSelectedConversationThreads.value.map { it.sender }
+            restoreConversations(senders = senders) // restore all selected bin threads
 
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
@@ -210,8 +210,8 @@ class RecyclebinActivity : BaseActivity() {
 
     }
 
-    private fun restoreConversations(threadIds: List<Long>) {
-        recyclebinViewModel.restoreConversations(threadIds)
+    private fun restoreConversations(senders: List<String>) {
+        recyclebinViewModel.restoreConversations(senders)
 
         lifecycleScope.launch {
             recyclebinViewModel.isRestoreConversationThread.collectLatest { isRestored ->
@@ -257,8 +257,8 @@ class RecyclebinActivity : BaseActivity() {
     private fun popupMenuRestoreAll() {
         val selectedThreads = recyclebinViewModel.recyclebinConversations.value
         if (selectedThreads.isNotEmpty()) {
-            val threadIds = selectedThreads.map { it.threadId }
-            restoreConversations(threadIds = threadIds) // restore all bin threads
+            val senders = selectedThreads.map { it.sender }
+            restoreConversations(senders = senders) // restore all bin threads
         }
     }
     private fun popupMenuBlockAll() {

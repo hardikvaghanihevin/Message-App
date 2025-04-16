@@ -61,9 +61,7 @@ class GetConversationUseCase @Inject constructor(
                 readRepository.markAsUnreadConversationCountThreads().flattenToMap()
             }
 
-            val recycleBinThreadIdsJob = async(Dispatchers.IO) {
-                recycleBinThreadDao.getRecycleBinThreadIds().first()
-            }
+            //val recycleBinThreadIdsJob = async(Dispatchers.IO) { recycleBinThreadDao.getRecycleBinThreadIds().first() }
 
             val archiveThreadIdsJob = async(Dispatchers.IO) {
                 archivedThreadDao.getArchivedThreadIds().first()
@@ -82,7 +80,7 @@ class GetConversationUseCase @Inject constructor(
             val smsMap = smsJob.await()
             val contactsMap = contactsJob.await()
             val unreadMap = unreadConversationJob.await()
-            val recycleBinThreadIds = recycleBinThreadIdsJob.await()
+            //val recycleBinThreadIds = recycleBinThreadIdsJob.await()
             val archiveThreadIds = archiveThreadIdsJob.await()
             val blockThreadIds = blockThreadIdsJob.await()
             val pinnedThreadIds = pinnedThreadIdsJob.await().toSet()
@@ -90,7 +88,7 @@ class GetConversationUseCase @Inject constructor(
             // Build the conversation threads
             val conversationList = threadList.mapNotNull { thread ->
                 val message = smsMap[thread.threadId] ?: return@mapNotNull null
-                val sender = message.sender?.trim().orEmpty()
+                val sender = message.sender.trim()
                 if (sender.isEmpty()) return@mapNotNull null
 
                 val senderType = analyzeSender(sender)
@@ -157,7 +155,8 @@ class GetConversationUseCase @Inject constructor(
 
             // Final general list (not in RecycleBin, Archive, Block)
             val finalFilteredGeneralList = orderedList.filterNot {
-                it.threadId in recycleBinThreadIds || it.threadId in archiveThreadIds || it.threadId in blockThreadIds
+                //it.threadId in recycleBinThreadIds ||
+                it.threadId in archiveThreadIds || it.threadId in blockThreadIds
             }
 
             // Update AppDataSingleton

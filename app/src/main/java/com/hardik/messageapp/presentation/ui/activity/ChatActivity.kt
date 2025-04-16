@@ -172,7 +172,7 @@ class ChatActivity : BaseActivity() {
 
                     readMessageIds.addAll(unreadMessages.map { it.id })
 
-                    messageViewModel.insertOrUpdateMessages(unreadMessages.map { it.copy(read = true) })
+                    messageViewModel.insertOrUpdateMessages(unreadMessages.map { it.copy(read = true) }) // chat show (mark as read all from the threadId)
                 }
             }
         } else {
@@ -208,6 +208,13 @@ class ChatActivity : BaseActivity() {
 
         // ✅ Call ViewModel with a valid subscriptionId
         messageViewModel.insertSms(message, subscriptionId, this@ChatActivity)
+
+        lifecycleScope.launch {
+            messageViewModel.smsSent.collectLatest {
+                messageViewModel.fetchSmsMessages(needToUpdate = true)
+                conversationViewModel.fetchConversationThreads(needToUpdate = true)
+            }
+        }
     }
     private val REQUIRED_PERMISSIONS = arrayOf(
         Manifest.permission.READ_PHONE_STATE,

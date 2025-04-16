@@ -57,12 +57,12 @@ class RecyclebinViewModel @Inject constructor(
     private val _isRestoreConversationThread = MutableStateFlow<Boolean>(false)
     val isRestoreConversationThread: StateFlow<Boolean> = _isRestoreConversationThread.asStateFlow()
 
-    fun restoreConversations(threadIds: List<Long>) {
+    fun restoreConversations(senders: List<String>) {
         viewModelScope.launch {
-            removeFromRecyclebinConversationThreadUseCase(threadIds = threadIds)
-                .collectLatest { isUnblocked -> _isRestoreConversationThread.value = isUnblocked
+            removeFromRecyclebinConversationThreadUseCase(senders)
+                .collectLatest { isRestore -> _isRestoreConversationThread.value = isRestore
 
-                    if (isUnblocked) fetchRecycleBinConversationThreads() // refresh data list
+                    if (isRestore) fetchRecycleBinConversationThreads() // refresh data list
                 }
         }
     }

@@ -4,6 +4,7 @@ import android.content.ContentProviderOperation
 import android.content.ContentUris
 import android.content.Context
 import android.database.Cursor
+import android.net.Uri
 import android.provider.ContactsContract
 import android.util.Log
 import com.hardik.messageapp.domain.model.Contact
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -73,6 +75,38 @@ class ContactRepositoryImpl @Inject constructor(
 
         emit(matchedContact)
     }.flowOn(Dispatchers.IO)
+
+    override suspend fun getContactByNumber(inputNumber: String): Contact? = withContext(Dispatchers.IO) {
+        val contentResolver = context.contentResolver
+        val lookupUri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(inputNumber))
+
+        val projection = arrayOf(
+            ContactsContract.PhoneLookup._ID,
+            ContactsContract.PhoneLookup.DISPLAY_NAME,
+            ContactsContract.PhoneLookup.PHOTO_URI,
+            ContactsContract.PhoneLookup.NUMBER
+        )
+
+        val cursor = contentResolver.query(lookupUri, projection, null, null, null)
+
+        cursor?.use {
+            if (it.moveToFirst()) {
+                val contactId = it.getLong(0)
+                val displayName = it.getString(1)
+                val photoUri = it.getString(2)
+                val phoneNumber = it.getString(3)
+
+                return@withContext Contact(
+                    contactId = contactId.toInt(),
+                    displayName = displayName,
+                    photoUri = photoUri,
+                    normalizeNumber = phoneNumber
+                )
+            }
+        }
+        null
+    }
+
 
     override suspend fun addContact(contact: Contact) {
         val operations = ArrayList<ContentProviderOperation>()

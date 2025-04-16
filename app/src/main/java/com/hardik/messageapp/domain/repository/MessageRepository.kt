@@ -7,6 +7,7 @@ interface MessageRepository {
 
     //region Fetch Message list
     fun getMessagesByThreadId(threadId: Long): Flow<List<Message>>
+    fun getMessagesByThreadIds(threadIds: List<Long>): Flow<Map<String, List<Message>>> //todo: Map<number/threadId, List<message>>
     fun getMessages(): Flow<List<Message>>
     fun getMessages(messageId: Long): Flow<Message?>
     fun getMessages(messageIds: List<Long>): Flow<List<Message>>
