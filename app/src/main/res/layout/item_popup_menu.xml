@@ -24,7 +24,7 @@
         android:id="@+id/popup_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/text_color_1"
+        android:textColor="@color/app_color_08"
         tools:text="Menu item"
         android:textSize="16sp" />
 </LinearLayout>

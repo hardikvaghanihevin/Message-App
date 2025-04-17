@@ -31,9 +31,9 @@ class UnreadMessageViewModel @Inject constructor(
     // region Fetch Unread ConversationThread list
     private val _unreadConversations = MutableStateFlow<List<ConversationThread>>(emptyList())
     val unreadConversations = _unreadConversations.asStateFlow()
-    private fun fetchUnreadConversationThread(){
+    fun fetchUnreadConversationThread(isGeneral: Boolean = true){
         viewModelScope.launch {
-            getUnreadConversationThreadUseCase().collect{ unreadList ->
+            getUnreadConversationThreadUseCase(isGeneral = isGeneral).collect{ unreadList ->
                 //Log.e(TAG, "fetchUnreadConversationThread: size:${unreadList.size} - $unreadList", )
                 _unreadConversations.value = unreadList
             }

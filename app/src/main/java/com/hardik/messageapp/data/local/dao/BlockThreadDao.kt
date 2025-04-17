@@ -18,8 +18,9 @@ interface BlockThreadDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun blockThread(archives: List<BlockThreadEntity>): List<Long>
 
-    @Query("DELETE FROM block_threads WHERE threadId IN (:threadIds)") // for single item [threadId = :threadId]
-    suspend fun unblockThread(threadIds: List<Long>): Int
+    @Query("DELETE FROM block_threads WHERE sender IN (:senders)") // for single item [threadId = :threadId]
+    suspend fun unblockThread(senders: List<String>): Int
+
     @Query("DELETE FROM block_threads WHERE sender IN (:senders)")
     fun unblockNumbers(senders: List<String>): Int
 }

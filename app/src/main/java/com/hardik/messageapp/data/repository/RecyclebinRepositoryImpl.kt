@@ -199,6 +199,25 @@ class RecyclebinRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteFromRecycleBinBySender(senders: List<String>): Boolean = coroutineScope {
+        if (senders.isEmpty()) return@coroutineScope false
+
+        try {
+
+            val deleteFromDbJob = async(Dispatchers.IO) {
+            recycleBinThreadDao.deleteFromRecycleBinBySender(senders) // You should have a delete method
+            true // Assume successful if no exception
+            }
+
+            val dbResult = deleteFromDbJob.await()
+
+            dbResult// && dbResult// Return true if deletion was successful
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
     //endregion Add and Remove RecycleBin ConversationThread
 
     //region Block deleted ConversationThread

@@ -14,6 +14,8 @@ interface RecyclebinRepository {
     suspend fun moveToRecycleBinConversationThread(recycleBinThreadEntities: List<RecycleBinThreadEntity>): Boolean
 
     suspend fun restoreConversationThreads(senders: List<String>): Boolean
+
+    suspend fun deleteFromRecycleBinBySender(senders: List<String>): Boolean
     //endregion
 
 

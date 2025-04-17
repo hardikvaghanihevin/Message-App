@@ -23,7 +23,7 @@
             android:layout_centerVertical="true"
             android:layout_marginStart="16dp"
             android:text="Messages"
-            android:textColor="@color/text_color_1"
+            android:textColor="@color/app_color_08"
             android:textSize="20sp"
             android:textStyle="bold" />
 
@@ -37,8 +37,7 @@
             android:clickable="true"
             android:focusable="true"
             android:padding="12dp"
-            android:src="@drawable/real_ic_search"
-            app:tint="@color/text_color_1" />
+            android:src="@drawable/real_ic_search" />
 
         <ImageView
             android:id="@+id/toolbar_more"
@@ -50,8 +49,7 @@
             android:clickable="true"
             android:focusable="true"
             android:padding="12dp"
-            android:src="@drawable/real_ic_more"
-            app:tint="@color/text_color_1" />
+            android:src="@drawable/real_ic_more" />
 
     </RelativeLayout>
 

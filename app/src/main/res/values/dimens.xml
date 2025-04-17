@@ -2,6 +2,10 @@
     <dimen name="fab_margin">16dp</dimen>
 
     <!--px to dp-->
+    <dimen name="app_px_365_to_dp">139.93723dp</dimen>
+    <dimen name="app_px_340_to_dp">130.35248dp</dimen>
+    <dimen name="app_px_115_to_dp">44.089806dp</dimen>
+    <dimen name="app_px_105_to_dp">40.255913dp</dimen>
     <dimen name="app_px_80_to_dp">30.671171dp</dimen>
     <dimen name="app_px_75_to_dp">28.754223dp</dimen>
     <dimen name="app_px_72_to_dp">27.604055dp</dimen>
@@ -48,6 +52,8 @@
     <dimen name="item_recycle_header_h_padding">14dp</dimen><!--space_dp_01-->
     <dimen name="item_recycle_v_padding">10.5dp</dimen>
     <dimen name="item_recycle_h_padding">14dp</dimen><!--space_dp_01-->
+
+    <dimen name="dialog_padding">@dimen/app_px_30_to_dp</dimen>
 
 
 </resources>

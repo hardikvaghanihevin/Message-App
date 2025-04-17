@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
-import com.hardik.messageapp.domain.usecase.conversation.block.BlockConversationThreadsUseCase
+import com.hardik.messageapp.domain.usecase.conversation.block.DeleteBlockConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.block.GetBlockedConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.block.UnblockConversationThreadsUseCase
 import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
@@ -25,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BlockViewModel @Inject constructor(
     private val getBlockedConversationThreadsUseCase: GetBlockedConversationThreadsUseCase,
-    private val blockConversationThreadsUseCase: BlockConversationThreadsUseCase,
+    private val deleteBlockConversationThreadsUseCase: DeleteBlockConversationThreadsUseCase,
     private val unblockConversationThreadsUseCase: UnblockConversationThreadsUseCase,
 
     private val deleteConversationThreadUseCase: DeleteConversationThreadUseCase,
@@ -53,15 +53,6 @@ class BlockViewModel @Inject constructor(
     //endregion Fetch BlockConversationThread list
 
     //region Block and Unblock ConversationThread
-    /*fun blockNumbers(blockThreads: List<BlockThreadEntity>) {// blockViewModel.blockNumbers(listOf("+1234567890"))
-        viewModelScope.launch {
-            blockConversationThreadsUseCase(blockThreads)
-                .collectLatest { isBlock ->
-                    if (isBlock) fetchBlockedNumbers()
-                }
-        }
-    }*/
-
     private val _isUnblockNumber = MutableStateFlow<Boolean>(false)
     val isUnblockNumber: StateFlow<Boolean> = _isUnblockNumber.asStateFlow()
 
@@ -71,7 +62,7 @@ class BlockViewModel @Inject constructor(
                 .collectLatest { isUnblock ->
                     _isUnblockNumber.value = isUnblock
 
-                    if (isUnblock) fetchBlockedConversationThread()
+                    if (isUnblock) fetchBlockedConversationThread() // unblock number
                 }
         }
     }
@@ -97,6 +88,17 @@ class BlockViewModel @Inject constructor(
     fun deleteBlockConversationByThreadIds(threadIds: List<Long>) {
         viewModelScope.launch {
             deleteConversationThreadUseCase(threadIds)
+                .collect { isDeleted ->
+                    _isDeleteBlockConversationThread.value = isDeleted // ✅ Updates state safely
+
+                    if (isDeleted) { fetchBlockedConversationThread() }// ✅ Executes only after deletion is confirmed
+                }
+        }
+    }
+
+    fun deleteBlockConversationBySender(senders: List<String>) {
+        viewModelScope.launch {
+            deleteBlockConversationThreadsUseCase(senders)
                 .collect { isDeleted ->
                     _isDeleteBlockConversationThread.value = isDeleted // ✅ Updates state safely
 

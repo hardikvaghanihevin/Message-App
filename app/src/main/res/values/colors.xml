@@ -27,11 +27,11 @@
     <color name="app_color_11">#FF0707</color> <!--#FF0707-->
     <color name="app_color_12">#1E2D7E</color> <!--#1E2D7E-->
     <color name="app_color_13">#D6DAF6</color> <!--#1E2D7E-->
+    <color name="app_color_14">#FFFFFF</color> <!--#0F100F-->
 
     <!--Splash bg color-->
     <color name="splash_color_01" >@color/app_color_01</color>
     <color name="splash_color_02" >@color/app_color_08</color>
-
 
     <!--Window color-->
     <color name="action_bar_color" >@color/app_color_01</color>
@@ -41,11 +41,6 @@
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-
-    <color name="text_color_1">#FF000000</color>
-    <color name="text_color_2">#FF4D4D4D</color>
-    <color name="text_color_3">#FF808080</color>
-    <color name="text_color_4">#FFB3B3B3</color>
 
     <!--Conversation list select/unselect action color-->
     <color name="conversation_select">@color/app_color_02</color>
@@ -62,22 +57,15 @@
     <color name="message_send">#D8E5ED</color><!--#D8E5ED-->
     <color name="message_select">#C7DAE3</color>
 
-    <!--Radio button & Text color-->
-    <color name="color_rb_select">@color/app_color_09</color>
-    <color name="color_rb_unselect">@color/app_color_06</color>
-
-    <!--Badge-->
-    <color name="bg_color_badge">@color/app_color_10</color>
-    <color name="bg_color_badge_darker_gray">@color/app_color_03</color>
-
     <!-- Bottom nav-->
     <color name="color_bottom_nav_elevation">#BF4C53EA</color>
-    <color name="color_bottom_nav_badge">@color/bg_color_badge</color>
+    <color name="color_bottom_nav_bg">@color/app_color_14</color>
+    <color name="color_bottom_nav_badge">@color/app_color_10</color>
     <color name="color_bottom_nav_badge_item">@color/app_color_01</color>
-    <color name="color_bottom_nav_badge_darker_gray">@color/bg_color_badge_darker_gray</color>
+    <color name="color_bottom_nav_badge_darker_gray">@color/app_color_03</color>
     <color name="color_bottom_nav_badge_item_darker_gray">@color/app_color_08</color>
     <color name="color_bottom_nav_underline_select">@color/app_color_09</color>
-    <color name="color_bottom_nav_underline_unselect">@color/app_color_01</color>
+    <color name="color_bottom_nav_underline_unselect">@android:color/transparent</color>
     <color name="color_nav_item_unselect">@color/app_color_06</color><!--bottom nav unselect-->
     <color name="color_nav_item_select">@color/app_color_09</color>
 

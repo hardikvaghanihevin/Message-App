@@ -95,6 +95,10 @@ fun convertPxToDpSp(context: Context, px: Float): Pair<Float, Float> {
     return Pair((dp/1.3911f), (sp/1.6155F))
 }
 
+fun Int.dpToPx(context: Context): Int {
+    return (this * context.resources.displayMetrics.density).toInt()
+}
+
 fun analyzeSender(sender: String?): Int = when {
     sender.isNullOrBlank() -> -1
     sender.any { it.isLetter() } -> 2
@@ -226,6 +230,5 @@ fun resolveThreadId(
         0
     }
 }
-
 
 

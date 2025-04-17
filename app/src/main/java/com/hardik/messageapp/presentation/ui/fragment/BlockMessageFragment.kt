@@ -101,8 +101,8 @@ class BlockMessageFragment : BaseFragment(R.layout.fragment_block_message) {
         //region bottom menu
         blockBinding.includedNavViewBottomMenu4.navViewBottomLlDelete.setOnClickListener {
             //Log.e(TAG, "onCreate: Delete",)
-            val threadIds = blockViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            (activity as BlockActivity).deleteBlockConversation(threadIds) // delete (permanent) all selected bin threads
+            //val threadIds = blockViewModel.countSelectedConversationThreads.value.map { it.threadId }
+            (activity as BlockActivity).deleteBlockConversation(blockViewModel.countSelectedConversationThreads.value) // delete (permanent) all selected bin threads
 
             (activity as BlockActivity).conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }

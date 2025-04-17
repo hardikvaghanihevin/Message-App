@@ -18,10 +18,11 @@
     </style>
 
     <style name="ToolbarExpandedUnreadMessagesView">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">@dimen/app_px_340_to_dp</item>
+        <item name="android:layout_height">@dimen/app_px_105_to_dp</item>
+        <item name="android:gravity">center</item>
         <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:background">@drawable/bg_view_unread</item>
+        <item name="android:background">@drawable/bg_negative_view</item>
         <item name="android:layout_marginTop">@dimen/app_px_60_to_dp</item>
         <item name="android:textSize">@dimen/app_px_45_to_sp</item>
         <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
@@ -111,6 +112,52 @@
         <item name="android:textCursorDrawable">@drawable/cursor_edittext</item>
         <item name="android:textSize">@dimen/app_px_55_to_sp</item>
         <item name="android:importantForAutofill">no</item>
+    </style>
+
+    <style name="DialogBoxTitleText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+        <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:textSize">@dimen/app_px_45_to_sp</item>
+    </style>
+    <style name="DialogBoxInfoText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:fontFamily">@font/instrument_sans_regular</item>
+        <item name="android:textColor">@color/app_color_06</item>
+        <item name="android:textSize">@dimen/app_px_38_to_sp</item>
+    </style>
+
+    <style name="DialogBoxAlsoBlockText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:drawablePadding">@dimen/app_px_50_to_dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:fontFamily">@font/instrument_sans_medium</item>
+        <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:textSize">@dimen/app_px_40_to_sp</item>
+    </style>
+
+    <style name="DialogBoxNegativeView">
+        <item name="android:layout_width">@dimen/app_px_365_to_dp</item>
+        <item name="android:layout_height">@dimen/app_px_115_to_dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:background">@drawable/bg_negative_view</item>
+        <item name="android:textSize">@dimen/app_px_42_to_sp</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+    </style>
+    <style name="DialogBoxPositiveView">
+        <item name="android:layout_width">@dimen/app_px_365_to_dp</item>
+        <item name="android:layout_height">@dimen/app_px_115_to_dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@drawable/bg_positive_view</item>
+        <item name="android:textSize">@dimen/app_px_42_to_sp</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
     </style>
 
 </resources>

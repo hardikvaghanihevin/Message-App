@@ -9,8 +9,8 @@ import javax.inject.Inject
 
 class DeleteFromRecyclebinConversationThreadUseCase @Inject constructor(private val recyclebinRepository: RecyclebinRepository) {
     //suspend operator fun invoke(threadIds: List<Long>) = recyclebinRepository.deletePermanently(threadIds = threadIds)
-    suspend operator fun invoke(threadIds: List<Long>) : Flow<Boolean> = flow {
-        val isPermanentDelete = recyclebinRepository.deletePermanently(threadIds = threadIds)
+    suspend operator fun invoke(senders: List<String>) : Flow<Boolean> = flow {
+        val isPermanentDelete = recyclebinRepository.deleteFromRecycleBinBySender(senders = senders)
         emit(isPermanentDelete) // Emits the result
     }.flowOn(Dispatchers.IO)
 }

@@ -15,7 +15,6 @@ interface RecycleBinThreadDao {
 
     //@Query("SELECT * FROM recyclebin_threads")
     @Query("SELECT * FROM recyclebin_threads WHERE sender IN (:senders)")
-    //fun getRecycleBinDataBySenders(senders: List<String>): Flow<List<RecycleBinThreadEntity>>
     suspend fun getRecycleBinDataBySenders(senders: List<String>): List<RecycleBinThreadEntity>
 
     @Query("SELECT * FROM recyclebin_threads WHERE timestamp IN (SELECT MAX(timestamp) FROM recyclebin_threads GROUP BY sender)")
@@ -28,8 +27,8 @@ interface RecycleBinThreadDao {
     @Query("DELETE FROM recyclebin_threads WHERE sender IN (:senders)")
     suspend fun restoreFromRecycleBinThread(senders: List<String>): Int
 
-    @Query("DELETE FROM recyclebin_threads WHERE threadId IN (:threadIds)")
-    suspend fun deleteFromRecycleBinThread(threadIds: List<Long>): Int
+    @Query("DELETE FROM recyclebin_threads WHERE sender IN (:senders)")
+    suspend fun deleteFromRecycleBinBySender(senders: List<String>): Int
 }
 
 

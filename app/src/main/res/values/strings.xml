@@ -56,5 +56,15 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!--Dialog box delete conversation-->
+    <string name="move_conversation">Move conversation?</string>
+    <string name="move_this_conversation_to_the_recyclebin">Move this conversation to the recyclebin?</string>
+    <string name="also_block_this_person">Also block this person</string>
+    <string name="cancel">Cancel</string>
+    <string name="move_to_bin">Move to bin</string>
+
+    <string name="block_conversation_">Block conversation?</string>
+    <string name="do_you_want_to_block_this_conversation">Do you want to block this conversation?</string>
+
     <!--<string name="copy">Copy</string>-->
 </resources>

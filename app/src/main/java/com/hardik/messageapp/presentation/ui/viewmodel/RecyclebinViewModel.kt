@@ -85,9 +85,9 @@ class RecyclebinViewModel @Inject constructor(
     //region Delete ConversationThread Permanently
     private val _isDeleteRecyclebinConversationThread = MutableStateFlow<Boolean>(false)
     val isDeleteRecyclebinConversationThread: StateFlow<Boolean> = _isDeleteRecyclebinConversationThread.asStateFlow()
-    fun deleteRecyclebinConversationByThreadIds(threadIds: List<Long>) {
+    fun deleteRecyclebinConversationBySenders(senders: List<String>) {
         viewModelScope.launch {
-            deleteFromRecyclebinConversationThreadUseCase(threadIds)
+            deleteFromRecyclebinConversationThreadUseCase(senders)
                 .collect { isDeleted ->
                     _isDeleteRecyclebinConversationThread.value = isDeleted // ✅ Updates state safely
 

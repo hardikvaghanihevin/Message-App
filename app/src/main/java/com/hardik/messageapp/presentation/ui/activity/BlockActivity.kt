@@ -10,6 +10,7 @@ import com.hardik.messageapp.R
 import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.databinding.ActivityBlockBinding
 import com.hardik.messageapp.databinding.NavViewTopBinding
+import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.presentation.adapter.ConversationAdapter
 import com.hardik.messageapp.presentation.adapter.ViewPagerBlockAdapter
 import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
@@ -160,12 +161,15 @@ class BlockActivity : BaseActivity() {
         }
 
     }
-    fun deleteBlockConversation(threadIds: List<Long>) {//deleteBlockConversation
+    fun deleteBlockConversation(threads: List<ConversationThread>) {//deleteBlockConversation
+        val threadIds = threads.map { it.threadId }
+        val senders = threads.map { it.sender }
         blockViewModel.deleteBlockConversationByThreadIds(threadIds)
 
         lifecycleScope.launch {
             blockViewModel.isDeleteBlockConversationThread.collectLatest { isPermanentDelete ->
                 Log.e(TAG, "deleteBlockConversation: $isPermanentDelete", )
+                blockViewModel.deleteBlockConversationBySender(senders)
                 conversationViewModel.fetchConversationThreads(needToUpdate = isPermanentDelete)
             }
         }
@@ -197,8 +201,8 @@ class BlockActivity : BaseActivity() {
     fun popupMenuDeleteAll() {
         val selectedThreads = blockViewModel.blockedConversations.value
         if (selectedThreads.isNotEmpty()) {
-            val threadIds = selectedThreads.map { it.threadId }
-            deleteBlockConversation(threadIds = threadIds) // delete all bin threads
+            //val threadIds = selectedThreads.map { it.threadId }
+            deleteBlockConversation(selectedThreads) // delete all bin threads
         }
     }
 

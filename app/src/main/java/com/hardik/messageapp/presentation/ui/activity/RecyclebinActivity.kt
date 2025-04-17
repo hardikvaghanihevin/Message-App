@@ -201,8 +201,8 @@ class RecyclebinActivity : BaseActivity() {
         }
         binding.includedNavViewBottomMenu3.navViewBottomLlDelete.setOnClickListener {
             //Log.e(TAG, "onCreate: Delete",)
-            val threadIds = recyclebinViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            deleteRecyclebinConversation(threadIds) // delete (permanent) all selected bin threads
+            val senders = recyclebinViewModel.countSelectedConversationThreads.value.map { it.sender }
+            deleteRecyclebinConversation(senders) // delete (permanent) all selected bin threads
 
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
@@ -229,8 +229,8 @@ class RecyclebinActivity : BaseActivity() {
         }
 
     }
-    private fun deleteRecyclebinConversation(threadIds: List<Long>) {
-        recyclebinViewModel.deleteRecyclebinConversationByThreadIds(threadIds)
+    private fun deleteRecyclebinConversation(senders: List<String>) {
+        recyclebinViewModel.deleteRecyclebinConversationBySenders(senders)
 
         lifecycleScope.launch {
             recyclebinViewModel.isDeleteRecyclebinConversationThread.collectLatest { isPermanentDelete ->
@@ -271,8 +271,8 @@ class RecyclebinActivity : BaseActivity() {
     private fun popupMenuDeleteAll() {
         val selectedThreads = recyclebinViewModel.recyclebinConversations.value
         if (selectedThreads.isNotEmpty()) {
-            val threadIds = selectedThreads.map { it.threadId }
-            deleteRecyclebinConversation(threadIds = threadIds) // delete all bin threads
+            val senders = selectedThreads.map { it.sender }
+            deleteRecyclebinConversation(senders = senders) // delete all bin threads
         }
     }
 

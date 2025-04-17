@@ -15,5 +15,6 @@ interface BlockRepository {
 
     suspend fun unblockConversations(blockThreads: List<BlockThreadEntity>): Boolean
     suspend fun unblockNumbers(numbers: List<String>): Boolean
+    suspend fun deleteBlockConversationBySender(senders: List<String>): Boolean
     //endregion
 }

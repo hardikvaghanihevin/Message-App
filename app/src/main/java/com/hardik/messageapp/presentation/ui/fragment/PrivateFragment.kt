@@ -177,6 +177,11 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
                 AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
                 text = "$totalUnreadCount ${getString(R.string.unread_messages)}"
             }
+            binding.viewButton.apply {
+                val visible = View.VISIBLE.takeIf { selectedThreads.isEmpty() && isExpanded && totalUnreadCount != 0L } ?: View.GONE
+                val duration = if (visible == View.VISIBLE) 300L else 10L
+                AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
+            }
 
             binding.toolbarTitle.apply {
                 //val visible = View.GONE.takeUnless { isCollapsed } ?: View.VISIBLE.takeIf { selectedThreads.isEmpty() } ?: View.GONE
@@ -257,9 +262,9 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
 
         }
         mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlDelete?.setOnClickListener { Log.e(TAG, "onViewCreated: delete",)
-            val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
-            (activity as MainActivity).deleteConversation(threadIds) // from bottom
-            conversationAdapter.unselectAll()// todo: unselectAll after work is done
+            //val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+            (activity as MainActivity).deleteConversation(conversationViewModel.countSelectedConversationThreads.value) { // from bottom
+            conversationAdapter.unselectAll() }// todo: unselectAll after work is done
 
         }
         mainBinding?.includedNavViewBottomMenu1?.navViewBottomLlMore?.setOnClickListener {

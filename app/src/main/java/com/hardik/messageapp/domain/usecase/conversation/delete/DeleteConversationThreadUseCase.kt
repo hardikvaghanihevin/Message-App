@@ -2,6 +2,7 @@ package com.hardik.messageapp.domain.usecase.conversation.delete
 
 import com.hardik.messageapp.data.local.entity.RecycleBinThreadEntity
 import com.hardik.messageapp.domain.model.Message.Companion.toJson
+import com.hardik.messageapp.domain.repository.BlockRepository
 import com.hardik.messageapp.domain.repository.DeleteRepository
 import com.hardik.messageapp.domain.repository.MessageRepository
 import com.hardik.messageapp.domain.repository.RecyclebinRepository
@@ -19,6 +20,7 @@ import javax.inject.Inject
 
 class DeleteConversationThreadUseCase @Inject constructor(
     private val deleteRepository: DeleteRepository,
+    private val blockRepository: BlockRepository,
     private val messageRepository: MessageRepository,
     private val recyclebinRepository: RecyclebinRepository,
 ) {
@@ -92,9 +94,11 @@ class DeleteConversationThreadUseCase @Inject constructor(
                     // Perform recycle + delete in parallel for this chunk
                     coroutineScope {
                         val moveDeferred = async { recyclebinRepository.moveToRecycleBinConversationThread(recycleBinThreadEntities) }
+                        //val deleteBlockDeferred = async { blockRepository.deleteBlockConversationBySender(recycleBinThreadEntities.map { it.sender }) }
                         val deleteDeferred = async { deleteRepository.deleteConversationThreads(chunk) }
 
                         moveDeferred.await()
+                        //deleteBlockDeferred.await()
                         deleteDeferred.await() // Return delete status
                     }
                 }
