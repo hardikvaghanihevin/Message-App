@@ -111,7 +111,7 @@ class ArchiveActivity: BaseActivity() {
         }
 
         //region toolbar selected item count management & Toolbar selected count management
-        lifecycleScope.launch { archiveViewModel.archiveAndToolbarCombinedState.collectLatest { (_, toolbarState, selectedThreads) ->
+        lifecycleScope.launch { archiveViewModel.archiveAndToolbarCombinedState.collectLatest  { (_, toolbarState, selectedThreads) ->
             val isCollapsed = toolbarState.second in listOf(CollapsingToolbarStateManager.STATE_COLLAPSED, )
             val isExpanded = toolbarState.second in listOf(CollapsingToolbarStateManager.STATE_EXPANDED, CollapsingToolbarStateManager.STATE_INTERMEDIATE)
 
@@ -136,7 +136,6 @@ class ArchiveActivity: BaseActivity() {
                 val visible = View.VISIBLE.takeIf { isCollapsed && selectedThreads.isEmpty() } ?: View.GONE
                 val duration = if (visible == View.VISIBLE) 300L else 100L
                 AnimationViewHelper.toggleViewVisibilityWithAnimation(view = this@apply, isVisible = visible, duration = duration)
-
             }
 
             binding.toolbarSearch.apply {// todo: show always

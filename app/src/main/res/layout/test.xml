@@ -10,5 +10,50 @@
     android:orientation="vertical">
 
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <!--image-->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivItem_01"
+            android:layout_width="@dimen/app_px_120_to_dp"
+            android:layout_height="@dimen/app_px_120_to_dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/real_ic_set_language"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
+        <!--layout-->
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:paddingStart="@dimen/dialog_padding"
+            android:paddingEnd="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.AppCompatTextView
+               style="@style/SettingItemTitleText"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:text="@string/language" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:text="@string/english"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true"
+                android:textColor="@color/app_color_09"
+                style="@style/TextView.WrapContent.InstrumentSansMedium.MediumText_35" />
+        </RelativeLayout>
+
+        <!--image-->
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivFrowardArrow_01"
+            android:layout_width="@dimen/app_px_120_to_dp"
+            android:layout_height="@dimen/app_px_120_to_dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/real_ic_forward_arrow"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
+
+    </LinearLayout>
 
 </LinearLayout>

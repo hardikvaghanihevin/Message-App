@@ -1,51 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="ToolbarExpandedTitle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:textSize">@dimen/app_px_80_to_sp</item>
-        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
-    </style>
+    <style name="ToolbarExpandedTitle" parent="TextView.WrapContent.InstrumentSansSemiBold.LargeText_80" />
 
-    <style name="ToolbarExpandedUnreadMessages">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:textSize">@dimen/app_px_75_to_sp</item>
-        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
-    </style>
+    <style name="ToolbarExpandedUnreadMessages" parent="TextView.WrapContent.InstrumentSansSemiBold.LargeText_75" />
 
-    <style name="ToolbarExpandedUnreadMessagesView">
+    <style name="ToolbarExpandedUnreadMessagesView" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_45">
         <item name="android:layout_width">@dimen/app_px_340_to_dp</item>
         <item name="android:layout_height">@dimen/app_px_105_to_dp</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/app_color_08</item>
         <item name="android:background">@drawable/bg_negative_view</item>
         <item name="android:layout_marginTop">@dimen/app_px_60_to_dp</item>
-        <item name="android:textSize">@dimen/app_px_45_to_sp</item>
-        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
     </style>
 
-    <style name="ToolbarExpandedSelectedCountText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="ToolbarExpandedSelectedCountText" parent="TextView.WrapContent.InstrumentSansSemiBold.LargeText_75">
         <item name="android:layout_centerInParent">true</item>
-        <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:textSize">@dimen/app_px_75_to_sp</item>
-        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
     </style>
 
-    <style name="ToolbarSelectAllText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="ToolbarSelectAllText" parent="TextView.WrapContent.InstrumentSansMedium.MediumText_45">
         <item name="android:layout_centerVertical">true</item>
         <item name="android:layout_marginStart">16dp</item>
         <item name="android:drawablePadding">8dp</item>
-        <item name="android:fontFamily">@font/instrument_sans_medium</item>
         <item name="android:textColor">@color/app_color_06</item>
-        <item name="android:textSize">@dimen/app_px_45_to_sp</item>
     </style>
 
     <style name="ToolbarBackIcon">
@@ -61,14 +36,11 @@
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Material3.Corner.Full</item>
     </style>
 
-    <style name="ToolbarTitleText">
+    <style name="ToolbarTitleText" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_55">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentStart">true</item>
         <item name="android:layout_centerVertical">true</item>
-        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
-        <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:textSize">@dimen/app_px_55_to_sp</item>
     </style>
 
     <style name="ToolbarTitleIndicator">
@@ -81,13 +53,8 @@
         <item name="android:background">@drawable/badge_background</item>
     </style>
 
-    <style name="ToolbarSelectedCountTextMedium">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="ToolbarSelectedCountTextMedium" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_55">
         <item name="android:layout_centerInParent">true</item>
-        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
-        <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:textSize">@dimen/app_px_55_to_sp</item>
     </style>
 
     <style name="ToolbarSearchIcon" parent="ToolbarBackIcon" />
@@ -114,50 +81,174 @@
         <item name="android:importantForAutofill">no</item>
     </style>
 
-    <style name="DialogBoxTitleText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center_horizontal</item>
-        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
-        <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:textSize">@dimen/app_px_45_to_sp</item>
-    </style>
-    <style name="DialogBoxInfoText">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_gravity">center_horizontal</item>
-        <item name="android:fontFamily">@font/instrument_sans_regular</item>
-        <item name="android:textColor">@color/app_color_06</item>
-        <item name="android:textSize">@dimen/app_px_38_to_sp</item>
+    <style name="DialogAnimation">
+        <item name="android:windowEnterAnimation">@anim/anim_bottom_up</item>
+        <item name="android:windowExitAnimation">@anim/anim_bottom_down</item>
     </style>
 
-    <style name="DialogBoxAlsoBlockText">
+    <style name="DialogBoxTitleText" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_45">
+        <item name="android:layout_gravity">center_horizontal</item>
+    </style>
+
+    <style name="DialogBoxInfoText" parent="TextView.WrapContent.InstrumentSansRegular.MediumText_38">
+        <item name="android:layout_gravity">center_horizontal</item>
+        <item name="android:textColor">@color/app_color_06</item>
+    </style>
+
+    <style name="DialogBoxAlsoBlockText" parent="TextView.WrapContent.InstrumentSansMedium.MediumText_40">
+        <item name="android:drawablePadding">@dimen/app_px_50_to_dp</item>
+    </style>
+
+    <style name="DialogBoxNegativeView" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_42">
+        <item name="android:layout_width">@dimen/app_px_365_to_dp</item>
+        <item name="android:layout_height">@dimen/app_px_115_to_dp</item>
+        <item name="android:background">@drawable/bg_negative_view</item>
+    </style>
+
+    <style name="DialogBoxPositiveView" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_42">
+        <item name="android:layout_width">@dimen/app_px_365_to_dp</item>
+        <item name="android:layout_height">@dimen/app_px_115_to_dp</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@drawable/bg_positive_view</item>
+    </style>
+
+    <style name="PopupItemText" parent="TextView.WrapContent.InstrumentSansMedium.MediumText_42">
+        <item name="android:drawablePadding">@dimen/app_px_50_to_dp</item>
+    </style>
+
+
+    <!--Setting style-->
+    <style name="SettingContentTitleText" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_45">
+        <item name="android:textColor">@color/app_color_10</item>
+    </style>
+
+    <style name="SettingItemTitleText" parent="@style/TextView.WrapContent.InstrumentSansSemiBold.MediumText_45"/>
+
+    <style name="SettingItemInfoText" parent="@style/TextView.WrapContent.InstrumentSansRegular.MediumText_35">
+        <item name="android:textColor">@color/app_color_06</item>
+    </style>
+
+    <style name="SettingItemInfoText_1" parent="@style/TextView.WrapContent.InstrumentSansMedium.MediumText_35">
+        <item name="android:textColor">@color/app_color_09</item>
+    </style>
+
+    <!--LargeText[>=56], MediumText[55>=35], SmallText[34>]-->
+    <style name="TextView.WrapContent.InstrumentSansSemiBold" parent="Widget.AppCompat.TextView">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:drawablePadding">@dimen/app_px_50_to_dp</item>
+        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+        <item name="android:textColor">@color/app_color_08</item>
         <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansSemiBold.LargeText_80">
+        <item name="android:textSize">@dimen/app_px_80_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansSemiBold.LargeText_75">
+        <item name="android:textSize">@dimen/app_px_75_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansSemiBold.LargeText_60">
+        <item name="android:textSize">@dimen/app_px_60_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansSemiBold.MediumText_55">
+        <item name="android:textSize">@dimen/app_px_55_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansSemiBold.MediumText_50">
+        <item name="android:textSize">@dimen/app_px_50_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansSemiBold.MediumText_48">
+        <item name="android:textSize">@dimen/app_px_48_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansSemiBold.MediumText_46">
+        <item name="android:textSize">@dimen/app_px_46_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansSemiBold.MediumText_45">
+        <item name="android:textSize">@dimen/app_px_45_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansSemiBold.MediumText_42">
+        <item name="android:textSize">@dimen/app_px_42_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansSemiBold.SmallText_32">
+        <item name="android:textSize">@dimen/app_px_32_to_sp</item>
+    </style>
+
+
+    <style name="TextView.WrapContent.InstrumentSansMedium" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
         <item name="android:fontFamily">@font/instrument_sans_medium</item>
         <item name="android:textColor">@color/app_color_08</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansMedium.MediumText_55">
+        <item name="android:textSize">@dimen/app_px_55_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansMedium.MediumText_50">
+        <item name="android:textSize">@dimen/app_px_50_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansMedium.MediumText_45">
+        <item name="android:textSize">@dimen/app_px_45_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansMedium.MediumText_42">
+        <item name="android:textSize">@dimen/app_px_42_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansMedium.MediumText_40">
         <item name="android:textSize">@dimen/app_px_40_to_sp</item>
     </style>
 
-    <style name="DialogBoxNegativeView">
-        <item name="android:layout_width">@dimen/app_px_365_to_dp</item>
-        <item name="android:layout_height">@dimen/app_px_115_to_dp</item>
-        <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:background">@drawable/bg_negative_view</item>
-        <item name="android:textSize">@dimen/app_px_42_to_sp</item>
-        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+    <style name="TextView.WrapContent.InstrumentSansMedium.MediumText_38">
+        <item name="android:textSize">@dimen/app_px_38_to_sp</item>
     </style>
-    <style name="DialogBoxPositiveView">
-        <item name="android:layout_width">@dimen/app_px_365_to_dp</item>
-        <item name="android:layout_height">@dimen/app_px_115_to_dp</item>
+
+    <style name="TextView.WrapContent.InstrumentSansMedium.MediumText_36">
+        <item name="android:textSize">@dimen/app_px_36_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansMedium.MediumText_35">
+        <item name="android:textSize">@dimen/app_px_35_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansMedium.SmallText_32">
+        <item name="android:textSize">@dimen/app_px_32_to_sp</item>
+    </style>
+
+
+    <style name="TextView.WrapContent.InstrumentSansRegular" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">@font/instrument_sans_regular</item>
+        <item name="android:textColor">@color/app_color_08</item>
         <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:background">@drawable/bg_positive_view</item>
-        <item name="android:textSize">@dimen/app_px_42_to_sp</item>
-        <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansRegular.MediumText_40">
+        <item name="android:textSize">@dimen/app_px_40_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansRegular.MediumText_38">
+        <item name="android:textSize">@dimen/app_px_38_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansRegular.MediumText_35">
+        <item name="android:textSize">@dimen/app_px_35_to_sp</item>
+    </style>
+
+    <style name="TextView.WrapContent.InstrumentSansRegular.SmallText_30">
+        <item name="android:textSize">@dimen/app_px_30_to_sp</item>
     </style>
 
 </resources>

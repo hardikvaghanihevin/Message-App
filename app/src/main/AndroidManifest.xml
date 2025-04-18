@@ -28,6 +28,21 @@
         android:theme="@style/Theme.MessageApp"
         tools:targetApi="31">
         <activity
+            android:name=".presentation.ui.activity.AfterCallActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.BackupAndRestoreActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.SwipeActionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.ThemeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".presentation.ui.activity.SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".presentation.ui.activity.NewConversationActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />

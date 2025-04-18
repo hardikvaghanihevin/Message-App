@@ -7,7 +7,10 @@ import com.hardik.messageapp.domain.repository.DeleteRepository
 import com.hardik.messageapp.domain.repository.MessageRepository
 import com.hardik.messageapp.domain.repository.RecyclebinRepository
 import com.hardik.messageapp.util.Constants.BASE_TAG
+import com.hardik.messageapp.util.analyzeSender
 import com.hardik.messageapp.util.getOptimalChunkSize
+import com.hardik.messageapp.util.removeCountryCode
+import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -23,6 +26,7 @@ class DeleteConversationThreadUseCase @Inject constructor(
     private val blockRepository: BlockRepository,
     private val messageRepository: MessageRepository,
     private val recyclebinRepository: RecyclebinRepository,
+    private val phoneNumberUtil: PhoneNumberUtil,
 ) {
     private val TAG = BASE_TAG + DeleteConversationThreadUseCase::class.java.simpleName
     //suspend operator fun invoke(threadIds: List<Long>): Boolean = deleteRepository.deleteConversationThreads(threadIds)
@@ -82,7 +86,7 @@ class DeleteConversationThreadUseCase @Inject constructor(
 
                             recycleBinThreadEntities.add(
                                 RecycleBinThreadEntity(
-                                    sender = sender,
+                                    sender = if (analyzeSender(sender) == 1 ) sender.removeCountryCode(phoneNumberUtil) else sender,
                                     threadId = threadId,
                                     messageJson = messageJsonList,
                                     timestamp = System.currentTimeMillis()

@@ -9,10 +9,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.hardik.messageapp.R
 
 
@@ -139,16 +139,24 @@ private val onItemClick: (String) -> Unit
             val menuItemView = LayoutInflater.from(context)
                 .inflate(R.layout.item_popup_menu, container, false)
 
-            val titleTextView = menuItemView.findViewById<TextView>(R.id.popup_tv)
+            val titleTextView = menuItemView.findViewById<TextView>(R.id.popup_item)
+            /*val titleTextView = menuItemView.findViewById<TextView>(R.id.popup_tv)
             val iconImageView = menuItemView.findViewById<ImageView>(R.id.popup_img)
-
-            titleTextView.text = title
-
             if (iconResId != null) {
                 iconImageView.setImageResource(iconResId)
                 iconImageView.visibility = View.VISIBLE
             } else {
                 iconImageView.visibility = View.GONE
+            }*/
+
+            titleTextView.text = title
+
+            if (iconResId != null) {
+                // Set the drawable at the start of the TextView
+                titleTextView.setCompoundDrawablesWithIntrinsicBounds(iconResId, 0, 0, 0)
+            } else {
+                // Remove any existing compound drawables if iconResId is null
+                titleTextView.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0)
             }
 
             menuItemView.setOnClickListener {
@@ -173,7 +181,7 @@ private val onItemClick: (String) -> Unit
                     ).apply {
                         setMargins(24, 8, 24, 8)
                     }
-                    setBackgroundColor(Color.LTGRAY)
+                    setBackgroundColor(ContextCompat.getColor(context, R.color.app_color_03))
                 }
                 container.addView(separatorView)
             }

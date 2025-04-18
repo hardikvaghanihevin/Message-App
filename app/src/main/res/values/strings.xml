@@ -65,6 +65,34 @@
 
     <string name="block_conversation_">Block conversation?</string>
     <string name="do_you_want_to_block_this_conversation">Do you want to block this conversation?</string>
+    <string name="delete_conversation">Delete conversation?</string>
+    <string name="permanently_delete_all_conversations">Permanently delete all conversations?</string>
+
+    <string name="language">Language</string>
+    <string name="english">English</string>
+    <string name="appearance">Appearance</string>
+
+    <string name="swipe_actions">Swipe actions</string>
+    <string name="configure_swipe_actions_for_conversations">Configure swipe actions for conversations</string>
+    <string name="themes">Themes</string>
+    <string name="default_">Default</string>
+    <string name="font_size">Font size</string>
+    <string name="normal">Normal</string>
+
+    <string name="advance_feature">Advance feature</string>
+    <string name="after_call_feature">After call feature</string>
+    <string name="backup_restore"><![CDATA[Backup & Restore]]></string>
+
+    <string name="other">Other</string>
+    <string name="share_app">Share app</string>
+    <string name="rate_app">Rate app</string>
+    <string name="privacy_policy">Privacy policy</string>
+
+    <plurals name="permanently_delete_conversations">
+        <item quantity="one">Permanently delete %d conversation?</item>
+        <item quantity="other">Permanently delete %d conversations?</item>
+    </plurals>
+
 
     <!--<string name="copy">Copy</string>-->
 </resources>

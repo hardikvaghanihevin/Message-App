@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_color_01"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    tools:context=".presentation.ui.activity.SettingsActivity">
+
+    <!--Collapsing toolbar-->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/collapsingToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/app_color_01"
+            android:fitsSystemWindows="true"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/collapseTool"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                app:contentScrim="?attr/colorPrimary"
+                app:layout_scrollFlags="snap|exitUntilCollapsed|scroll">
+
+                <!-- View 2: Collapsible Content (With Parallax Effect) -->
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:scaleType="centerCrop"
+                    app:layout_collapseMode="parallax"
+                    app:layout_collapseParallaxMultiplier="0.5">
+
+                    <LinearLayout
+                        android:id="@+id/expanded_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:id="@+id/toolbar_expanded_title"
+                            style="@style/ToolbarExpandedTitle"
+                            android:text="@string/settings" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_selected_count_messages"
+                        style="@style/ToolbarExpandedSelectedCountText"
+                        android:visibility="gone"
+                        tools:text="1 Selected"
+                        tools:visibility="visible" />
+                </RelativeLayout>
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+            <!--Custom toolbar-->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_gravity="bottom"
+                android:background="@color/app_color_01"
+                app:layout_anchor="@+id/collapsingToolbar"
+                app:layout_collapseMode="pin">
+
+                <RelativeLayout
+                    android:id="@+id/custom_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/app_color_01"
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <!--start option of toolbar-->
+                    <RelativeLayout
+                        android:id="@+id/custom_toolbar_start"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent">
+
+                        <!--<TextView
+                            android:id="@+id/toolbar_tvSelectAll"
+                            style="@style/ToolbarSelectAllText"
+                            android:text="@string/all"
+                            android:visibility="gone"
+                            app:drawableStartCompat="@drawable/ic_all_unselected_item"
+                            tools:visibility="visible" />-->
+
+                        <com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/toolbar_back"
+                            style="@style/ToolbarBackIcon"
+                            android:src="@drawable/real_ic_back" />
+                    </RelativeLayout>
+
+                    <!-- Toolbar option-->
+                    <RelativeLayout
+                        android:id="@+id/toolbar_rl_option"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_toEndOf="@id/custom_toolbar_start">
+
+                        <TextView
+                            android:id="@+id/toolbar_title"
+                            style="@style/ToolbarTitleText"
+                            android:text="@string/settings"
+                            android:visibility="gone"
+                            tools:visibility="visible" />
+
+                        <View
+                            android:id="@+id/toolbar_title_indicator"
+                            style="@style/ToolbarTitleIndicator"
+                            android:visibility="gone" />
+
+                        <!--end option of toolbar-->
+                        <!-- <RelativeLayout
+                             android:layout_width="wrap_content"
+                             android:layout_height="match_parent"
+                             android:layout_alignParentEnd="true"
+                             android:gravity="center_vertical"
+                             android:orientation="horizontal">-->
+
+                        <!--<com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/toolbar_search"
+                            style="@style/ToolbarSearchIcon"
+                            android:src="@drawable/real_ic_search"
+                            android:visibility="gone" />-->
+
+                        <!--<com.google.android.material.imageview.ShapeableImageView
+                            android:id="@+id/toolbar_more"
+                            style="@style/ToolbarMoreIcon"
+                            android:src="@drawable/real_ic_more" />-->
+
+                        <!--</RelativeLayout>-->
+                    </RelativeLayout>
+
+                    <!--<TextView
+                        android:id="@+id/tv_selected_count_messages1"
+                        style="@style/ToolbarSelectedCountTextMedium"
+                        android:visibility="gone"
+                        tools:text="1 Selected" />-->
+
+                    <!-- Search ll -->
+                    <!--<LinearLayout
+                        android:id="@+id/toolbar_ll_search"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_toEndOf="@id/custom_toolbar_start"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:visibility="gone"
+                        tools:visibility="visible">-->
+
+                    <!--<EditText
+                        android:id="@+id/toolbar_edt_search"
+                        style="@style/ToolbarSearchEditText"
+                        android:layout_marginStart="@dimen/space_dp_01" />-->
+
+                    <!--<com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/toolbar_cancel"
+                        style="@style/ToolbarCancelIcon"
+                        android:src="@drawable/real_ic_cancel" />-->
+
+                    <!--</LinearLayout>-->
+
+                </RelativeLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/app_px_80_to_dp" />
+
+                    <!--Language-->
+                    <include
+                        android:id="@+id/included_item_language"
+                        layout="@layout/item_setting_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <include
+                        layout="@layout/item_divider_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/app_px_120_to_dp"
+                        android:layout_gravity="center_vertical" />
+
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/SettingContentTitleText"
+                        android:paddingStart="@dimen/dialog_padding"
+                        android:paddingEnd="0dp"
+                        android:text="@string/appearance" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/app_px_80_to_dp" />
+
+                    <!--Swipe Actions-->
+                    <include
+                        android:id="@+id/included_item_swipeActions"
+                        layout="@layout/item_setting_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <!--Themes-->
+                    <include
+                        android:id="@+id/included_item_themes"
+                        layout="@layout/item_setting_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <!--Font size-->
+                    <include
+                        android:id="@+id/included_item_fontSize"
+                        layout="@layout/item_setting_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <include
+                        layout="@layout/item_divider_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/app_px_120_to_dp"
+                        android:layout_gravity="center_vertical" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/SettingContentTitleText"
+                        android:paddingStart="@dimen/dialog_padding"
+                        android:paddingEnd="0dp"
+                        android:text="@string/advance_feature" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/app_px_80_to_dp" />
+
+                    <!--After call feature-->
+                    <include
+                        android:id="@+id/included_item_afterCallFeature"
+                        layout="@layout/item_setting_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <!--Backup & Restore-->
+                    <include
+                        android:id="@+id/included_item_backupAndRestore"
+                        layout="@layout/item_setting_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <include
+                        layout="@layout/item_divider_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/app_px_120_to_dp"
+                        android:layout_gravity="center_vertical" />
+
+                    <androidx.appcompat.widget.AppCompatTextView
+                        style="@style/SettingContentTitleText"
+                        android:paddingStart="@dimen/dialog_padding"
+                        android:paddingEnd="0dp"
+                        android:text="@string/other" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/app_px_80_to_dp" />
+
+                    <!--Share app-->
+                    <include
+                        android:id="@+id/included_item_shareApp"
+                        layout="@layout/item_setting_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <!--Rate app-->
+                    <include
+                        android:id="@+id/included_item_rateApp"
+                        layout="@layout/item_setting_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <!--Privacy & Police-->
+                    <include
+                        android:id="@+id/included_item_privacyPolicy"
+                        layout="@layout/item_setting_lay"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/app_px_80_to_dp" />
+
+                </LinearLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</LinearLayout>

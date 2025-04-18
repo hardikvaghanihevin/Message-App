@@ -120,7 +120,7 @@ class ArchiveViewModel @Inject constructor(
     private val _toolbarCollapsedState = MutableStateFlow<Int>(CollapsingToolbarStateManager.STATE_EXPANDED)
     private val toolbarCollapsedState: StateFlow<Int> = _toolbarCollapsedState.asStateFlow()
     fun onToolbarStateChanged(collapsedState: Int) { _toolbarCollapsedState.value = collapsedState }
-    //endregion
+    //endregion Collapsed state
 
     // region Combined state
     val archiveAndToolbarCombinedState: StateFlow<Triple<List<ConversationThread>, Pair<Boolean, Int>, List<ConversationThread>>> by lazy {

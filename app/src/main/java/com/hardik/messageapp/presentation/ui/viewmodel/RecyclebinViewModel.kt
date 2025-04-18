@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.hardik.messageapp.data.local.entity.BlockThreadEntity
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.usecase.conversation.block.BlockConversationThreadsUseCase
-import com.hardik.messageapp.domain.usecase.conversation.delete.DeleteConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.conversation.recyclebin.DeleteFromRecyclebinConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.conversation.recyclebin.GetRecyclebinConversationThreadUseCase
-import com.hardik.messageapp.domain.usecase.conversation.recyclebin.MoveToRecyclebinConversationThreadUseCase
 import com.hardik.messageapp.domain.usecase.conversation.recyclebin.RemoveFromRecyclebinConversationThreadUseCase
 import com.hardik.messageapp.util.CollapsingToolbarStateManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,12 +23,12 @@ import javax.inject.Inject
 @HiltViewModel
 class RecyclebinViewModel @Inject constructor(
     private val getRecyclebinConversationThreadUseCase: GetRecyclebinConversationThreadUseCase, // get list
-    private val moveToRecyclebinConversationThreadUseCase: MoveToRecyclebinConversationThreadUseCase,
+    //private val moveToRecyclebinConversationThreadUseCase: MoveToRecyclebinConversationThreadUseCase,//no need to use here because we already in recyclebin
     private val removeFromRecyclebinConversationThreadUseCase: RemoveFromRecyclebinConversationThreadUseCase, // restore from recyclebin
     private val blockConversationThreadsUseCase: BlockConversationThreadsUseCase, // do block numbers from recyclebin
     private val deleteFromRecyclebinConversationThreadUseCase: DeleteFromRecyclebinConversationThreadUseCase, // delete permanently from recyclebin
 
-    private val deleteConversationThreadUseCase: DeleteConversationThreadUseCase,
+    //private val deleteConversationThreadUseCase: DeleteConversationThreadUseCase,//no need to use here because it's already delete
 ) : ViewModel() {
 
     init { fetchRecycleBinConversationThreads() }

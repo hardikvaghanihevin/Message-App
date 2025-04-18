@@ -23,12 +23,13 @@ import com.hardik.messageapp.presentation.custom_view.BottomNavManager
 import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
 import com.hardik.messageapp.presentation.custom_view.showBlockConversationDialog
-import com.hardik.messageapp.presentation.custom_view.showDeleteConversationDialog
+import com.hardik.messageapp.presentation.custom_view.showMoveConversationToBinDialog
 import com.hardik.messageapp.presentation.ui.fragment.MessageFragment
 import com.hardik.messageapp.presentation.ui.fragment.PrivateFragment
 import com.hardik.messageapp.util.Constants.BASE_TAG
 import com.hardik.messageapp.util.SmsDefaultAppHelper.isDefaultSmsApp
 import com.hardik.messageapp.util.SmsDefaultAppHelper.navigateToSetAsDefaultScreen
+import com.hardik.messageapp.util.convertPxToDpSp
 import com.hardik.messageapp.util.evaluateSelectionGetHomeToolbarMenu
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -73,7 +74,7 @@ class MainActivity : BaseActivity() {
 
             // Floating Action Button Click (New Conversation)
             fabNewConversation.setOnClickListener {
-                //listOf<Float>(340f,105f,365f,115f,80f,75f,72f,55f,50f,46f,45f,42f,40f,38f,36f,35f,32f,30f).forEach { Log.e(TAG, "onCreate: $it - ${convertPxToDpSp(this,it)}", ) }
+                listOf<Float>(665f,340f,120f,105f,365f,115f,80f,75f,72f,55f,50f,48f,46f,45f,42f,40f,38f,36f,35f,32f,30f).forEach { Log.e(TAG, "onCreate: $it - ${convertPxToDpSp(this,it)}", ) }
                 //startActivity(Intent(this, NewConversationActivity::class.java))
 //                Toast.makeText(this, "${ conversationViewModel.unreadMessageCountGeneral.value }", Toast.LENGTH_SHORT).show()
 //                binding.includedNavViewBottom.root.apply { isFocusable = true }
@@ -174,7 +175,7 @@ class MainActivity : BaseActivity() {
     private fun popupMenuSchedule(whichFragmentIsLive: Pair<Boolean, Fragment?>) { /*startActivity(Intent(this, ArchiveActivity::class.java))*/ }
     private fun popupMenuStarredMessage(whichFragmentIsLive: Pair<Boolean, Fragment?>) { /*startActivity(Intent(this, ArchiveActivity::class.java))*/ }
     private fun popupMenuRecycleBin() { startActivity(Intent(this, RecyclebinActivity::class.java)) }
-    private fun popupMenuSettings() { /*startActivity(Intent(this, ArchiveActivity::class.java))*/ }
+    private fun popupMenuSettings() { startActivity(Intent(this, SettingsActivity::class.java)) }
 
     fun showPopupMenuBottom(view: View, selectedMenu: PopupMenu){
         val whichFragmentIsLive: Pair<Boolean, Fragment?> = isCurrentFragmentGeneral()
@@ -225,8 +226,8 @@ class MainActivity : BaseActivity() {
 
     fun deleteConversation(threads: List<ConversationThread>, callBack: () -> Unit) {
         //todo: show dialog before delete then wait for response or dialog ans is positive then do it other wise abort work
-        showDeleteConversationDialog(this) { alsoBlock, isPositive ->
-            if (!isPositive) return@showDeleteConversationDialog callBack()
+        showMoveConversationToBinDialog(this) { alsoBlock, isPositive ->
+            if (!isPositive) return@showMoveConversationToBinDialog callBack()
 
             val threadIds = threads.map { it.threadId }
 

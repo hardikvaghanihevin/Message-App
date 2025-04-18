@@ -16,6 +16,7 @@ import com.hardik.messageapp.presentation.custom_view.BottomMenu
 import com.hardik.messageapp.presentation.custom_view.CustomDividerItemDecoration
 import com.hardik.messageapp.presentation.custom_view.CustomPopupMenu
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
+import com.hardik.messageapp.presentation.custom_view.showDeletePermanentConversationDialog
 import com.hardik.messageapp.util.AnimationViewHelper
 import com.hardik.messageapp.util.CollapsingToolbarStateManager
 import com.hardik.messageapp.util.Constants
@@ -185,26 +186,26 @@ class RecyclebinActivity : BaseActivity() {
         //endregion Toolbar
 
         //region bottom menu
+        /** Restore */
         binding.includedNavViewBottomMenu3.navViewBottomLlRestore.setOnClickListener {
-            //Log.e(TAG, "onCreate: Unarchive",)
             val senders = recyclebinViewModel.countSelectedConversationThreads.value.map { it.sender }
             restoreConversations(senders = senders) // restore all selected bin threads
 
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
+        /** Block */
         binding.includedNavViewBottomMenu3.navViewBottomLlBlock.setOnClickListener {
-            Log.e(TAG, "onCreate: Block",)
             val blockThreads = recyclebinViewModel.countSelectedConversationThreads.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
             blockConversation(blockThreads = blockThreads) // block all selected bin threads
 
             conversationAdapter.unselectAll()// todo: unselectAll after work is done
         }
+        /** Delete */
         binding.includedNavViewBottomMenu3.navViewBottomLlDelete.setOnClickListener {
-            //Log.e(TAG, "onCreate: Delete",)
             val senders = recyclebinViewModel.countSelectedConversationThreads.value.map { it.sender }
-            deleteRecyclebinConversation(senders) // delete (permanent) all selected bin threads
-
-            conversationAdapter.unselectAll()// todo: unselectAll after work is done
+            deleteRecyclebinConversation(senders) { // delete (permanent) all selected bin threads
+                conversationAdapter.unselectAll()// todo: unselectAll after work is done
+            }
         }
         //endregion
 
@@ -229,14 +230,20 @@ class RecyclebinActivity : BaseActivity() {
         }
 
     }
-    private fun deleteRecyclebinConversation(senders: List<String>) {
-        recyclebinViewModel.deleteRecyclebinConversationBySenders(senders)
+    private fun deleteRecyclebinConversation(senders: List<String>, callBack: () -> Unit) {
+        val isAll = senders.size == recyclebinViewModel.recyclebinConversations.value.size
+        showDeletePermanentConversationDialog(this, senders.size, isAll) {isPositive ->
+            
+            if (isPositive){ recyclebinViewModel.deleteRecyclebinConversationBySenders(senders) }
 
-        lifecycleScope.launch {
-            recyclebinViewModel.isDeleteRecyclebinConversationThread.collectLatest { isPermanentDelete ->
-                conversationViewModel.fetchConversationThreads(needToUpdate = isPermanentDelete)
+            lifecycleScope.launch {
+                recyclebinViewModel.isDeleteRecyclebinConversationThread.collectLatest { isPermanentDelete ->
+                    conversationViewModel.fetchConversationThreads(needToUpdate = isPermanentDelete)
+                    callBack()
+                }
             }
         }
+
     }
 
 
@@ -272,7 +279,9 @@ class RecyclebinActivity : BaseActivity() {
         val selectedThreads = recyclebinViewModel.recyclebinConversations.value
         if (selectedThreads.isNotEmpty()) {
             val senders = selectedThreads.map { it.sender }
-            deleteRecyclebinConversation(senders = senders) // delete all bin threads
+            deleteRecyclebinConversation(senders = senders) { // delete all bin threads
+                conversationAdapter.unselectAll()
+            }
         }
     }
 

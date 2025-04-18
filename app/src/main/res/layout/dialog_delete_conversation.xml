@@ -25,7 +25,7 @@
             <TextView
                 android:id="@+id/dialog_title"
                 style="@style/DialogBoxTitleText"
-                android:text="@string/move_conversation"
+                android:text="@string/delete_conversation"
                 tools:visibility="visible" />
 
             <Space
@@ -35,29 +35,11 @@
             <TextView
                 android:id="@+id/dialog_info"
                 style="@style/DialogBoxInfoText"
-                android:text="@string/move_this_conversation_to_the_recyclebin"
+                tools:text="@string/permanently_delete_all_conversations"
                 tools:visibility="visible" />
         </LinearLayout>
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/app_px_60_to_dp" />
-
-        <!--work content area-->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <TextView
-                android:id="@+id/dialog_tv_alsoBlock"
-                style="@style/DialogBoxAlsoBlockText"
-                android:text="@string/also_block_this_person"
-                app:drawableStartCompat="@drawable/ic_round_unselected_item"
-                tools:visibility="visible" />
-
-        </LinearLayout>
+        <!--work content area no need-->
 
         <Space
             android:layout_width="match_parent"
@@ -80,7 +62,7 @@
             <TextView
                 android:id="@+id/dialog_buttonPositive"
                 style="@style/DialogBoxPositiveView"
-                android:text="@string/move_to_bin"
+                android:text="@string/delete"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 tools:visibility="visible" />

@@ -1,11 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--<com.hardik.messageapp.presentation.custom_view.shadow_lay.ShadowLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/shadow_layout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginEnd="100dp"
+    android:background="@android:color/transparent"
+    android:padding="1dp"
+    app:background_blur="140dp"
+    app:background_blur_type="INNER"
+    app:background_radius="16dp"
+    app:gradient_angle="180"
+    app:gradient_center_color="@color/app_color_07"
+    app:gradient_end_color="@color/app_color_07"
+    app:gradient_start_color="@color/app_color_07">
+
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/menuContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_popup_menu"
+        android:orientation="vertical"
+        app:elevation="0dp" />
+</com.hardik.messageapp.presentation.custom_view.shadow_lay.ShadowLayout>-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/menuContainer"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:layout_marginEnd="100dp"
     android:background="@drawable/bg_popup_menu"
     android:padding="12dp"
-    android:elevation="10dp">
+    android:elevation="2.5dp">
 </LinearLayout>
