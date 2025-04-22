@@ -74,7 +74,12 @@ class MainActivity : BaseActivity() {
 
             // Floating Action Button Click (New Conversation)
             fabNewConversation.setOnClickListener {
-                listOf<Float>(665f,340f,120f,105f,365f,115f,80f,75f,72f,55f,50f,48f,46f,45f,42f,40f,38f,36f,35f,32f,30f).forEach { Log.e(TAG, "onCreate: $it - ${convertPxToDpSp(this,it)}", ) }
+                listOf<Float>(250f,215f,521.28f,1050f,665f,340f,120f,105f,365f,115f,80f,75f,72f,55f,50f,48f,46f,45f,42f,40f,38f,36f,35f,32f,30f).forEach { Log.e(TAG, "onCreate: $it - ${convertPxToDpSp(this,it)}", ) }
+//                listOf<String>("9876543210","+9876543210","919876543210","929876543210","+919876543210","+3129876543210","09876543210").forEach {
+//                    Log.i(TAG, "onCreate: $it - ${normalizePhoneNumber(it)}")
+//                    Log.v(TAG, "onCreate: $it - ${it.removeCountryPrefix()}")
+//                    Log.w(TAG, "onCreate: $it - ${it.removeCountryCode(PhoneNumberUtil.createInstance(this))} \n\n----")
+//                }
                 //startActivity(Intent(this, NewConversationActivity::class.java))
 //                Toast.makeText(this, "${ conversationViewModel.unreadMessageCountGeneral.value }", Toast.LENGTH_SHORT).show()
 //                binding.includedNavViewBottom.root.apply { isFocusable = true }
@@ -249,33 +254,54 @@ class MainActivity : BaseActivity() {
         }
     }
 
-
-    private fun popupMenuMarkAsReadBottom(whichFragmentIsLive: Pair<Boolean, Fragment?>) {
-        val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+    fun markAsReadConversation(threadIds: List<Long>, whichFragmentIsLive: Pair<Boolean, Fragment?>) {
+        lifecycleScope.launch {
         conversationViewModel.markAsReadConversationByThreadIds(threadIds = threadIds)
-//        lifecycleScope.launch {
-//            conversationViewModel.isMarkAsReadConversationThread.collectLatest { isRead ->
-//                Log.e(TAG, "popupMenuMarkAsReadBottom: $isRead", )
-//                super.fetchSmsMessages(needToUpdate = isRead) // Mark as read
-//            }
-//        }
+        /*
+            conversationViewModel.isMarkAsReadConversationThread.collectLatest { isRead ->
+                super.fetchSmsMessages(needToUpdate = isRead) // Mark as read
+            }*/
+        }
         if (whichFragmentIsLive.first) { (whichFragmentIsLive.second as? MessageFragment)?.conversationAdapter?.unselectAll() }// todo: unselectAll after work is done
         else { (whichFragmentIsLive.second as? PrivateFragment)?.conversationAdapter?.unselectAll() }//todo: unselectAll after work is done
 
     }
 
-    private fun popupMenuMarkAsUnreadBottom(whichFragmentIsLive: Pair<Boolean, Fragment?>) {
-        val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+    fun markAsUnreadConversation(threadIds: List<Long>, whichFragmentIsLive: Pair<Boolean, Fragment?>) {
         conversationViewModel.markAsUnreadConversationByThreadIds(threadIds = threadIds)
-        lifecycleScope.launch {
+        /*lifecycleScope.launch {
             conversationViewModel.isMarkAsUnreadConversationThread.collectLatest { isUnread ->
                 super.fetchSmsMessages(needToUpdate = isUnread) // Mark as unread
             }
-        }
+        }*/
 
         if (whichFragmentIsLive.first) { (whichFragmentIsLive.second as? MessageFragment)?.conversationAdapter?.unselectAll() }// todo: unselectAll after work is done
         else { (whichFragmentIsLive.second as? PrivateFragment)?.conversationAdapter?.unselectAll() }//todo: unselectAll after work is done
+    }
 
+    fun blockConversation(conversationThreads: List<ConversationThread>, whichFragmentIsLive: Pair<Boolean, Fragment?>) {
+        showBlockConversationDialog(this) { doBlock ->
+
+            lifecycleScope.launch {
+                if (doBlock){
+                    val blockThreads: List<BlockThreadEntity> = conversationThreads.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
+                    conversationViewModel.blockConversationByThreads(blockThreads = blockThreads) }
+
+                if (whichFragmentIsLive.first) { (whichFragmentIsLive.second as? MessageFragment)?.conversationAdapter?.unselectAll() }// todo: unselectAll after work is done
+                else { (whichFragmentIsLive.second as? PrivateFragment)?.conversationAdapter?.unselectAll() }//todo: unselectAll after work is done
+            }
+        }
+
+    }
+
+    private fun popupMenuMarkAsReadBottom(whichFragmentIsLive: Pair<Boolean, Fragment?>) {
+        val threadIds = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+        markAsReadConversation(threadIds, whichFragmentIsLive)
+    }
+
+    private fun popupMenuMarkAsUnreadBottom(whichFragmentIsLive: Pair<Boolean, Fragment?>) {
+        val threadIds: List<Long> = conversationViewModel.countSelectedConversationThreads.value.map { it.threadId }
+        markAsUnreadConversation(threadIds, whichFragmentIsLive)
     }
     private fun popupMenuPinConversationBottom(whichFragmentIsLive: Pair<Boolean, Fragment?>) {
         lifecycleScope.launch {
@@ -299,20 +325,12 @@ class MainActivity : BaseActivity() {
         }
     }
     private fun popupMenuBlockConversationBottom(whichFragmentIsLive: Pair<Boolean, Fragment?>) {
-        showBlockConversationDialog(this) { doBlock ->
-
-            lifecycleScope.launch {
-                if (doBlock){
-                    val blockThreads = conversationViewModel.countSelectedConversationThreads.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender) }
-                    conversationViewModel.blockConversationByThreads(blockThreads = blockThreads) }
-
-                if (whichFragmentIsLive.first) { (whichFragmentIsLive.second as? MessageFragment)?.conversationAdapter?.unselectAll() }// todo: unselectAll after work is done
-                else { (whichFragmentIsLive.second as? PrivateFragment)?.conversationAdapter?.unselectAll() }//todo: unselectAll after work is done
-            }
-        }
+        //val blockThreads = conversationViewModel.countSelectedConversationThreads.value.map { BlockThreadEntity(threadId = it.threadId, number = it.normalizeNumber, sender = it.sender)}
+        val blockThreads = conversationViewModel.countSelectedConversationThreads.value
+        blockConversation(blockThreads, whichFragmentIsLive)
     }
 
-    private fun isCurrentFragmentGeneral(): Pair<Boolean,Fragment?> { //todo: note if true then 'MessageFragment' is live
+    fun isCurrentFragmentGeneral(): Pair<Boolean,Fragment?> { //todo: note if true then 'MessageFragment' is live
         val currentPosition = viewPager.currentItem
         val currentFragment = viewPagerHomeAdapter.getFragment(currentPosition)
         return Pair(currentFragment is MessageFragment, currentFragment)

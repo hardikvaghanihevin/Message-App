@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingHorizontal="@dimen/dialog_padding"
+    android:paddingHorizontal="@dimen/padding_dialog"
     android:background="@android:color/transparent">
 
     <LinearLayout
@@ -22,7 +22,7 @@
             android:orientation="vertical"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/dialog_title"
                 style="@style/DialogBoxTitleText"
                 android:text="@string/block_conversation_"
@@ -32,7 +32,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/app_px_60_to_dp" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/dialog_info"
                 style="@style/DialogBoxInfoText"
                 android:text="@string/do_you_want_to_block_this_conversation"
@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent">
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/dialog_buttonNegative"
                 style="@style/DialogBoxNegativeView"
                 android:text="@string/cancel"
@@ -59,7 +59,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 tools:visibility="visible" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/dialog_buttonPositive"
                 style="@style/DialogBoxPositiveView"
                 android:text="@string/block"

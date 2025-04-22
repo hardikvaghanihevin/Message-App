@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -31,6 +32,7 @@ import com.hardik.messageapp.util.Constants.KEY_NORMALIZE_NUMBER
 import com.hardik.messageapp.util.Constants.KEY_SEARCH_QUERY
 import com.hardik.messageapp.util.Constants.KEY_THREAD_ID
 import com.hardik.messageapp.util.ConversationSwipeGestureHelper
+import com.hardik.messageapp.util.SwipeAction
 import com.hardik.messageapp.util.evaluateSelectionGetHomeBottomMenu
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -139,8 +141,8 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
         // Attach Swipe Gesture
         val swipeHelper = ConversationSwipeGestureHelper(requireContext(),
             conversationAdapter,
-            editAction = { position -> swipeLeft(conversationAdapter.currentList[position]) },
-            deleteAction = { position -> swipeRight(conversationAdapter.currentList[position]) }
+            leftAction = { position -> swipeLeft(conversationAdapter.currentList[position]) },
+            rightAction = { position -> swipeRight(conversationAdapter.currentList[position]) }
         )
 
         val itemTouchHelper = ItemTouchHelper(swipeHelper)
@@ -274,8 +276,38 @@ class MessageFragment : BaseFragment(R.layout.fragment_message) {
 
     }
 
-    private fun swipeLeft(conversationThread: ConversationThread?) { Log.i(TAG, "onCreate: swipeLeft:- $conversationThread") }
-    private fun swipeRight(conversationThread: ConversationThread?) { Log.v(TAG, "onCreate: swipeRight:- $conversationThread") }
+    private fun swipeLeft(conversationThread: ConversationThread?) {
+        Log.i(TAG, "onCreate: swipeLeft:- $conversationThread")
+        if (conversationThread != null) {
+            // Get current actions
+            val whichFragmentIsLive: Pair<Boolean, Fragment?> = (activity as MainActivity).isCurrentFragmentGeneral()
+            when (SwipeAction.getAction(SwipeAction.LEFT)) {
+                SwipeAction.Action.NONE -> {}
+                SwipeAction.Action.ARCHIVE -> { (activity as MainActivity).archiveConversation(listOf(conversationThread.threadId)) }
+                SwipeAction.Action.DELETE -> { (activity as MainActivity).deleteConversation(listOf(conversationThread)) { } }
+                SwipeAction.Action.CALL -> { }
+                SwipeAction.Action.BLOCK -> { (activity as MainActivity).blockConversation(listOf(conversationThread), whichFragmentIsLive) }
+                SwipeAction.Action.MARK_AS_READ -> { (activity as MainActivity).markAsReadConversation(listOf(conversationThread.threadId), whichFragmentIsLive)  }
+                SwipeAction.Action.MARK_AS_UNREAD -> { (activity as MainActivity).markAsUnreadConversation(listOf(conversationThread.threadId), whichFragmentIsLive) }
+            }
+        }
+    }
+    private fun swipeRight(conversationThread: ConversationThread?) {
+        Log.v(TAG, "onCreate: swipeRight:- $conversationThread")
+        if (conversationThread != null) {
+            // Get current actions
+            val whichFragmentIsLive: Pair<Boolean, Fragment?> = (activity as MainActivity).isCurrentFragmentGeneral()
+            when (SwipeAction.getAction(SwipeAction.RIGHT)) {
+                SwipeAction.Action.NONE -> {}
+                SwipeAction.Action.ARCHIVE -> { (activity as MainActivity).archiveConversation(listOf(conversationThread.threadId)) }
+                SwipeAction.Action.DELETE -> { (activity as MainActivity).deleteConversation(listOf(conversationThread)) { } }
+                SwipeAction.Action.CALL -> { }
+                SwipeAction.Action.BLOCK -> { (activity as MainActivity).blockConversation(listOf(conversationThread), whichFragmentIsLive) }
+                SwipeAction.Action.MARK_AS_READ -> { (activity as MainActivity).markAsReadConversation(listOf(conversationThread.threadId), whichFragmentIsLive)  }
+                SwipeAction.Action.MARK_AS_UNREAD -> { (activity as MainActivity).markAsUnreadConversation(listOf(conversationThread.threadId), whichFragmentIsLive) }
+            }
+        }
+    }
 
     override fun onResume() {
         super.onResume()

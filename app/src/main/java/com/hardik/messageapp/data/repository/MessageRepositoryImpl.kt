@@ -15,6 +15,8 @@ import com.hardik.messageapp.domain.model.Message
 import com.hardik.messageapp.domain.repository.MessageRepository
 import com.hardik.messageapp.util.Constants.BASE_TAG
 import com.hardik.messageapp.util.getOptimalChunkSize
+import com.hardik.messageapp.util.retry
+import com.hardik.messageapp.util.withPermit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -31,6 +33,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.concurrent.Semaphore
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
@@ -432,6 +436,101 @@ class MessageRepositoryImpl @Inject constructor(
 
         } catch (e: Exception) {
             Log.e(TAG, "SmsRepository -- Failed to insert SMS", e)
+        }
+    }
+
+    override suspend fun insertMessages(messages: List<Message>) {
+        if (Telephony.Sms.getDefaultSmsPackage(context) != context.packageName) {
+            Log.e(TAG, "App is not the default SMS app. Can't insert/update messages.")
+            return
+        }
+
+        val result = insertBulkMessages(messages, batchSize = 1000, maxConcurrency = 5, maxRetry = 3) { completed, total ->
+            Log.d(TAG,"InsertProgress-Batch $completed of $total completed")
+        }
+
+        if (result) {
+            Log.d(TAG,"InsertResult-All messages inserted successfully")
+        } else {
+            Log.e(TAG,"InsertResult-Some messages failed to insert")
+        }
+    }
+
+
+    private suspend fun insertBulkMessages(messages: List<Message>, batchSize: Int = 1000, maxConcurrency: Int = 5, maxRetry: Int = 3,
+                                           onProgress: (completedBatches: Int, totalBatches: Int) -> Unit): Boolean = withContext(Dispatchers.IO) {
+
+        val semaphore = Semaphore(maxConcurrency)
+        val chunks = messages.chunked(batchSize)
+        var completed = 0
+
+        val deferredResults = chunks.mapIndexed { index, batch ->
+            async {
+                semaphore.withPermit {
+                    retry(times = maxRetry) {
+                        val success = insertMessages1(batch)
+                        completed++
+                        onProgress(completed, chunks.size)
+                        success
+                    }
+                }
+            }
+        }
+
+        val results = deferredResults.awaitAll()
+        return@withContext results.all { it }
+    }
+
+    private suspend fun insertMessages1(messages: List<Message>): Boolean {
+        // Ensure the app is the default SMS app
+        if (Telephony.Sms.getDefaultSmsPackage(context) != context.packageName) {
+            Log.e(TAG, "App is not the default SMS app. Can't insert/update messages.")
+            return false
+        }
+
+        return try {
+            var totalInserted = 0
+
+            // Group messages by type for appropriate URI insertion
+            val groupedMessages = messages.groupBy { it.type }
+
+            for ((type, group) in groupedMessages) {
+                val insertUri = when (type) { //Uri.parse("content://sms/inbox")
+                    Telephony.Sms.MESSAGE_TYPE_INBOX -> Uri.parse("content://sms/inbox")
+                    Telephony.Sms.MESSAGE_TYPE_SENT -> Uri.parse("content://sms/sent")
+                    Telephony.Sms.MESSAGE_TYPE_DRAFT -> Uri.parse("content://sms/draft")
+                    else -> Uri.parse("content://sms/inbox") // fallback
+                }
+
+                val contentValuesArray = group.map { message ->
+                    ContentValues().apply {
+                        val threadId = getThreadId(message.sender) ?: 0L
+                        put(Telephony.Sms.THREAD_ID, threadId)
+                        put(Telephony.Sms.ADDRESS, message.sender)
+                        put(Telephony.Sms.BODY, message.messageBody)
+                        put(Telephony.Sms.DATE, message.timestamp)
+                        put(Telephony.Sms.DATE_SENT, message.dateSent)
+                        put(Telephony.Sms.READ, if (message.read) 1 else 0)
+                        put(Telephony.Sms.SEEN, if (message.seen) 1 else 0)
+                        put(Telephony.Sms.TYPE, message.type)
+                        put(Telephony.Sms.SERVICE_CENTER, message.serviceCenter)
+                        put(Telephony.Sms.REPLY_PATH_PRESENT, if (message.replyPath) 1 else 0)
+                        // DO NOT insert _id
+                    }
+                }.toTypedArray()
+
+                // bulkInsert won't work reliably on content://sms; fallback to manual insert if needed
+                val rowsInserted = context.contentResolver.bulkInsert(insertUri, contentValuesArray)
+
+                Log.d(TAG, "Inserted $rowsInserted/${group.size} SMS messages of type $type.")
+                totalInserted += rowsInserted
+            }
+
+            // Validate if all expected messages were inserted
+            totalInserted == messages.size
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to insert SMS batch", e)
+            false
         }
     }
 

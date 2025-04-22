@@ -53,7 +53,7 @@
                         android:layout_height="24dp"
                         android:src="@drawable/real_ic_mark_as_read" />
 
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/navViewBottom_txt_read"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

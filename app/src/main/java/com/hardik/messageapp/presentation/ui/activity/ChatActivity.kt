@@ -73,6 +73,8 @@ class ChatActivity : BaseActivity() {
             searchQuery = searchQuery ?: "",
             onItemClick = { message ->
                 // Handle click on message
+                Log.e(TAG, "onCreate: $message", )
+                //messageViewModel.deleteSms(listOf(message.id))
             },
             onSelectionChanged = { selectedMessages ->
                 // Handle selection of messages

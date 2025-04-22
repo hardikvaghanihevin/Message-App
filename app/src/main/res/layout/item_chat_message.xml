@@ -20,7 +20,7 @@
         tools:visibility="visible" />
 
     <!-- Chat Date -->
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvChatDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
         app:layout_constraintWidth_percent="0.9"
         tools:visibility="visible">
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvMessageReceive"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
             tools:text="Hello!"
             tools:visibility="visible" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTimeReceive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -96,7 +96,7 @@
                 android:layout_height="20dp"
                 android:src="@drawable/real_ic_copy_otp" />
 
-            <TextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/otp_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -120,7 +120,7 @@
         app:layout_constraintWidth_percent="0.9"
         tools:visibility="visible">
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvMessageSend"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -138,7 +138,7 @@
             tools:text="Hello!"
             tools:visibility="visible" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvTimeSend"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

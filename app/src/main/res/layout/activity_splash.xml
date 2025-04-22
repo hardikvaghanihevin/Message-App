@@ -14,7 +14,7 @@
         android:layout_height="140dp"
         app:srcCompat="@drawable/bg_splash_ic" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:fontFamily="@font/instrument_sans_bold"

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/item_option_select_lay_01"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@android:color/transparent"
+    android:fitsSystemWindows="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="@dimen/padding_screen">
+
+        <!--layout-->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rl_content"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/app_px_105_to_dp"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_item_option_title"
+                style="@style/ItemOptionSelectLay.01.Text"
+                android:layout_width="match_parent"
+                android:gravity="start|center_vertical"
+                android:text="@string/light_mode"
+                app:drawableEndCompat="@drawable/ic_round_unselected_item"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <include
+            android:id="@+id/item_option_divider"
+            layout="@layout/item_divider_lay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="@id/rl_content"
+            app:layout_constraintStart_toStartOf="@id/rl_content"
+            app:layout_constraintTop_toBottomOf="@id/rl_content" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

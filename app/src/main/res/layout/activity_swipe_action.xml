@@ -1,9 +1,253 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_color_01"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
     tools:context=".presentation.ui.activity.SwipeActionActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <!--Custom toolbar-->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_gravity="bottom"
+        android:background="@color/app_color_01"
+        app:layout_anchor="@+id/collapsingToolbar"
+        app:layout_collapseMode="pin">
+
+        <RelativeLayout
+            android:id="@+id/custom_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/app_color_01"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!--start option of toolbar-->
+            <RelativeLayout
+                android:id="@+id/custom_toolbar_start"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/toolbar_back"
+                    style="@style/ToolbarBackIcon"
+                    android:src="@drawable/real_ic_back" />
+            </RelativeLayout>
+
+            <!-- Toolbar option-->
+            <RelativeLayout
+                android:id="@+id/toolbar_rl_option"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_toEndOf="@id/custom_toolbar_start"
+                android:paddingStart="0dp"
+                android:paddingEnd="@dimen/padding_screen">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/toolbar_title"
+                    style="@style/ToolbarTitleText"
+                    android:text="@string/swipe_actions"
+                    android:visibility="visible"
+                    tools:visibility="visible" />
+
+            </RelativeLayout>
+        </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/app_px_60_to_dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/padding_screen">
+
+            <!-- Left Swipe Section -->
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/SwipeActionContentTitleText"
+                android:text="@string/left_swipe"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_swipeActionLeftChange"
+                style="@style/SwipeActionContentTitleText_1"
+                android:drawablePadding="@dimen/app_px_30_to_dp"
+                android:text="@string/change"
+                android:visibility="visible"
+                app:drawableEndCompat="@drawable/real_ic_forward_arrow_px40"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
+            <include
+                android:id="@+id/item_option_divider_bottom_left"
+                layout="@layout/item_divider_lay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/app_px_30_to_dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_swipeActionLeftChange" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:background="@color/app_color_02"
+            android:orientation="horizontal"
+            android:paddingVertical="@dimen/app_px_50_to_dp"
+            android:paddingStart="@dimen/app_px_50_to_dp"
+            android:paddingEnd="0dp">
+
+            <LinearLayout
+                android:id="@+id/ll_leftActionIconText"
+                android:layout_width="wrap_content"
+                android:minWidth="@dimen/app_px_250_to_dp"
+                android:layout_height="@dimen/app_px_215_to_dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/bg_swipe_action_left"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_swipeActionLeftChangedIcon"
+                    style="@style/SwipeActionSelectedLeftRightImage"
+                    android:layout_gravity="center"
+                    android:src="@drawable/real_ic_archive"
+                    app:tint="@color/white" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/app_px_35_to_dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_swipeActionLeftChanged"
+                    style="@style/SwipeActionSelectedLeftRightText"
+                    android:text="@string/archive"
+                    android:visibility="visible"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
+
+            <!--style="@style/SwipeActionSelectedLeftRightBGImage.CornerSmall"-->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_leftAction"
+                style="@style/SwipeActionSelectedLeftBGImage"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/app_px_215_to_dp"
+                android:layout_gravity="center"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/app_px_120_to_dp" />
+
+        <!-- Right Swipe Section -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="@dimen/padding_screen">
+
+            <!-- Left Swipe Section -->
+            <androidx.appcompat.widget.AppCompatTextView
+                style="@style/SwipeActionContentTitleText"
+                android:text="@string/right_swipe"
+                android:visibility="visible"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_swipeActionRightChange"
+                style="@style/SwipeActionContentTitleText_1"
+                android:drawablePadding="@dimen/app_px_30_to_dp"
+                android:text="@string/change"
+                android:visibility="visible"
+                app:drawableEndCompat="@drawable/real_ic_forward_arrow_px40"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:visibility="visible" />
+
+            <include
+                android:id="@+id/item_option_divider_bottom_right"
+                layout="@layout/item_divider_lay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="@dimen/app_px_30_to_dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_swipeActionRightChange" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:background="@color/app_color_02"
+            android:gravity="end"
+            android:paddingVertical="@dimen/app_px_50_to_dp"
+            android:paddingStart="0dp"
+            android:paddingEnd="@dimen/app_px_50_to_dp">
+
+            <!--style="@style/SwipeActionSelectedLeftRightBGImage.CornerSmall"-->
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/iv_rightAction"
+                style="@style/SwipeActionSelectedRightBGImage"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/app_px_215_to_dp"
+                android:layout_gravity="center"
+                android:layout_weight="1" />
+
+            <LinearLayout
+                android:id="@+id/ll_rightActionIconText"
+                android:layout_width="wrap_content"
+                android:minWidth="@dimen/app_px_250_to_dp"
+                android:layout_height="@dimen/app_px_215_to_dp"
+                android:layout_gravity="center_vertical"
+                android:background="@drawable/bg_swipe_action_right"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="visible">
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/iv_swipeActionRightChangedIcon"
+                    style="@style/SwipeActionSelectedLeftRightImage"
+                    android:layout_gravity="center"
+                    android:src="@drawable/real_ic_delete"
+                    app:tint="@color/white" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/app_px_35_to_dp" />
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/tv_swipeActionRightChanged"
+                    style="@style/SwipeActionSelectedLeftRightText"
+                    android:text="@string/delete"
+                    android:visibility="visible"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

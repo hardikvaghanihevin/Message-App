@@ -10,7 +10,7 @@
     android:paddingHorizontal="@dimen/item_recycle_header_h_padding"
     android:paddingVertical="@dimen/item_recycle_header_v_padding">
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tvAlphabetHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

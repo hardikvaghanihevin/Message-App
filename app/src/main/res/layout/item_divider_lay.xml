@@ -8,7 +8,7 @@
 
     <Space
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dialog_padding"/>
+        android:layout_height="@dimen/padding_divider"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/_1sdp"
@@ -16,6 +16,6 @@
         <!--android:layout_marginHorizontal="@dimen/dialog_padding"-->
     <Space
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dialog_padding"/>
+        android:layout_height="@dimen/padding_divider"/>
 
 </LinearLayout>

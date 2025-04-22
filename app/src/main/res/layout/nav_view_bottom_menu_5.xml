@@ -53,7 +53,7 @@
                         android:layout_height="24dp"
                         android:src="@drawable/real_ic_starred" />
 
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/navViewBottom_txt_favorite"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -86,7 +86,7 @@
                         android:layout_height="24dp"
                         android:src="@drawable/real_ic_copy" />
 
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/navViewBottom_txt_copy"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -120,7 +120,7 @@
                         android:layout_height="24dp"
                         android:src="@drawable/real_ic_delete" />
 
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/navViewBottom_txt_delete"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -154,7 +154,7 @@
                         android:layout_height="24dp"
                         android:src="@drawable/real_ic_more" />
 
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/navViewBottom_txt_more"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

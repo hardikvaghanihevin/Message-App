@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!--Animation-->
+    <style name="WindowAnimationFade" parent="@android:style/Animation.Activity">
+        <item name="android:activityOpenEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:activityOpenExitAnimation">@android:anim/fade_out</item>
+        <item name="android:activityCloseEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:activityCloseExitAnimation">@android:anim/fade_out</item>
+    </style>
+    <!--Animation end-->
+
+    <!--Toolbar style-->
     <style name="ToolbarExpandedTitle" parent="TextView.WrapContent.InstrumentSansSemiBold.LargeText_80" />
 
     <style name="ToolbarExpandedUnreadMessages" parent="TextView.WrapContent.InstrumentSansSemiBold.LargeText_75" />
@@ -63,6 +73,8 @@
 
     <style name="ToolbarMoreIcon" parent="ToolbarBackIcon" />
 
+    <style name="ToolbarDoneText" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_48" />
+
     <style name="ToolbarSearchEditText">
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">match_parent</item>
@@ -80,7 +92,9 @@
         <item name="android:textSize">@dimen/app_px_55_to_sp</item>
         <item name="android:importantForAutofill">no</item>
     </style>
+    <!--Toolbar style end-->
 
+    <!--Dialog style-->
     <style name="DialogAnimation">
         <item name="android:windowEnterAnimation">@anim/anim_bottom_up</item>
         <item name="android:windowExitAnimation">@anim/anim_bottom_down</item>
@@ -111,34 +125,122 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:background">@drawable/bg_positive_view</item>
     </style>
+    <!--Dialog style end-->
 
+    <!--Popup menu style-->
     <style name="PopupItemText" parent="TextView.WrapContent.InstrumentSansMedium.MediumText_42">
         <item name="android:drawablePadding">@dimen/app_px_50_to_dp</item>
     </style>
+    <!--Popup menu style end-->
 
-
-    <!--Setting style-->
+    <!--Settings style-->
     <style name="SettingContentTitleText" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_45">
         <item name="android:textColor">@color/app_color_10</item>
     </style>
 
-    <style name="SettingItemTitleText" parent="@style/TextView.WrapContent.InstrumentSansSemiBold.MediumText_45"/>
-
-    <style name="SettingItemInfoText" parent="@style/TextView.WrapContent.InstrumentSansRegular.MediumText_35">
+    <style name="SwipeActionContentTitleText" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_45">
+        <item name="android:textColor">@color/app_color_10</item>
+    </style>
+    <style name="SwipeActionContentTitleText_1" parent="TextView.WrapContent.InstrumentSansMedium.MediumText_38">
         <item name="android:textColor">@color/app_color_06</item>
     </style>
+    <style name="SwipeActionSelectedLeftRightText" parent="TextView.WrapContent.InstrumentSansMedium.MediumText_38">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:paddingBottom">@dimen/app_px_40_to_dp</item>
+        <item name="android:paddingHorizontal">@dimen/app_px_40_to_dp</item>
+    </style>
+    <style name="SwipeActionSelectedLeftRightImage" parent="ImageView.WrapContent.CornerNone" >
+        <item name="android:paddingTop">@dimen/app_px_40_to_dp</item>
+        <item name="android:paddingHorizontal">@dimen/app_px_40_to_dp</item>
+    </style>
+    <style name="SwipeActionSelectedLeftBGImage" parent="ImageView.WrapContent.CornerNone" >
+        <item name="android:background">@color/app_color_01</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:src">@drawable/bg_swipe_action_item</item>
+        <!--<item name="android:paddingEnd">@dimen/swipe_action_bg_item_padding_minus</item>-->
+    </style>
+    <style name="SwipeActionSelectedRightBGImage" parent="ImageView.WrapContent.CornerNone" >
+        <item name="android:background">@color/app_color_01</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:src">@drawable/bg_swipe_action_item</item>
+        <!--<item name="android:paddingStart">@dimen/swipe_action_bg_item_padding_minus</item>-->
+    </style>
 
-    <style name="SettingItemInfoText_1" parent="@style/TextView.WrapContent.InstrumentSansMedium.MediumText_35">
+    <style name="SwipeActionSelectedLeftBGImage.CornerSmall" parent="ImageView.WrapContent.CornerSmall" >
+        <item name="android:background">@color/app_color_01</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:src">@drawable/bg_swipe_action_item</item>
+        <!--<item name="android:paddingEnd">@dimen/swipe_action_bg_item_padding_plus</item>-->
+    </style>
+
+    <style name="SwipeActionSelectedRightBGImage.CornerSmall" parent="ImageView.WrapContent.CornerSmall" >
+        <item name="android:background">@color/app_color_01</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:src">@drawable/bg_swipe_action_item</item>
+        <!--<item name="android:paddingStart">@dimen/swipe_action_bg_item_padding_plus</item>-->
+    </style>
+
+
+
+    <!--Setting style end-->
+
+    <!--Item option style-->
+    <style name="ItemOptionSelectLay.01.Text" parent="TextView.WrapContent.InstrumentSansMedium.MediumText_42" />
+    <style name="ItemOptionSelectLay.02.Image" parent="ImageView.WrapContent.CornerFull" />
+    <style name="ItemOptionSelectLay.02.ItemTitleText" parent="@style/TextView.WrapContent.InstrumentSansSemiBold.MediumText_45" />
+    <style name="ItemOptionSelectLay.02.ItemInfoText" parent="@style/TextView.WrapContent.InstrumentSansRegular.MediumText_35">
+        <item name="android:textColor">@color/app_color_06</item>
+    </style>
+    <style name="ItemOptionSelectLay.02.ItemInfoText_1" parent="@style/TextView.WrapContent.InstrumentSansMedium.MediumText_35">
         <item name="android:textColor">@color/app_color_09</item>
+    </style>
+    <!--Item option style end-->
+
+    <!--Theme style-->
+    <style name="ThemeScreenImage" parent="ImageView.WrapContent.CornerNone" />
+    <style name="ThemeContentTitleText" parent="TextView.WrapContent.InstrumentSansSemiBold.MediumText_50"/>
+    <!--Theme style end-->
+
+    <!--ImageView core style-->
+    <style name="ShapeAppearance.Corner.Small" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">10dp</item>
+        <!--<item name="cornerFamily">rounded</item>-->
+        <!--<item name="cornerSizeTopLeft">10dp</item>-->
+        <!--<item name="cornerSizeTopRight">10dp</item>-->
+        <!--<item name="cornerSizeBottomLeft">10dp</item>-->
+        <!--<item name="cornerSizeBottomRight">10dp</item>-->
+    </style>
+
+
+    <style name="ImageView.WrapContent" parent="Widget.MaterialComponents.ShapeableImageView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:scaleType">centerInside</item>
+    </style>
+
+    <style name="ImageView.WrapContent.CornerNone" parent="ImageView.WrapContent">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Material3.Corner.None</item>
+    </style>
+    <style name="ImageView.WrapContent.CornerFull" parent="ImageView.WrapContent">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Material3.Corner.Full</item>
+    </style>
+
+    <style name="ImageView.WrapContent.CornerSmall" parent="ImageView.WrapContent">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Corner.Small</item>
+    </style>
+    <!--ImageView core style end-->
+
+    <!--TextView core style -->
+    <style name="TextView.WrapContent" parent="Widget.AppCompat.TextView">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/app_color_08</item>
     </style>
 
     <!--LargeText[>=56], MediumText[55>=35], SmallText[34>]-->
-    <style name="TextView.WrapContent.InstrumentSansSemiBold" parent="Widget.AppCompat.TextView">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="TextView.WrapContent.InstrumentSansSemiBold" parent="TextView.WrapContent">
         <item name="android:fontFamily">@font/instrument_sans_semi_bold</item>
-        <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:gravity">center</item>
     </style>
 
     <style name="TextView.WrapContent.InstrumentSansSemiBold.LargeText_80">
@@ -181,13 +283,8 @@
         <item name="android:textSize">@dimen/app_px_32_to_sp</item>
     </style>
 
-
-    <style name="TextView.WrapContent.InstrumentSansMedium" parent="Widget.AppCompat.TextView">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="TextView.WrapContent.InstrumentSansMedium" parent="TextView.WrapContent">
         <item name="android:fontFamily">@font/instrument_sans_medium</item>
-        <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:gravity">center</item>
     </style>
 
     <style name="TextView.WrapContent.InstrumentSansMedium.MediumText_55">
@@ -226,13 +323,8 @@
         <item name="android:textSize">@dimen/app_px_32_to_sp</item>
     </style>
 
-
-    <style name="TextView.WrapContent.InstrumentSansRegular" parent="Widget.AppCompat.TextView">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="TextView.WrapContent.InstrumentSansRegular" parent="TextView.WrapContent">
         <item name="android:fontFamily">@font/instrument_sans_regular</item>
-        <item name="android:textColor">@color/app_color_08</item>
-        <item name="android:gravity">center</item>
     </style>
 
     <style name="TextView.WrapContent.InstrumentSansRegular.MediumText_40">
@@ -250,5 +342,6 @@
     <style name="TextView.WrapContent.InstrumentSansRegular.SmallText_30">
         <item name="android:textSize">@dimen/app_px_30_to_sp</item>
     </style>
+    <!--TextView core style end-->
 
 </resources>

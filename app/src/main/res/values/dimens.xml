@@ -1,10 +1,15 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="app_px_0_to_dp">0dp</dimen>
 
     <!--px to dp-->
+    <dimen name="app_px_1050_to_dp">402.5591dp</dimen>
     <dimen name="app_px_665_to_dp">208.9541dp</dimen><!--254.9541dp-->
+    <dimen name="app_px_521_to_dp">199.85336dp</dimen>
     <dimen name="app_px_365_to_dp">139.93723dp</dimen>
     <dimen name="app_px_340_to_dp">130.35248dp</dimen>
+    <dimen name="app_px_250_to_dp">95.847404dp</dimen>
+    <dimen name="app_px_215_to_dp">82.42877dp</dimen>
     <dimen name="app_px_120_to_dp">46.006756dp</dimen>
     <dimen name="app_px_115_to_dp">44.089806dp</dimen>
     <dimen name="app_px_105_to_dp">40.255913dp</dimen>
@@ -14,6 +19,7 @@
     <dimen name="app_px_60_to_dp">23.003378dp</dimen>
     <dimen name="app_px_55_to_dp">21.08643dp</dimen>
     <dimen name="app_px_50_to_dp">19.169481dp</dimen>
+    <dimen name="app_px_50_to_dp_minus">-19.169481dp</dimen>
     <dimen name="app_px_46_to_dp">17.635923dp</dimen>
     <dimen name="app_px_45_to_dp">17.252533dp</dimen>
     <dimen name="app_px_42_to_dp">16.102364dp</dimen>
@@ -56,7 +62,14 @@
     <dimen name="item_recycle_v_padding">10.5dp</dimen>
     <dimen name="item_recycle_h_padding">14dp</dimen><!--space_dp_01-->
 
-    <dimen name="dialog_padding">@dimen/app_px_30_to_dp</dimen>
+    <dimen name="padding_dialog">@dimen/app_px_30_to_dp</dimen>
+    <dimen name="padding_divider">8.904055dp</dimen>
+    <dimen name="padding_screen">@dimen/app_px_50_to_dp</dimen>
+
+    <dimen name="swipe_action_bg_item_padding_minus">@dimen/app_px_50_to_dp_minus</dimen>
+    <dimen name="swipe_action_bg_item_padding_plus">@dimen/app_px_50_to_dp</dimen>
+    <dimen name="swipe_icon_margin">@dimen/app_px_40_to_dp</dimen>
+    <dimen name="swipe_icon_size">24dp</dimen>
 
 
 </resources>

@@ -5,7 +5,7 @@
         <item name="android:windowIsTranslucent">true</item>
 
         <!-- Color change when system change theme-->
-        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
+        <!-- <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>-->
 
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/app_bar_color</item>
@@ -13,6 +13,8 @@
 
         <!-- Navigation bar color. -->
         <item name="android:navigationBarColor">@color/app_navbar_color</item>
+
+        <!--<item name="android:windowAnimationStyle">@style/WindowAnimationFade</item>-->
     </style>
 
 </resources>

@@ -8,7 +8,7 @@ import androidx.core.widget.TextViewCompat
 import androidx.lifecycle.lifecycleScope
 import com.hardik.messageapp.R
 import com.hardik.messageapp.databinding.ActivitySettingsBinding
-import com.hardik.messageapp.databinding.ItemSettingLayBinding
+import com.hardik.messageapp.databinding.ItemOptionSelectLay02Binding
 import com.hardik.messageapp.presentation.ui.viewmodel.SettingViewModel
 import com.hardik.messageapp.util.AnimationViewHelper
 import com.hardik.messageapp.util.CollapsingToolbarStateManager
@@ -71,91 +71,91 @@ class SettingsActivity : BaseActivity() {
 
     private fun setupSettingsUI(){
         binding.apply {
-            val languageBinding = ItemSettingLayBinding.bind(includedItemLanguage.root)
+            val languageBinding = ItemOptionSelectLay02Binding.bind(includedItemLanguage.root)
 
-            val swipeActionsBinding = ItemSettingLayBinding.bind(includedItemSwipeActions.root)
-            val themesBinding = ItemSettingLayBinding.bind(includedItemThemes.root)
-            val fontSizeBinding = ItemSettingLayBinding.bind(includedItemFontSize.root)
+            val swipeActionsBinding = ItemOptionSelectLay02Binding.bind(includedItemSwipeActions.root)
+            val themesBinding = ItemOptionSelectLay02Binding.bind(includedItemThemes.root)
+            val fontSizeBinding = ItemOptionSelectLay02Binding.bind(includedItemFontSize.root)
 
-            val afterCallFeatureBinding = ItemSettingLayBinding.bind(includedItemAfterCallFeature.root)
-            val backupRestoreBinding = ItemSettingLayBinding.bind(includedItemBackupAndRestore.root)
+            val afterCallFeatureBinding = ItemOptionSelectLay02Binding.bind(includedItemAfterCallFeature.root)
+            val backupRestoreBinding = ItemOptionSelectLay02Binding.bind(includedItemBackupAndRestore.root)
 
-            val shareAppBinding = ItemSettingLayBinding.bind(includedItemShareApp.root)
-            val rateAppBinding = ItemSettingLayBinding.bind(includedItemRateApp.root)
-            val privacyPolicyBinding = ItemSettingLayBinding.bind(includedItemPrivacyPolicy.root)
+            val shareAppBinding = ItemOptionSelectLay02Binding.bind(includedItemShareApp.root)
+            val rateAppBinding = ItemOptionSelectLay02Binding.bind(includedItemRateApp.root)
+            val privacyPolicyBinding = ItemOptionSelectLay02Binding.bind(includedItemPrivacyPolicy.root)
 
             /** Language */
             languageBinding.apply {
-                tvSettingItemTitle.apply { text = getString(R.string.language) }
-                tvSettingItemInfo.apply {
+                tvItemOptionTitle.apply { text = getString(R.string.language) }
+                tvItemOptionInfo.apply {
                     text = getString(R.string.english)
-                    TextViewCompat.setTextAppearance(tvSettingItemInfo, R.style.SettingItemInfoText_1)
+                    TextViewCompat.setTextAppearance(tvItemOptionInfo, R.style.ItemOptionSelectLay_02_ItemInfoText_1)
                 }
-                itemDivider.root.visibility = View.GONE
+                itemOptionDivider.root.visibility = View.GONE
                 root.setOnClickListener { startActivity(Intent(this@SettingsActivity, LanguageActivity::class.java)) }
             }
 
             /** Swipe action */
             swipeActionsBinding.apply {
-                tvSettingItemTitle.apply { text = getString(R.string.swipe_actions) }
-                tvSettingItemInfo.apply { text = getString(R.string.configure_swipe_actions_for_conversations) }
+                tvItemOptionTitle.apply { text = getString(R.string.swipe_actions) }
+                tvItemOptionInfo.apply { text = getString(R.string.configure_swipe_actions_for_conversations) }
 
                 root.setOnClickListener { startActivity(Intent(this@SettingsActivity, SwipeActionActivity::class.java)) }
             }
 
             /** Themes */
             themesBinding.apply {
-                tvSettingItemTitle.apply { text = getString(R.string.themes) }
-                tvSettingItemInfo.apply { text = getString(R.string.default_) }
+                tvItemOptionTitle.apply { text = getString(R.string.themes) }
+                tvItemOptionInfo.apply { text = getString(R.string.default_) }
 
                 root.setOnClickListener { startActivity(Intent(this@SettingsActivity, ThemeActivity::class.java)) }
             }
 
             /** Font size */
             fontSizeBinding.apply {
-                tvSettingItemTitle.apply { text = getString(R.string.font_size) }
-                tvSettingItemInfo.apply { text = getString(R.string.normal) }
-                itemDivider.root.visibility = View.GONE
+                tvItemOptionTitle.apply { text = getString(R.string.font_size) }
+                tvItemOptionInfo.apply { text = getString(R.string.normal) }
+                itemOptionDivider.root.visibility = View.GONE
 
                 root.setOnClickListener {}
             }
 
             /** After call feature */
             afterCallFeatureBinding.apply {
-                tvSettingItemTitle.apply { text = getString(R.string.after_call_feature) }
-                tvSettingItemInfo.apply { text = getString(R.string.default_) }
+                tvItemOptionTitle.apply { text = getString(R.string.after_call_feature) }
+                tvItemOptionInfo.apply { text = getString(R.string.default_) }
 
                 root.setOnClickListener { startActivity(Intent(this@SettingsActivity, AfterCallActivity::class.java)) }
             }
 
             /** Backup & Restore */
             backupRestoreBinding.apply {
-                tvSettingItemTitle.apply { text = getString(R.string.backup_restore) }
-                tvSettingItemInfo.apply { text = getString(R.string.default_) }
-                itemDivider.root.visibility = View.GONE
+                tvItemOptionTitle.apply { text = getString(R.string.backup_restore) }
+                tvItemOptionInfo.apply { text = getString(R.string.default_) }
+                itemOptionDivider.root.visibility = View.GONE
 
                 root.setOnClickListener {}
             }
 
             /** Share app */
             shareAppBinding.apply {
-                tvSettingItemTitle.apply { text = getString(R.string.share_app) }
-                tvSettingItemInfo.visibility = View.GONE
+                tvItemOptionTitle.apply { text = getString(R.string.share_app) }
+                tvItemOptionInfo.visibility = View.GONE
                 root.setOnClickListener {}
             }
 
             /** Rate app */
             rateAppBinding.apply {
-                tvSettingItemTitle.apply { text = getString(R.string.rate_app) }
-                tvSettingItemInfo.visibility = View.GONE
+                tvItemOptionTitle.apply { text = getString(R.string.rate_app) }
+                tvItemOptionInfo.visibility = View.GONE
                 root.setOnClickListener {}
             }
 
             /** Privacy policy */
             privacyPolicyBinding.apply {
-                tvSettingItemTitle.apply { text = getString(R.string.privacy_policy) }
-                tvSettingItemInfo.visibility = View.GONE
-                itemDivider.root.visibility = View.GONE
+                tvItemOptionTitle.apply { text = getString(R.string.privacy_policy) }
+                tvItemOptionInfo.visibility = View.GONE
+                itemOptionDivider.root.visibility = View.GONE
                 root.setOnClickListener {}
             }
         }

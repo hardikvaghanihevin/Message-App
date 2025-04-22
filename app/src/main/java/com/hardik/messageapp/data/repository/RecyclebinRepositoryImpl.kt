@@ -186,7 +186,10 @@ class RecyclebinRepositoryImpl @Inject constructor(
             // 3. Chunked batch insert
             val chunkSize = getOptimalChunkSize(allMessagesToInsert.size)
             allMessagesToInsert.chunked(chunkSize).forEach { chunk ->
-                messageRepository.insertOrUpdateMessages(chunk) // Should be using Room DAO @Insert
+                //messageRepository.insertOrUpdateMessages(emptyList()) // Should be using Room DAO @Insert
+                //chunk.forEach { messageRepository.insertMessage(it) }// Should be using Room DAO @Insert
+                messageRepository.insertMessages(chunk)
+
             }
 
             // 4. Delete only after successful insert

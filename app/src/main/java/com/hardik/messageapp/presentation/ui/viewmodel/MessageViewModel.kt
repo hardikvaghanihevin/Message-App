@@ -75,6 +75,7 @@ class MessageViewModel @Inject constructor(
             val isDeleted = deleteMessageUseCase(smsIds)
             if (isDeleted) {
                 // Note :- Refresh SMS list after deletion
+                refreshData()
             }
         }
     }

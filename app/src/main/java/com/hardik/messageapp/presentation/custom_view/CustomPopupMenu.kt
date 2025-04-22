@@ -139,8 +139,8 @@ private val onItemClick: (String) -> Unit
             val menuItemView = LayoutInflater.from(context)
                 .inflate(R.layout.item_popup_menu, container, false)
 
-            val titleTextView = menuItemView.findViewById<TextView>(R.id.popup_item)
-            /*val titleTextView = menuItemView.findViewById<TextView>(R.id.popup_tv)
+            val titleTextView = menuItemView.findViewById<androidx.appcompat.widget.AppCompatTextView>(R.id.popup_item)
+            /*val titleTextView = menuItemView.findViewById<androidx.appcompat.widget.AppCompatTextView>(R.id.popup_tv)
             val iconImageView = menuItemView.findViewById<ImageView>(R.id.popup_img)
             if (iconResId != null) {
                 iconImageView.setImageResource(iconResId)

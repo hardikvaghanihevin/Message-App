@@ -17,6 +17,8 @@
 
         <!-- Navigation bar color. -->
         <item name="android:navigationBarColor">@color/app_navbar_color</item>
+
+        <!--<item name="android:windowAnimationStyle">@style/WindowAnimationFade</item>-->
     </style>
 
     <style name="Theme.MessageApp.Fullscreen" parent="Base.Theme.MessageApp">

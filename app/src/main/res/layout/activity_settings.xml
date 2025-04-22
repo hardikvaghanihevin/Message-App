@@ -193,7 +193,7 @@
                     <!--Language-->
                     <include
                         android:id="@+id/included_item_language"
-                        layout="@layout/item_setting_lay"
+                        layout="@layout/item_option_select_lay_02"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
@@ -206,7 +206,7 @@
 
                     <androidx.appcompat.widget.AppCompatTextView
                         style="@style/SettingContentTitleText"
-                        android:paddingStart="@dimen/dialog_padding"
+                        android:paddingStart="@dimen/padding_screen"
                         android:paddingEnd="0dp"
                         android:text="@string/appearance" />
 
@@ -217,21 +217,21 @@
                     <!--Swipe Actions-->
                     <include
                         android:id="@+id/included_item_swipeActions"
-                        layout="@layout/item_setting_lay"
+                        layout="@layout/item_option_select_lay_02"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
                     <!--Themes-->
                     <include
                         android:id="@+id/included_item_themes"
-                        layout="@layout/item_setting_lay"
+                        layout="@layout/item_option_select_lay_02"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
                     <!--Font size-->
                     <include
                         android:id="@+id/included_item_fontSize"
-                        layout="@layout/item_setting_lay"
+                        layout="@layout/item_option_select_lay_02"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
@@ -243,7 +243,7 @@
 
                     <androidx.appcompat.widget.AppCompatTextView
                         style="@style/SettingContentTitleText"
-                        android:paddingStart="@dimen/dialog_padding"
+                        android:paddingStart="@dimen/padding_screen"
                         android:paddingEnd="0dp"
                         android:text="@string/advance_feature" />
 
@@ -254,14 +254,14 @@
                     <!--After call feature-->
                     <include
                         android:id="@+id/included_item_afterCallFeature"
-                        layout="@layout/item_setting_lay"
+                        layout="@layout/item_option_select_lay_02"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
                     <!--Backup & Restore-->
                     <include
                         android:id="@+id/included_item_backupAndRestore"
-                        layout="@layout/item_setting_lay"
+                        layout="@layout/item_option_select_lay_02"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
@@ -273,7 +273,7 @@
 
                     <androidx.appcompat.widget.AppCompatTextView
                         style="@style/SettingContentTitleText"
-                        android:paddingStart="@dimen/dialog_padding"
+                        android:paddingStart="@dimen/padding_screen"
                         android:paddingEnd="0dp"
                         android:text="@string/other" />
 
@@ -284,21 +284,21 @@
                     <!--Share app-->
                     <include
                         android:id="@+id/included_item_shareApp"
-                        layout="@layout/item_setting_lay"
+                        layout="@layout/item_option_select_lay_02"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
                     <!--Rate app-->
                     <include
                         android:id="@+id/included_item_rateApp"
-                        layout="@layout/item_setting_lay"
+                        layout="@layout/item_option_select_lay_02"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 
                     <!--Privacy & Police-->
                     <include
                         android:id="@+id/included_item_privacyPolicy"
-                        layout="@layout/item_setting_lay"
+                        layout="@layout/item_option_select_lay_02"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 

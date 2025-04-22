@@ -16,7 +16,7 @@
         app:layout_constraintBottom_toTopOf="@id/ll_chatRec"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

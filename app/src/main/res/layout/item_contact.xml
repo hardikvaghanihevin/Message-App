@@ -23,7 +23,7 @@
             android:src="@drawable/real_ic_user"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvPlaceholderChar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -50,7 +50,7 @@
         android:gravity="center_vertical"
         android:orientation="vertical">
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tvContactName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

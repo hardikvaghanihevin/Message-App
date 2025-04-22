@@ -6,6 +6,11 @@ import androidx.annotation.ChecksSdkIntAtLeast
 object Constants {
     const val BASE_TAG = "A_"
 
+    const val PREF_KEY_LANGUAGE = "pref_key_language"
+    const val PREF_KEY_COUNTRIES = "pref_key_countries"
+    const val PREF_KEY_LANGUAGE_AND_COUNTRIES = "pref_key_language_and_countries_string"
+    const val PREF_KEY_APP_THEME = "pref_key_app_theme"
+
     const val KEY_IS_FIRST_TIME_LAUNCH_SHOW_LANGUAGE_ACTIVITY = "Is first time launch application, show language activity."
     const val KEY_IS_APP_SET_AS_DEFAULT_SHOW_SET_AS_DEFAULT_ACTIVITY = "Is app set as default message application or not!"
     const val KEY_THREAD_ID = "thread_id"

@@ -4,6 +4,7 @@ import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +13,9 @@ import com.hardik.messageapp.R
 import com.hardik.messageapp.databinding.DialogBlockConversationBinding
 import com.hardik.messageapp.databinding.DialogDeleteConversationBinding
 import com.hardik.messageapp.databinding.DialogMoveConversationToBinBinding
+import com.hardik.messageapp.databinding.DialogSelectSwipeActionBinding
+import com.hardik.messageapp.databinding.ItemOptionSelectLay01Binding
+import com.hardik.messageapp.util.SwipeAction
 import com.hardik.messageapp.util.dpToPx
 
 
@@ -164,6 +168,105 @@ fun showDeletePermanentConversationDialog(
     }
 }
 
+
+fun showSwipeActionDialog(activity: AppCompatActivity, swipeAction: SwipeAction, onConfirm: (isPositive: Boolean) -> Unit) {
+    val dialogView = activity.layoutInflater.inflate(R.layout.dialog_select_swipe_action, null)
+    val dialogBinding = DialogSelectSwipeActionBinding.bind(dialogView)
+
+    val dialog = Dialog(activity)
+    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+    dialog.setContentView(dialogView)
+    dialog.setCancelable(true)
+
+    dialog.window?.apply {
+        setLayout((activity.resources.displayMetrics.widthPixels * 0.95).toInt(), ViewGroup.LayoutParams.WRAP_CONTENT)
+        setGravity(Gravity.BOTTOM)
+        setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT)) // Transparent background + rounded corners
+        attributes.apply {
+            // Add bottom margin of 16dp
+            y = 16.dpToPx(activity) //resources.getDimensionPixelSize(R.dimen.activity_margin)
+        }
+        setWindowAnimations(R.style.DialogAnimation)
+    }
+
+
+    dialog.show()
+
+    val selectedSwipeAction = SwipeAction.getAction(swipeAction)
+    val selectedItem = R.drawable.ic_round_selected_item
+
+    // Click listeners (fill as needed)
+    dialogBinding.apply {
+        dialogTitle.apply {
+            text = when(swipeAction){
+                SwipeAction.LEFT -> { resources.getString(R.string.select_left_swipe_action) }
+                SwipeAction.RIGHT -> { resources.getString(R.string.select_right_swipe_action) }
+            }
+        }
+        val actionNone = ItemOptionSelectLay01Binding.bind(includedItemActionNone.root)
+        val actionArchive = ItemOptionSelectLay01Binding.bind(includedItemActionArchive.root)
+        val actionDelete = ItemOptionSelectLay01Binding.bind(includedItemActionDelete.root)
+        val actionCall = ItemOptionSelectLay01Binding.bind(includedItemActionCall.root)
+        val actionBlock = ItemOptionSelectLay01Binding.bind(includedItemActionBlock.root)
+        val actionMarkAsRead = ItemOptionSelectLay01Binding.bind(includedItemActionMarkAsRead.root)
+        val actionMarkAsUnread = ItemOptionSelectLay01Binding.bind(includedItemActionMarkAsUnread.root)
+
+        val actionItems = mapOf(
+            SwipeAction.Action.NONE to actionNone.apply { tvItemOptionTitle.text = activity.getString(R.string.action_none) },
+            SwipeAction.Action.ARCHIVE to actionArchive.apply { tvItemOptionTitle.text = activity.getString(R.string.action_archive) },
+            SwipeAction.Action.DELETE to actionDelete.apply { tvItemOptionTitle.text = activity.getString(R.string.action_delete) },
+            SwipeAction.Action.CALL to actionCall.apply { tvItemOptionTitle.text = activity.getString(R.string.action_call) },
+            SwipeAction.Action.BLOCK to actionBlock.apply { tvItemOptionTitle.text = activity.getString(R.string.action_block) },
+            SwipeAction.Action.MARK_AS_READ to actionMarkAsRead.apply { tvItemOptionTitle.text = activity.getString(R.string.action_mark_as_read) },
+            SwipeAction.Action.MARK_AS_UNREAD to actionMarkAsUnread.apply { tvItemOptionTitle.text = activity.getString(R.string.action_mark_as_unread) }
+        )
+
+
+        resetSwipeActionSelection(actionItems.values.toList())
+        markSelected(actionItems[selectedSwipeAction]!!, selectedItem)
+
+        var tempSelectedAction = selectedSwipeAction
+
+        // Click listeners to temporarily select
+        actionItems.forEach { (action, binding) ->
+            binding.root.setOnClickListener {
+                tempSelectedAction = action
+                resetSwipeActionSelection(actionItems.values.toList())
+                markSelected(binding, selectedItem)
+            }
+        }
+
+        // Negative Button – just dismiss
+        dialogBinding.dialogButtonNegative.setOnClickListener {
+            dialog.dismiss()
+            onConfirm(false)
+        }
+
+        // Positive Button – save selected action
+        dialogBinding.dialogButtonPositive.setOnClickListener {
+            SwipeAction.setAction(swipeAction, tempSelectedAction)
+            dialog.dismiss()
+            onConfirm(true)
+        }
+    }
+}
+fun resetSwipeActionSelection(bindingList: List<ItemOptionSelectLay01Binding>) {
+    val unselectedIconRes = R.drawable.ic_round_unselected_item
+
+    bindingList.forEachIndexed { index, binding ->
+        binding.tvItemOptionTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, unselectedIconRes, 0)
+
+        // Example: If you want to hide a divider or bottom line for the last item
+        if (index == bindingList.lastIndex) {
+            binding.itemOptionDivider.root.visibility = View.GONE // or binding.viewDivider.gone() if using extensions
+        } else {
+            binding.itemOptionDivider.root.visibility = View.VISIBLE
+        }
+    }
+}
+private fun markSelected(binding: ItemOptionSelectLay01Binding, drawableRes: Int) {
+    binding.tvItemOptionTitle.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, drawableRes, 0)
+}
 /*
 private fun customizeDialog(check: Int) {
     val dialog = Dialog(this)
@@ -184,7 +287,7 @@ private fun customizeDialog(check: Int) {
 
 
 
-    val done = view.findViewById<TextView>(R.id.yesbtn)
+    val done = view.findViewById<androidx.appcompat.widget.AppCompatTextView>(R.id.yesbtn)
     val cancel = view.findViewById<TextView>(R.id.nobtn)
     val title = view.findViewById<TextView>(R.id.conformationtitle)
     title.text = if (check == 0) getString(R.string.Right_swipe) else getString(R.string.left_swipe)

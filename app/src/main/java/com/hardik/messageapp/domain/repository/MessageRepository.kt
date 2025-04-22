@@ -15,6 +15,7 @@ interface MessageRepository {
 
     //region Insert Messages
     suspend fun insertMessage(message: Message)
+    suspend fun insertMessages(messages: List<Message>)
     suspend fun insertOrUpdateMessages(messages: List<Message>)
     //endregion
 

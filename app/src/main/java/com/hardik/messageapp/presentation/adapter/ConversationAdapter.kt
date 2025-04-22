@@ -4,6 +4,9 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,8 +50,8 @@ class ConversationAdapter (
 
         fun bind(item: ConversationThread, position: Int) {
             binding.apply {
-                tvTitle.text = item.displayName
-                tvSnippet.text = item.snippet
+                tvTitle.text = item.displayName.takeIf { it.isNotEmpty() } ?: item.sender
+                tvSnippet.text = item.messageBody//item.snippet
 
                 val formatter = TimeFormatterForConversation()
                 val formattedTime = formatter.formatTimestamp(item.timestamp)
@@ -74,9 +77,9 @@ class ConversationAdapter (
                 }
                 //endregion
 
-                setProfileImageAndTextChar(item) //set Image if available
+                setProfileImageAndTextChar(item, position) //set Image if available
                 setupSwipeActions(item) // swipe action and there clicks
-                updateSelectionUI(item) // select/unselect
+                updateSelectionUI(item, position) // select/unselect
                 setupClickListeners(item) // click listeners
 
                 // Extract and show OTP if available
@@ -85,7 +88,7 @@ class ConversationAdapter (
             }
         }
 
-        private fun setProfileImageAndTextChar(item: ConversationThread, isSelected: Boolean = false) {
+        private fun setProfileImageAndTextChar0(item: ConversationThread, isSelected: Boolean = false) {
             val senderType = analyzeSender(item.sender)
 
             var imgUri: Pair<Char, Any> = if (senderType == 1) {
@@ -113,11 +116,15 @@ class ConversationAdapter (
             }
 
             // If selected, use a different drawable for profile
-            imgUri = if (isSelected) Pair('?', R.drawable.ic_selected_item) else imgUri.copy()
+            imgUri = if (isSelected) Pair('?', R.drawable.ic_selected_item) else imgUri
 
             // Hide placeholder text if using an image
             if (imgUri.first == '?') { binding.tvPlaceholderChar.visibility = View.GONE }
 
+            Log.e(
+                TAG,
+                "setProfileImageAndTextChar: kaljflkgajsfklgjas;lkgja;lkjf;lk------> ${imgUri.second::class.java} ${imgUri.first} - ${imgUri.second}"
+            )
             // Load profile image using Glide
             Glide.with(binding.ivProfile.context)
                 .load(imgUri.second)
@@ -125,6 +132,213 @@ class ConversationAdapter (
                 .error(R.drawable.real_ic_user)
                 .into(binding.ivProfile)
         }
+        private fun setProfileImageAndTextChar2(item: ConversationThread, isSelected: Boolean = false) {
+            val senderType = analyzeSender(item.sender)
+            val context = binding.root.context
+
+            val imgUri: Pair<Char, Any> = when {
+                isSelected -> Pair('?', R.drawable.ic_selected_item)
+                senderType == 1 -> {
+                    if (item.contactId != -1) {
+                        if (item.photoUri.isNotEmpty()) {
+                            Pair('?', item.photoUri)
+                        } else {
+                            val placeholder = IcPlaceholderHelper.getPlaceholderDrawable(item.displayName)
+                            binding.tvPlaceholderChar.apply {
+                                visibility = View.VISIBLE
+                                text = placeholder.first.uppercaseChar().toString()
+                            }
+                            placeholder
+                        }
+                    } else {
+                        Pair('?', R.drawable.real_ic_user)
+                    }
+                }
+                else -> Pair('?', R.drawable.real_ic_massage)
+            }
+
+            // Hide placeholder text if using image
+            if (imgUri.first == '?') {
+                binding.tvPlaceholderChar.visibility = View.GONE
+            }
+
+            //Log.d(TAG, "setProfileImageAndTextChar: Type=${imgUri.second::class.java}, Char=${imgUri.first}, Data=${imgUri.second}")
+
+            // Handle different types of images
+            when (val image = imgUri.second) {
+                is Drawable -> binding.ivProfile.setImageDrawable(image)
+                is Int -> binding.ivProfile.setImageResource(image)
+                is String -> {
+                    if (image.startsWith("content://")) {
+                        // It's a content URI
+                        Glide.with(context)
+                            .load(Uri.parse(image))
+                            .placeholder(R.drawable.real_ic_user)
+                            .error(R.drawable.real_ic_user)
+                            .into(binding.ivProfile)
+                    } else {
+                        // Assume it's a drawable name like "real_ic_user"
+                        val resId = context.resources.getIdentifier(image, "drawable", context.packageName)
+                        if (resId != 0) {
+                            binding.ivProfile.setImageResource(resId)
+                        } else {
+                            Log.w(TAG, "Drawable name not found: $image")
+                            binding.ivProfile.setImageResource(R.drawable.real_ic_user)
+                        }
+                    }
+                }
+                is Uri -> {
+                    Glide.with(context)
+                        .load(image)
+                        .placeholder(R.drawable.real_ic_user)
+                        .error(R.drawable.real_ic_user)
+                        .into(binding.ivProfile)
+                }
+                else -> {
+                    Log.w(TAG, "Unsupported image type: ${image::class}")
+                    binding.ivProfile.setImageResource(R.drawable.real_ic_user)
+                }
+            }
+        }
+        private fun setProfileImageAndTextChar1(item: ConversationThread, isSelected: Boolean = false) {
+            val context = binding.root.context
+            val imgUri: Pair<Char, Any> = when {
+                isSelected -> Pair('?', R.drawable.ic_selected_item)
+                item.contactId != -1 && item.photoUri.isNotEmpty() -> Pair('?', item.photoUri)
+                item.contactId == -1 -> Pair('?', R.drawable.real_ic_user)
+                else -> {
+                    val placeholder = IcPlaceholderHelper.getPlaceholderDrawable(item.displayName)
+                    binding.tvPlaceholderChar.apply {
+                        visibility = View.VISIBLE
+                        text = placeholder.first.uppercaseChar().toString()
+                    }
+                    Pair('?', placeholder)
+                }
+            }
+
+            // Hide placeholder if image is set
+            if (imgUri.first == '?') binding.tvPlaceholderChar.visibility = View.GONE
+
+            // Handle image loading
+            when (val image = imgUri.second) {
+                is Drawable -> binding.ivProfile.setImageDrawable(image)
+                is Int -> binding.ivProfile.setImageResource(image)
+                is String -> {
+                    if (image.startsWith("content://")) {
+                        Glide.with(context)
+                            .load(Uri.parse(image))
+                            .placeholder(R.drawable.real_ic_user)
+                            .error(R.drawable.real_ic_user)
+                            .into(binding.ivProfile)
+                    } else {
+                        val resId = context.resources.getIdentifier(image, "drawable", context.packageName)
+                        binding.ivProfile.setImageResource(resId.takeIf { it != 0 } ?: R.drawable.real_ic_user)
+                    }
+                }
+                is Uri -> Glide.with(context)
+                    .load(image)
+                    .placeholder(R.drawable.real_ic_user)
+                    .error(R.drawable.real_ic_user)
+                    .into(binding.ivProfile)
+                else -> binding.ivProfile.setImageResource(R.drawable.real_ic_user)
+            }
+        }
+
+        private fun setProfileImageAndTextChar3(item: ConversationThread, isSelected: Boolean = false) {
+            val context = binding.root.context
+            val imgUri: Pair<Char, Any> = when {
+                isSelected -> Pair('?', R.drawable.ic_selected_item)
+                item.contactId != -1 -> {
+                    if (item.photoUri.isNotEmpty()) {
+                        Pair('?', item.photoUri)
+                    } else {
+                        // Set alphabetic placeholder when numbers are saved but the image is not available
+                        val placeholderChar = item.displayName.firstOrNull()?.uppercaseChar() ?: '?'
+                        binding.tvPlaceholderChar.apply {
+                            visibility = View.VISIBLE
+                            text = placeholderChar.toString()
+                        }
+                        Pair(placeholderChar, R.drawable.real_ic_user) // Use the placeholder character
+                    }
+                }
+                else -> {
+                    // For messages without contacts, use a default image or some other logic
+                    Pair('?', R.drawable.real_ic_user)
+                }
+            }
+
+            // Hide placeholder if image is set
+            if (imgUri.first == '?') binding.tvPlaceholderChar.visibility = View.GONE
+
+            // Handle image loading
+            when (val image = imgUri.second) {
+                is Drawable -> binding.ivProfile.setImageDrawable(image)
+                is Int -> binding.ivProfile.setImageResource(image)
+                is String -> {
+                    if (image.startsWith("content://")) {
+                        Glide.with(context)
+                            .load(Uri.parse(image))
+                            .placeholder(R.drawable.real_ic_user)
+                            .error(R.drawable.real_ic_user)
+                            .into(binding.ivProfile)
+                    } else {
+                        val resId = context.resources.getIdentifier(image, "drawable", context.packageName)
+                        binding.ivProfile.setImageResource(resId.takeIf { it != 0 } ?: R.drawable.real_ic_user)
+                    }
+                }
+                is Uri -> Glide.with(context)
+                    .load(image)
+                    .placeholder(R.drawable.real_ic_user)
+                    .error(R.drawable.real_ic_user)
+                    .into(binding.ivProfile)
+                else -> binding.ivProfile.setImageResource(R.drawable.real_ic_user)
+            }
+        }
+
+        private fun setProfileImageAndTextChar(item: ConversationThread, position: Int, isSelected: Boolean = false) {
+            val senderType = analyzeSender(item.sender)
+            if (item.contactId != -1) { //its saved
+                if (item.photoUri != "") { //it hase uri so use that
+                    Glide.with(binding.ivProfile.context)
+                        .load(Uri.parse(item.photoUri))
+                        .placeholder(R.drawable.real_ic_user)
+                        .error(R.drawable.real_ic_user)
+                        .into(binding.ivProfile)
+                }
+                else { // Set alphabetic placeholder when numbers are saved but the image is not available
+                    val placeholder = IcPlaceholderHelper.placeholderList[(position % 12)]
+
+                    binding.tvPlaceholderChar.apply {
+                        visibility = View.VISIBLE
+                        val value = item.displayName[0]//.first().toString()//.uppercaseChar().toString()
+                        Log.e(TAG, "setProfileImageAndTextChar: -----------> $value - ${item.displayName}", )
+                        text = "$value"
+
+                    }
+                    Glide.with(binding.ivProfile.context)
+                        .load(placeholder)
+                        .placeholder(R.drawable.real_ic_user)
+                        .error(R.drawable.real_ic_user)
+                        .into(binding.ivProfile)
+                }
+            }else { //its not saved
+                if (senderType == 1){ //it's number [919946***,,,]
+                    Glide.with(binding.ivProfile.context)
+                        .load(R.drawable.real_ic_user)
+                        .placeholder(R.drawable.real_ic_user)
+                        .error(R.drawable.real_ic_user)
+                        .into(binding.ivProfile)
+                }else { //it's string [AG-AIRTAL]
+                    Glide.with(binding.ivProfile.context)
+                        .load(R.drawable.real_ic_massage)
+                        .placeholder(R.drawable.real_ic_massage)
+                        .error(R.drawable.real_ic_massage)
+                        .into(binding.ivProfile)
+                }
+            }
+
+        }
+
 
         private fun setupSwipeActions(item: ConversationThread) {
             binding.conversationSwipeLeft.apply {
@@ -137,13 +351,13 @@ class ConversationAdapter (
             }
         }
 
-        private fun updateSelectionUI(item: ConversationThread) {
+        private fun updateSelectionUI(item: ConversationThread, position: Int) {
             val context = binding.rootLayout.context
             val isSelected = selectedItems.contains(item)
 
             binding.rootLayout.background = ContextCompat.getDrawable(context, if (isSelected) R.drawable.bg_conversation_select else R.drawable.bg_conversation_unselect)
 
-            setProfileImageAndTextChar(item, isSelected = isSelected) // Call function separately to set profile
+            setProfileImageAndTextChar(item, position = position, isSelected = isSelected) // Call function separately to set profile
 
         }
 

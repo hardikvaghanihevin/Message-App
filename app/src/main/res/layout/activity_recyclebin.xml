@@ -48,14 +48,14 @@
                         android:orientation="vertical"
                         android:padding="16dp">
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/toolbar_expanded_title"
                             style="@style/ToolbarExpandedTitle"
                             android:text="@string/recycle_bin" />
 
                     </LinearLayout>
 
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/tv_selected_count_messages"
                         style="@style/ToolbarExpandedSelectedCountText"
                         android:visibility="gone"
@@ -87,7 +87,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent">
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/toolbar_tvSelectAll"
                             style="@style/ToolbarSelectAllText"
                             android:text="@string/all"
@@ -108,7 +108,7 @@
                         android:layout_height="match_parent"
                         android:layout_toEndOf="@id/custom_toolbar_start">
 
-                        <TextView
+                        <androidx.appcompat.widget.AppCompatTextView
                             android:id="@+id/toolbar_title"
                             style="@style/ToolbarTitleText"
                             android:text="@string/recycle_bin"
@@ -142,7 +142,7 @@
                         </RelativeLayout>
                     </RelativeLayout>
 
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:id="@+id/tv_selected_count_messages1"
                         style="@style/ToolbarSelectedCountTextMedium"
                         android:visibility="gone"

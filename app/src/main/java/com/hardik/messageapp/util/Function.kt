@@ -1,12 +1,25 @@
 package com.hardik.messageapp.util
 
 import android.content.Context
+import android.util.Log
+import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
+import androidx.annotation.StyleRes
+import androidx.core.content.ContextCompat
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.android.material.shape.ShapeAppearanceModel
+import com.hardik.messageapp.R
 import com.hardik.messageapp.domain.model.Contact
 import com.hardik.messageapp.domain.model.ConversationThread
 import com.hardik.messageapp.domain.repository.FindThreadIdByNormalizeNumber
 import com.hardik.messageapp.presentation.custom_view.PopupMenu
+import com.hardik.messageapp.util.Constants.BASE_TAG
 import io.michaelrocks.libphonenumber.android.PhoneNumberUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.withContext
+import java.util.concurrent.Semaphore
 
 /*
 override fun getPhoneNumberByRecipientId(recipientId: String): Flow<String?> = flow {
@@ -104,6 +117,112 @@ fun analyzeSender(sender: String?): Int = when {
     sender.any { it.isLetter() } -> 2
     sender.any { it.isDigit() } -> 1
     else -> -1
+}
+val countryPrefixes = listOf(
+    "+1",    // USA, Canada
+    "+7",    // Russia, Kazakhstan
+    "+20",   // Egypt
+    "+27",   // South Africa
+    "+30",   // Greece
+    "+31",   // Netherlands
+    "+32",   // Belgium
+    "+33",   // France
+    "+34",   // Spain
+    "+36",   // Hungary
+    "+39",   // Italy
+    "+40",   // Romania
+    "+41",   // Switzerland
+    "+43",   // Austria
+    "+44",   // UK
+    "+45",   // Denmark
+    "+46",   // Sweden
+    "+47",   // Norway
+    "+48",   // Poland
+    "+49",   // Germany
+    "+51",   // Peru
+    "+52",   // Mexico
+    "+53",   // Cuba
+    "+54",   // Argentina
+    "+55",   // Brazil
+    "+56",   // Chile
+    "+57",   // Colombia
+    "+58",   // Venezuela
+    "+60",   // Malaysia
+    "+61",   // Australia
+    "+62",   // Indonesia
+    "+63",   // Philippines
+    "+64",   // New Zealand
+    "+65",   // Singapore
+    "+66",   // Thailand
+    "+81",   // Japan
+    "+82",   // South Korea
+    "+84",   // Vietnam
+    "+86",   // China
+    "+90",   // Turkey
+    "+91",   // India
+    "+92",   // Pakistan
+    "+93",   // Afghanistan
+    "+94",   // Sri Lanka
+    "+95",   // Myanmar
+    "+98",   // Iran
+    "+212",  // Morocco
+    "+213",  // Algeria
+    "+216",  // Tunisia
+    "+218",  // Libya
+    "+220",  // Gambia
+    "+221",  // Senegal
+    "+234",  // Nigeria
+    "+237",  // Cameroon
+    "+240",  // Equatorial Guinea
+    "+241",  // Gabon
+    "+251",  // Ethiopia
+    "+254",  // Kenya
+    "+255",  // Tanzania
+    "+256",  // Uganda
+    "+260",  // Zambia
+    "+263",  // Zimbabwe
+    "+264",  // Namibia
+    "+265",  // Malawi
+    "+267",  // Botswana
+    "+268",  // Eswatini
+    "+971",  // UAE
+    "+972",  // Israel
+    "+973",  // Bahrain
+    "+974",  // Qatar
+    "+975",  // Bhutan
+    "+976",  // Mongolia
+    "+977",  // Nepal
+    "+992",  // Tajikistan
+    "+993",  // Turkmenistan
+    "+994",  // Azerbaijan
+    "+995",  // Georgia
+    "+996",  // Kyrgyzstan
+    "+998"   // Uzbekistan
+)
+
+fun String.removeCountryPrefix(): String {
+    var cleanedNumber = replace("\\s".toRegex(), "") // Remove spaces
+
+    for (prefix in countryPrefixes) {
+        if (cleanedNumber.startsWith(prefix)) {
+            cleanedNumber = cleanedNumber.removePrefix(prefix)
+            break // Stop after finding the matching prefix
+        }
+    }
+    return cleanedNumber
+}
+fun normalizePhoneNumber(phoneNumber: String?): String {
+    if (phoneNumber.isNullOrEmpty()) {
+        return ""
+    }
+    var normalized = phoneNumber.replace("[^0-9]".toRegex(), "")
+    if (normalized.startsWith("0") && normalized.length > 10) {
+        normalized = normalized.substring(1)
+    }
+    if (normalized.startsWith("91") && normalized.length > 10) {
+        normalized = normalized.substring(2)
+    }
+    return normalized
 }
 
 fun String.removeCountryCode(phoneInstance: PhoneNumberUtil): String {
@@ -219,10 +338,7 @@ fun extractNumber(contact: Contact?, query: String, phoneNumberUtil: PhoneNumber
     return (getBestMatchedNumber(contact?.phoneNumbers, query)?.removeCountryCode(phoneNumberUtil)) ?: contact?.normalizeNumber.takeUnless { it.isNullOrEmpty() } ?: query
 }
 
-fun resolveThreadId(
-    context: Context,
-    normalizeNumber: String?
-): Long {
+fun resolveThreadId(context: Context, normalizeNumber: String?): Long {
     return if (!normalizeNumber.isNullOrEmpty()) {
         val findThreadId = object : FindThreadIdByNormalizeNumber {}.findThreadIdByNormalizeNumber(context, normalizeNumber)
         findThreadId
@@ -231,4 +347,101 @@ fun resolveThreadId(
     }
 }
 
+suspend inline fun <T> retry(times: Int, block: () -> T): T {
+    var attempt = 0
+    var lastError: Throwable? = null
 
+    while (attempt < times) {
+        try {
+            return block()
+        } catch (e: Throwable) {
+            lastError = e
+            attempt++
+            Log.w(BASE_TAG, "Retry attempt $attempt failed.")
+            delay(100L) // small delay before retry
+        }
+    }
+    throw lastError ?: RuntimeException("Unknown error during retry")
+}
+
+
+suspend fun <T> Semaphore.withPermit(block: suspend () -> T): T {
+    withContext(Dispatchers.IO) {
+        this@withPermit.acquire()
+    } // Acquire a permit
+    return try {
+        block() // Execute the block of code
+    } finally {
+        this.release() // Release the permit
+    }
+}
+
+/**
+ * Applies a shape appearance style and optional stroke to this ShapeableImageView
+ * from provided resource IDs.
+ *
+ * @param shapeAppearanceOverlayResId The resource ID of a ShapeAppearanceOverlay style
+ * defining the desired shape. Can be null to only apply stroke.
+ * @param strokeColorResId The resource ID of a color or color state list for the stroke color.
+ * Can be null if no stroke color is to be applied or changed.
+ * @param strokeWidthDimenResId The resource ID of a dimension for the stroke width.
+ * Can be null if no stroke width is to be applied or changed.
+ */
+fun ShapeableImageView.applyStyledShape(
+    @StyleRes shapeAppearanceOverlayResId: Int? = null,
+    @ColorRes strokeColorResId: Int? = R.color.white,
+    @DimenRes strokeWidthDimenResId: Int? = R.dimen.app_px_0_to_dp,
+    @DimenRes paddingStartResId: Int? = null,
+    @DimenRes paddingEndResId: Int? = null
+) {
+    // Apply shape appearance if a style resource ID is provided
+    shapeAppearanceOverlayResId?.let { resId ->
+        // Build the ShapeAppearanceModel from the provided ShapeAppearanceOverlay style resource.
+        // This builder reads shape-related attributes (cornerFamily, cornerSize, etc.)
+        // from the specified style resource ID.
+        val shapeAppearanceModel = ShapeAppearanceModel.builder(
+            context,        // Use the view's context
+            null,           // AttributeSet is null when applying programmatically without inflation
+            0,              // defStyleAttr is typically 0 in this case
+            resId           // The resource ID of the ShapeAppearanceOverlay style
+        ).build()
+
+        // Apply the built ShapeAppearanceModel to this ShapeableImageView
+        this.shapeAppearanceModel = shapeAppearanceModel
+    }
+
+    // Apply stroke color if a resource ID is provided
+    strokeColorResId?.let { resId ->
+        try {
+            this.strokeColor = ContextCompat.getColorStateList(context, resId)
+        } catch (e: Exception) {
+            // Handle potential errors if the resource ID is not a valid color state list
+            e.printStackTrace()
+        }
+    }
+
+    // Apply stroke width if a dimension resource ID is provided
+    strokeWidthDimenResId?.let { resId ->
+        try {
+            this.strokeWidth = context.resources.getDimension(resId)
+        } catch (e: Exception) {
+            // Handle potential errors if the resource ID is not a valid dimension
+            e.printStackTrace()
+        }
+    }
+
+    // Apply individual paddings (preserving existing ones)
+    val start = paddingStartResId?.let { context.resources.getDimensionPixelSize(it) } ?: this.paddingStart
+    val end = paddingEndResId?.let { context.resources.getDimensionPixelSize(it) } ?: this.paddingEnd
+
+    // Apply padding while keeping top and bottom the same
+    setPaddingRelative(start, paddingTop, end, paddingBottom)
+
+    // NOTE: This extension function specifically handles the shape and stroke
+    // properties controlled by ShapeableImageView and ShapeAppearanceModel.
+    // It DOES NOT apply other standard ImageView or View properties
+    // like android:background, android:src, android:scaleType, padding, etc.,
+    // even if they are defined in the style resource you pass.
+    // You would need to set those properties separately if your style includes them
+    // and you want to apply them programmatically.
+}

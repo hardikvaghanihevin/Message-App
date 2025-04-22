@@ -47,8 +47,8 @@
     <color name="conversation_unselect">@color/app_color_01</color>
 
     <!--Conversation list swipe action color-->
-    <color name="swipe_action_left">#5C753E</color>
-    <color name="swipe_action_right">#3B756F</color>
+    <color name="swipe_action_left">@color/app_color_09</color>
+    <color name="swipe_action_right">@color/app_color_09</color>
 
     <!--Chat activity color-->
     <color name="bg_message_input">#E6F0F4</color>

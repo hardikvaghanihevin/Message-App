@@ -139,8 +139,8 @@ class PrivateFragment : BaseFragment(R.layout.fragment_private) {
         // Attach Swipe Gesture
         val swipeHelper = ConversationSwipeGestureHelper(requireContext(),
             conversationAdapter,
-            editAction = { position -> swipeLeft(conversationAdapter.currentList[position]) },
-            deleteAction = { position -> swipeRight(conversationAdapter.currentList[position]) }
+            leftAction = { position -> swipeLeft(conversationAdapter.currentList[position]) },
+            rightAction = { position -> swipeRight(conversationAdapter.currentList[position]) }
         )
 
         val itemTouchHelper = ItemTouchHelper(swipeHelper)
